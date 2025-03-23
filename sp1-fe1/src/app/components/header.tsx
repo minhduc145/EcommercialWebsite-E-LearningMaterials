@@ -33,14 +33,19 @@ const callsToAction = [
     { name: 'Watch demo', href: '#', icon: PlayCircleIcon },
     { name: 'Contact sales', href: '#', icon: PhoneIcon },
 ]
-export default function Header() {
+
+interface IProps {
+    color: string
+}
+export default function Header(props: any) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    var bg_color = props.color === "blue" ? "bg-blue-900" : "bg-white"
+    var txt_color = props.color === "blue" ? "text-white" : "text-gray-900"
     return (
-        <header className="absolute inset-x-0 top-0 z-50">
-            <nav aria-label="Global" className="flex items-center justify-between p-6 lg:px-8">
+        <header className={`absolute inset-x-0 top-0 z-50 sticky ${bg_color}`}>
+            <nav aria-label="Global" className="flex items-center justify-between p-3 lg:px-5">
                 <div className="flex lg:flex-1">
-                    <a href="#" className="-m-1.5 p-1.5">
-                        <span className="sr-only">Your Company</span>
+                    <a href="#" className="-m-1 p-1">
                         <Image src={Logo} alt="Logo" width={50} height={50} />
                     </a>
                 </div>
@@ -48,20 +53,19 @@ export default function Header() {
                     <button
                         type="button"
                         onClick={() => setMobileMenuOpen(true)}
-                        className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+                        className={`-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 ${txt_color}`}
                     >
-                        <span className="sr-only">Open main menu</span>
                         <Bars3Icon aria-hidden="true" className="size-6" />
                     </button>
                 </div>
                 <div className="hidden lg:flex lg:gap-x-12">
                     {navigation.map((item) => (
-                        <a key={item.name} href={item.href} className="text-sm/6 font-semibold text-gray-900">
+                        <a key={item.name} href={item.href} className={`text-sm/6 font-semibold ${txt_color}`}>
                             {item.name}
                         </a>
                     ))}
                     <Popover className="relative">
-                        <PopoverButton className="inline-flex items-center gap-x-1 text-sm/6 font-semibold text-gray-900">
+                        <PopoverButton className={`inline-flex text-sm/6 font-semibold ${txt_color}`}>
                             <span>Solutions</span>
                             <ChevronDownIcon aria-hidden="true" className="size-5" />
                         </PopoverButton>
@@ -106,7 +110,7 @@ export default function Header() {
                 </div>
 
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-                    <a href="/User/Login" className="text-sm/6 font-semibold text-gray-900">
+                    <a href="/User/Login" className={`text-sm/6 font-semibold ${txt_color}`}>
                         Đăng nhập <span aria-hidden="true">&rarr;</span>
                     </a>
                 </div>
@@ -117,9 +121,9 @@ export default function Header() {
                     <div className="flex items-center justify-between">
                         <a href="#" className="-m-1.5 p-1.5">
                             <span className="sr-only">Your Company</span>
-                            <img
+                            <Image
                                 alt=""
-                                src="https://tailwindui.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
+                                src={Logo}
                                 className="h-8 w-auto"
                             />
                         </a>

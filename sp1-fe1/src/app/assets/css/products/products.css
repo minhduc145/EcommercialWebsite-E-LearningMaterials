@@ -1,0 +1,13 @@
+.banner {
+    background-image: url("@/app/assets/hecor-home.png");
+    width: 100%;
+    background-repeat: no-repeat;
+    left: 0;
+    background-position: left bottom;
+}
+
+.s2-col {
+    /* background-image: url("@/app/assets/dummy-slide-min.png");
+    width: 100%;
+    background-repeat: no-repeat; */
+}
