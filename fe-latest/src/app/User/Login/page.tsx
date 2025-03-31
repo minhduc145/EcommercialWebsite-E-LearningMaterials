@@ -7,7 +7,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useRouter } from "next/navigation";
 
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "http://localhost:8080";
@@ -19,7 +18,6 @@ const schema = yup.object({
 
 
 export default function UserLogin() {
-    const router = useRouter();
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema),
     });
@@ -31,39 +29,44 @@ export default function UserLogin() {
         axios.post(
             "/users/login",
             userLogin
-        )
-            .then(function (response) {
-                window.location.href = "/"
-            })
-            .catch(function (error) {
-                var msg = error.message
-                if (error.status === 404) msg = "Tài khoản hoặc mật khẩu không đúng"
-                toast.error(<div>
-                    Đăng nhập Thất bại! <br /> {msg}
-                </div>, {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: false,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                });
+        ).then(function (response) {
+            if (response.data.code === 0)
+                throw new Error(response.data)
+            window.location.href = "/"
+        }).catch(function (error) {
+            var msg = error.message
+            if (error.status === 404) msg = "Tài khoản hoặc mật khẩu không đúng"
+            toast.error(<div>
+                Đăng nhập Thất bại! <br /> {msg}
+            </div>, {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
             });
+        });
     }
 
     return (
         <>
+        <div className="absolute top-5 left-5">
+                <a href={'/'}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+                        <path strokeLinecap ="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                    </svg>
+                </a>
+            </div>
             <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                     <Image src={pLogo} alt="" className="mx-auto h-20" />
-
                     <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
                         Sign in to your account
                     </h2>
                 </div>
-
                 <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                         <div>
@@ -81,7 +84,6 @@ export default function UserLogin() {
                                 <p className="text-red-500">{errors.id?.message}</p>
                             </div>
                         </div>
-
                         <div>
                             <div className="flex items-center justify-between">
                                 <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
@@ -104,18 +106,16 @@ export default function UserLogin() {
                                 <p className="text-red-500">{errors.password?.message}</p>
                             </div>
                         </div>
-
                         <div>
                             <button
                                 id="login-submit-btn"
                                 type="submit"
-                                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                className="button in-hover:cursor-pointer flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                             >
                                 Sign in
                             </button>
                         </div>
                     </form>
-
                     <p className="mt-10 text-center text-sm/6 text-gray-500">
                         Not a member?{' '}
                         <a href="Signup" className="font-semibold text-indigo-600 hover:text-indigo-500">
@@ -126,19 +126,19 @@ export default function UserLogin() {
                         or
                     </p>
                     <div>
-                        <button
+                        <a href="http://localhost:8080/users/login/oauth"
                             className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 hover:cursor-pointer"
                         >
                             Sign in with Google Account &nbsp; <span><Image className={"pt-1"} src={gLogo} width={16} height={16} alt="Logo"></Image></span>
-                        </button>
+                        </a>
                     </div>
                 </div>
-
             </div>
             <Notify />
         </>
     )
 }
+
 function Notify() {
     return (
         <div>

@@ -13,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +56,13 @@ public class UserController {
 		responseBody.put("code", "0");
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
 	}
+	@GetMapping("/login/oauth")
+	public RedirectView oauth2Login(@AuthenticationPrincipal OAuth2User user) {
+		if (user != null) {
+			return new RedirectView("http://localhost:3000");
+		}
+		return new RedirectView("http://localhost:3000/User/Login");
+	}
 
 	@PostMapping("/signup")
 	public ResponseEntity signup(@Valid @RequestBody UserRegisterFormDTO formBody) {
@@ -78,4 +87,5 @@ public class UserController {
 		UserModel user = userRepo.findUserModelById(username);
 		return ResponseEntity.ok(user);
 	}
+
 }

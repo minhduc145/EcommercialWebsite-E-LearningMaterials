@@ -1,6 +1,8 @@
 'use client'
-import Header from '../components/header'
-import { AppFooter } from '../components/footer'
+import dynamic from 'next/dynamic';
+
+const AppFooter = dynamic(() => import('@/app/components/footer'), { ssr: false });
+const Header = dynamic(() => import('@/app/components/header'), { ssr: false });
 import Image from "next/image";
 import BannerImg from '../assets/dummy-slide-min.png'
 import '@/app/assets/css/products/products.css'

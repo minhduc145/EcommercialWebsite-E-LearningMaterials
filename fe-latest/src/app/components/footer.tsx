@@ -3,7 +3,7 @@ import Logo from "@/app/logo.svg"
 
 import { Footer, FooterBrand, FooterCopyright, FooterDivider, FooterLink, FooterLinkGroup } from "flowbite-react";
 
-export function AppFooter() {
+export default function AppFooter() {
   return (
     <Footer container>
       <div className="w-full text-center">

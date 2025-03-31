@@ -1,19 +1,18 @@
 'use client'
 
-import { AppFooter } from '@/app/components/footer'
-import Header from '@/app/components/header'
+import dynamic from 'next/dynamic';
+
+const AppFooter = dynamic(() => import('@/app/components/footer'), { ssr: false });
+const Header = dynamic(() => import('@/app/components/header'), { ssr: false });
 import axios from "axios";
 import { useEffect } from 'react';
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "http://localhost:8080";
 
-
 export default function Home() {
-
   return (
     <div className="bg-white">
       <Header />
-
       <div className="relative isolate px-6 pt-14 lg:px-8">
         <div
           aria-hidden="true"
@@ -73,6 +72,5 @@ export default function Home() {
       </div>
       <AppFooter />
     </div>
-
   )
 }
