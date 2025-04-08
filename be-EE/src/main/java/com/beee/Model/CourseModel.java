@@ -20,7 +20,7 @@ import java.util.UUID;
 @Table(name = "courses")
 public class CourseModel {
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Integer id;
 
@@ -29,6 +29,9 @@ public class CourseModel {
 
 	@Column(name = "description", columnDefinition = "TEXT")
 	private String description;
+
+	@Column(name = "is_available")
+	private Boolean isAvailable;
 
 	@Column(name = "price")
 	private BigDecimal price;

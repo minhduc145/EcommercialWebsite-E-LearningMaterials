@@ -1,7 +1,5 @@
-import Image from "next/image";
-import Logo from "@/app/logo.svg"
-
-import { Footer, FooterBrand, FooterCopyright, FooterDivider, FooterLink, FooterLinkGroup } from "flowbite-react";
+"use client"
+import { Footer, FooterCopyright, FooterDivider, FooterLink, FooterLinkGroup } from "flowbite-react";
 
 export default function AppFooter() {
   return (

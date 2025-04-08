@@ -1,33 +1,31 @@
 'use client'
-
-import { useState } from 'react'
-
+import axios from 'axios'
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = "http://localhost:8080";
+import { useEffect, useState } from 'react'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
-import { PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid'
-
-import {
-    ArrowPathIcon,
-    ChartPieIcon,
-    CursorArrowRaysIcon,
-    FingerPrintIcon,
-    SquaresPlusIcon,
-} from '@heroicons/react/24/outline'
+import { Popover, PopoverButton, PopoverPanel} from '@headlessui/react'
+import { PhoneIcon, PlayCircleIcon,AcademicCapIcon } from '@heroicons/react/20/solid'
+import { UserModel } from "../app/models/UserModel";
 import Image from "next/image";
 import Logo from "@/app/logo.svg"
+
+import {
+    Avatar,
+    Dropdown,
+    DropdownDivider,
+    DropdownHeader,
+    DropdownItem,
+} from "flowbite-react";
+
 const navigation = [
     { name: 'Trang chủ', href: '/' },
-    { name: 'Sản phẩm', href: '/Products' },
-    { name: 'Tùy chọn', href: '#' }
+    { name: 'Khám phá', href: '/Courses' },
 ]
 
 const solutions = [
-    { name: 'Analytics', description: 'Get a better understanding of your traffic', href: '#', icon: ChartPieIcon },
-    { name: 'Engagement', description: 'Speak directly to your customers', href: '#', icon: CursorArrowRaysIcon },
-    { name: 'Security', description: "Your customers' data will be safe and secure", href: '#', icon: FingerPrintIcon },
-    { name: 'Integrations', description: 'Connect with third-party tools', href: '#', icon: SquaresPlusIcon },
-    { name: 'Automations', description: 'Build strategic funnels that will convert', href: '#', icon: ArrowPathIcon },
+    { name: 'Đã đăng ký', description: 'Đến danh sách các khóa học đã đăng ký', href: '#', icon: AcademicCapIcon },
 ]
 
 const callsToAction = [
@@ -35,13 +33,25 @@ const callsToAction = [
     { name: 'Contact sales', href: '#', icon: PhoneIcon },
 ]
 
-interface IProps {
+interface IHeaderProps {
     color: string
 }
-export default function Header(props: any) {
+export default function Header(props: IHeaderProps) {
+    const [userLoginCookie, setUserLoginCookie] = useState<UserModel | null>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     var bg_color = props.color === "blue" ? "bg-blue-900" : ""
     var txt_color = props.color === "blue" ? "text-white" : "text-gray-900"
+
+    useEffect(function () {
+        console.log("Component re-rendered")
+        axios.get('/api/accounts/get_user_login_info_by_cookie')
+            .then(function (response) {
+                setUserLoginCookie(response.data)
+            }).catch(function () {
+                setUserLoginCookie(null)
+            })
+    }, [])
+
     return (
         <header className={`absolute inset-x-0 top-0 z-50 sticky ${bg_color}`}>
             <nav aria-label="Global" className="flex items-center justify-between p-3 lg:px-5">
@@ -61,13 +71,13 @@ export default function Header(props: any) {
                 </div>
                 <div className="hidden lg:flex lg:gap-x-12">
                     {navigation.map((item) => (
-                        <a key={item.name} href={item.href} className={`text-sm/6 font-semibold ${txt_color}`}>
+                        <Link key={item.name} href={item.href} className={`text-sm/6 font-semibold ${txt_color}`}>
                             {item.name}
-                        </a>
+                        </Link>
                     ))}
                     <Popover className="relative">
                         <PopoverButton className={`inline-flex text-sm/6 font-semibold ${txt_color}`}>
-                            <span>Solutions</span>
+                            <span>Tùy chọn</span>
                             <ChevronDownIcon aria-hidden="true" className="size-5" />
                         </PopoverButton>
 
@@ -111,9 +121,15 @@ export default function Header(props: any) {
                 </div>
 
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-                    <a href="/User/Login" className={`text-sm/6 font-semibold ${txt_color}`}>
-                        Đăng nhập <span aria-hidden="true">&rarr;</span>
-                    </a>
+                    {!userLoginCookie ? (
+                        <a href="/User/Login" className={`text-sm/6 font-semibold ${txt_color}`}>
+                            <span>Đăng nhập</span>&nbsp;<span aria-hidden="true">&rarr;</span>
+                        </a>)
+                        :
+                        (
+                            <UserDropDown userModel={userLoginCookie}/>
+                        )
+                    }
                 </div>
             </nav>
             <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
@@ -150,17 +166,20 @@ export default function Header(props: any) {
                                     </a>
                                 ))}
                                 <div className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">
-                                    {/* Solutions */}
+                                   Solutions
                                 </div>
-
                             </div>
                             <div className="py-6">
-                                <a
-                                    href="/User/Login"
-                                    className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                >
-                                    Đăng nhập
-                                </a>
+                                {!userLoginCookie ? (
+                                    <a
+                                        href="/User/Login"
+                                        className="-mx-3 block rounded-lg px-3 py-2.5  text-gray-900 hover:bg-gray-50"
+                                    >
+                                        Đăng nhập
+                                    </a>
+                                ) : (
+                                    <UserDropDown userModel={userLoginCookie} />
+                                )}
                             </div>
                         </div>
                     </div>
@@ -170,60 +189,34 @@ export default function Header(props: any) {
     )
 }
 
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
-
-export  function DropDown() {
-  return (
-    <Menu as="div" className="relative inline-block text-left">
-      <div>
-        <MenuButton className="inline-flex w-full gap-x-1.5 rounded-md py-2 text-sm font-semibold text-gray-900 ">
-          Options
-          <ChevronDownIcon aria-hidden="true" className="-mr-1 size-5 text-gray-400" />
-        </MenuButton>
-      </div>
-
-      <MenuItems
-        transition
-        className="absolute z-10 mt-2 w-56 origin-top-right rounded-md bg-white ring-1 shadow-lg ring-black/5 transition focus:outline-hidden data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
-      >
-        <div className="py-1">
-          <MenuItem>
-            <a
-              href="#"
-              className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden"
+import Link from 'next/link';
+interface IUserDropDownProps{
+    userModel : UserModel
+}
+export function UserDropDown(props: IUserDropDownProps) {
+    const userModel = props.userModel
+    return (
+        <div className="transition duration-300 ease-in transform hover:-translate-y-2 p-4">
+            <Dropdown
+                arrowIcon={false}
+                inline
+                label={
+                    <Avatar alt="User settings" img={userModel.avatarUrl} rounded />
+                }
             >
-              Account settings
-            </a>
-          </MenuItem>
-          <MenuItem>
-            <a
-              href="#"
-              className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden"
-            >
-              Support
-            </a>
-          </MenuItem>
-          <MenuItem>
-            <a
-              href="#"
-              className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden"
-            >
-              License
-            </a>
-          </MenuItem>
-          <form action="#" method="POST">
-            <MenuItem>
-              <button
-                type="submit"
-                className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden"
-              >
-                Sign out
-              </button>
-            </MenuItem>
-          </form>
+                <DropdownHeader>
+                    <span className="block text-sm">{userModel.lastName + " " + userModel.firstName}</span>
+                    <span className="block truncate text-sm font-medium">{userModel.email}</span>
+                </DropdownHeader>
+                <DropdownDivider />
+                <DropdownItem>Dashboard</DropdownItem>
+                <DropdownItem>Settings</DropdownItem>
+                <DropdownItem>Earnings</DropdownItem>
+                <DropdownDivider />
+                <Link href='User/Logout'><DropdownItem>Đăng xuất</DropdownItem></Link>
+            </Dropdown>
         </div>
-      </MenuItems>
-    </Menu>
-  )
+
+    )
 }

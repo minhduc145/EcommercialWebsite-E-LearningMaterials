@@ -15,12 +15,18 @@ public class UserModel {
 	@Id
 	@Column(name = "id")
 	private String id;
+
 	@Column(name = "first_name")
 	private String firstName;
+
 	@Column(name = "last_name")
 	private String lastName;
-	@Column
+
+	@Column(name = "email")
 	private String email;
+
+	@Column(name = "avatar_url")
+	private String avatarUrl;
 
 	@OneToOne(cascade = CascadeType.ALL)
 	@MapsId

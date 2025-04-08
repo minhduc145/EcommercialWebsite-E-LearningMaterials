@@ -1,0 +1,7 @@
+.thumbnail{
+    background-image: url("@/app/assets/KH-demo.png");
+    background-size: cover;
+    left: 0;
+    bottom: 0;
+
+}

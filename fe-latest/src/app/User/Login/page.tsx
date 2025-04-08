@@ -27,7 +27,7 @@ export default function UserLogin() {
             "password": data.password
         }
         axios.post(
-            "/users/login",
+            "/api/accounts/login",
             userLogin
         ).then(function (response) {
             if (response.data.code === 0)
@@ -126,8 +126,8 @@ export default function UserLogin() {
                         or
                     </p>
                     <div>
-                        <a href="http://localhost:8080/users/login/oauth"
-                            className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 hover:cursor-pointer"
+                        <a href="http://localhost:8080/oauth2/authorization/google"
+                            className="flex w-full justify-center rounded-md bg-blue-700 px-3 py-1.5 text-sm/6 font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 hover:cursor-pointer"
                         >
                             Sign in with Google Account &nbsp; <span><Image className={"pt-1"} src={gLogo} width={16} height={16} alt="Logo"></Image></span>
                         </a>

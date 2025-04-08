@@ -1,5 +1,6 @@
 package com.beee.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -22,4 +23,11 @@ public class AccountModel {
 
 	@Column(name = "role")
 	private String role;
+
+	@OneToOne(cascade = CascadeType.ALL)
+	@MapsId
+	@JoinColumn(name = "id")
+	@JsonIgnore
+	@ToString.Exclude
+	private UserModel user;
 }

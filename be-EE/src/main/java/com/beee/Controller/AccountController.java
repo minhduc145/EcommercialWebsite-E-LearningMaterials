@@ -12,21 +12,16 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/users")
-public class UserController {
+@RequestMapping("/api/accounts")
+public class AccountController {
 	@Autowired
 	private UserRepo userRepo;
 	@Autowired
@@ -56,13 +51,6 @@ public class UserController {
 		responseBody.put("code", "0");
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
 	}
-	@GetMapping("/login/oauth")
-	public RedirectView oauth2Login(@AuthenticationPrincipal OAuth2User user) {
-		if (user != null) {
-			return new RedirectView("http://localhost:3000");
-		}
-		return new RedirectView("http://localhost:3000/User/Login");
-	}
 
 	@PostMapping("/signup")
 	public ResponseEntity signup(@Valid @RequestBody UserRegisterFormDTO formBody) {
@@ -72,20 +60,14 @@ public class UserController {
 		return ResponseEntity.of(Optional.of(response));
 	}
 
-	@GetMapping("/all")
-	public List<UserModel> getAllUsers() {
-		return userRepo.findAll();
-	}
-
-	@GetMapping("/me")
+	@GetMapping("/get_user_login_info_by_cookie")
 	public ResponseEntity getUserInfo(@CookieValue(name = "jwt", required = false) String token) {
 		if (token == null) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa đăng nhập");
 		}
 		String username = jwtService.extractUsername(token);
-		System.out.println("usn: "+username);
 		UserModel user = userRepo.findUserModelById(username);
+		System.out.println(user);
 		return ResponseEntity.ok(user);
 	}
-
 }
