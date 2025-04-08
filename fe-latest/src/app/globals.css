@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "flowbite";
 
 @custom-variant dark (&:is(.dark *));
 @plugin "flowbite-react/plugin/tailwindcss";

@@ -1,4 +1,3 @@
-"use client"
 import { Footer, FooterCopyright, FooterDivider, FooterLink, FooterLinkGroup } from "flowbite-react";
 
 export default function AppFooter() {

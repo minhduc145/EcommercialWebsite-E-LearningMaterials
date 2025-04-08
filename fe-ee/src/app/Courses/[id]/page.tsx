@@ -8,7 +8,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import Link from "next/link"
-import { HomeIcon } from '@heroicons/react/24/outline'
+import { HomeIcon } from 'lucide-react' 
 import '@/app/assets/css/courseDetail/style.css'
 
 export default function courseDetails() {
@@ -36,7 +36,7 @@ export default function courseDetails() {
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
-            <div className='flex items-center justify-center relative thumbnail w-screen bg-center bg-[url("@/app/assets/KH-demo.png")] bg-cover h-[200px] left-0 bottom-0'>
+            <div className='flex items-center justify-center relative thumbnail w-screen bg-center bg-[url("/global_imgs/KH-demo.png")] bg-cover h-[200px] left-0 bottom-0'>
                 <div className="absolute inset-0 bg-gradient-to-r from-[#1a2a54]/80 via-[#001f3f]/40 to-transparent z-10"></div>
                 <div className='flex relative  items-center gap-3 md:gap-10 container mx-auto px-4 pt-2 text-white z-20'>
                     <div>

@@ -1,15 +1,13 @@
 'use client'
-import { useRouter } from 'next/navigation'
+import { redirect } from 'next/navigation'
 export default function Logout() {
-    const router = useRouter();
-
     fetch('http://localhost:8080/api/accounts/logout', {
         method: 'GET',
         credentials: 'include'
     }).then(() => {
-        router.replace('http://localhost:3000');
+        redirect('/') 
     }).catch(() => {
-        router.replace('http://localhost:3000');
+        redirect('/') 
     });
 
 }

@@ -14,9 +14,9 @@ export default function Home() {
 			<Header color='' />
 			<div className="relative isolate px-6 lg:px-8">
 				<div className="mx-auto max-w-2xl py-32 sm:py-36 lg:py-44">
-					{/* <div className="aspect-video w-full">
+					<div className="aspect-video w-full">
 						<iframe src="https://archive.org/embed/SherlockHolmes1954" className="w-full h-full" allowFullScreen></iframe>
-					</div> */}
+					</div>
 				</div>
 				<div aria-hidden="true"
 					className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]">
