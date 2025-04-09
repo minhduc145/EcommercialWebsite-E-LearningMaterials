@@ -34,7 +34,7 @@ public class WebSecurityConfig {
 						.invalidateHttpSession(true) // Xóa session
 						.clearAuthentication(true)   // Xóa thông tin xác thực
 						.deleteCookies("JSESSIONID") // Xóa cookie session (nếu có)
-						.deleteCookies("jwt") // Xóa cookie session (nếu có)
+						.deleteCookies("jwt")
 						.permitAll()
 				);
 		return http.build();

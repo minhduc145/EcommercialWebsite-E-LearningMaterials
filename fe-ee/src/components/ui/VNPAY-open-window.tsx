@@ -26,7 +26,7 @@ export default function VNPayButton() {
     };
 
     return (
-        <Button className='w-full bg-white border-2 border-solid' onClick={handlePayment} disabled={loading}>
+        <Button variant="default" className='w-full text-white bg-lime-600 ' onClick={handlePayment} disabled={loading}>
             {loading ? "Đang xử lý..." : "Thanh toán qua"}
             <img
                 src="https://cdn.brandfetch.io/idV02t6WJs/theme/dark/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B"

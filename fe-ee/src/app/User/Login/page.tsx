@@ -22,6 +22,7 @@ export default function LoginPage() {
     resolver: yupResolver(schema),
   });
   const onSubmit = (data: any) => {
+    console.log(errors)
     const userLogin = {
       "id": data.id,
       "password": data.password
@@ -77,6 +78,9 @@ export default function LoginPage() {
                           type="text"
                           autoComplete="username"
                         />
+                        {errors.id && (
+                          <p className="text-red-500 text-sm">{errors.id.message}</p>
+                        )}
                       </div>
                       <div className="grid gap-3">
                         <div className="flex items-center">
@@ -92,6 +96,9 @@ export default function LoginPage() {
                           name="password"
                           type="password"
                           autoComplete="current-password" required />
+                          {errors.password && (
+                          <p className="text-red-500 text-sm">{errors.password.message}</p>
+                        )}
                       </div>
                       <Button type="submit" className="w-full bg-blue-600">
                         Login
