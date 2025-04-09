@@ -155,7 +155,7 @@ export function CourseCarouselItem({
   const processedThumbnailUrl = (() => {
     // If it's empty or undefined, use a placeholder
     if (!thumbnailUrl) {
-      return "/placeholder.svg?height=600&width=1200&text=No+Image"
+      return "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGR5e6phzjZV4iLJJNVPpnbPU_x52zj-mGPA&s?height=600&width=1200&text=No+Image"
     }
 
     // If it's an absolute URL (starts with http:// or https://), use it directly

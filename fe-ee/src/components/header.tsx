@@ -12,7 +12,7 @@ import { ChevronDown, Phone, Play, GraduationCap, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -81,6 +81,7 @@ export default function Header(props: IHeaderProps) {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-full sm:max-w-sm">
+              <SheetTitle className="hidden">hi</SheetTitle>
               <div className="flex p-5 items-center justify-between">
                 <a href="#" className="-m-1.5 p-1.5">
                   <Image alt="" src={Logo} className="h-8 w-auto" />
@@ -109,7 +110,7 @@ export default function Header(props: IHeaderProps) {
                     {!userLoginCookie ? (
                       <Link
                         href="/User/Login"
-                        className="-mx-3 block rounded-lg px-3 py-2.5 text-gray-900 hover:bg-gray-50"
+                        className="mx-3 block rounded-lg px-3 py-2.5 text-gray-900 hover:bg-gray-50"
                       >
                         Đăng nhập
                       </Link>
