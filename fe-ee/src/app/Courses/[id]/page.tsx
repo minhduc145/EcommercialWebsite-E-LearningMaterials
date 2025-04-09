@@ -8,7 +8,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import Link from "next/link"
-import { HomeIcon } from 'lucide-react'
+import { Badge, HomeIcon } from 'lucide-react'
 import '@/app/assets/css/courseDetail/style.css'
 import { StarRating } from "@/components/ui/star-rating"
 
@@ -42,7 +42,7 @@ export default function courseDetails() {
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
-            <div className='flex items-center justify-center relative thumbnail w-screen bg-center bg-[url("/global_imgs/KH-demo.png")] bg-cover h-[200px] left-0 bottom-0'>
+            <div className='flex items-center justify-center relative thumbnail w-full bg-center bg-[url("/global_imgs/KH-demo.png")] bg-cover h-[200px] left-0 bottom-0'>
                 <div className="absolute inset-0 bg-gradient-to-r from-[#1a2a54]/80 via-[#001f3f]/40 to-transparent z-10"></div>
                 <div className='flex relative  items-center gap-3 md:gap-10 container mx-auto px-4 pt-2 text-white z-20'>
                     <div>
@@ -66,12 +66,18 @@ export default function courseDetails() {
                 </div>
             </div>
             <main>
-                <div className='container mx-auto px-4'>
-                    <MainTabs />
+                <div className='container mx-auto'>
+                    <div className='p-5 lg:pt-5 lg:flex lg:flex-row-reverse'>
+                        <div className='p-5 lg:p-0 lg:absolute lg:-my-15 z-10  lg:sticky'>
+                            <SubscriptionCard />
+                        </div>
+                        <MainTabs />
+
+
+                    </div>
+
                 </div>
-
             </main>
-
         </>
 
     )
@@ -83,19 +89,14 @@ function MainTabs() {
     return (
         <div className="w-full max-w-4xl mx-auto p-4">
             <Tabs defaultValue="mo-ta" className="w-full">
-                <TabsList className="grid w-full items-center justify-center grid-cols-4 rounded-lg p-1 bg-slate-100">
+                <TabsList className="grid w-full items-center justify-center mx-auto grid-cols-3 rounded-lg p-1 bg-slate-100">
                     <TabsTrigger
                         value="mo-ta"
                         className="rounded-md  data-[state=active]:bg-violet-600 data-[state=active]:text-white transition-all"
                     >
                         Mô tả
                     </TabsTrigger>
-                    <TabsTrigger
-                        value="de-cuong"
-                        className="rounded-md data-[state=active]:bg-violet-600 data-[state=active]:text-white transition-all"
-                    >
-                        Đề cương
-                    </TabsTrigger>
+                    
                     <TabsTrigger
                         value="tai-lieu"
                         className="rounded-md data-[state=active]:bg-violet-600 data-[state=active]:text-white transition-all"
@@ -118,16 +119,7 @@ function MainTabs() {
                         </p>
                         <p>Học viên sẽ được hướng dẫn cách thức tham gia và hoàn thành bài học một cách hiệu quả.</p>
                     </TabsContent>
-                    <TabsContent value="de-cuong" className="space-y-4">
-                        <h2 className="text-xl font-bold">ĐỀ CƯƠNG BÀI HỌC</h2>
-                        <ul className="list-disc pl-5 space-y-2">
-                            <li>Phần 1: Giới thiệu tổng quan</li>
-                            <li>Phần 2: Nội dung chính</li>
-                            <li>Phần 3: Bài tập thực hành</li>
-                            <li>Phần 4: Đánh giá và tổng kết</li>
-                        </ul>
-                        <p className="mt-4">Mỗi phần học sẽ bao gồm các bài giảng, tài liệu đọc và các hoạt động tương tác.</p>
-                    </TabsContent>
+                    
                     <TabsContent value="tai-lieu" className="space-y-4">
                         <h2 className="text-xl font-bold">TÀI LIỆU HỌC TẬP</h2>
                         <div className="space-y-3">
@@ -228,6 +220,10 @@ function MainTabs() {
                                 </div>
                             </div>
                         </div>
+                        <div>
+                            <b>Bình luận:</b>
+                            <div></div>
+                        </div>
                     </TabsContent>
                 </div>
             </Tabs>
@@ -235,3 +231,53 @@ function MainTabs() {
     )
 }
 
+import {
+    Card,
+    CardContent,
+    CardHeader,
+} from "@/components/ui/card"
+import { Button } from '@/components/ui/button'
+import { Separator } from '@radix-ui/react-dropdown-menu'
+
+function SubscriptionCard() {
+    return (
+        <>
+            <Card>
+                <CardHeader>
+                    <Button className='w-full bg-blue-600'>Mua học liệu</Button>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    {/* Thời gian diễn ra */}
+                    <div className="space-y-2">
+                        <h3 className="text-lg font-medium">Thời gian diễn ra</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <p className="text-sm text-muted-foreground">Bắt đầu</p>
+                                <p className="font-medium">00:00 10/03/2024</p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-muted-foreground">Kết thúc</p>
+                                <p className="font-medium">23:59 31/05/2030</p>
+                            </div>
+                        </div>
+                    </div>
+                    <Separator />
+                    {/* Thời gian đăng ký */}
+                    <div className="space-y-2">
+                        <h3 className="text-lg font-medium">Thời gian đăng ký</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <p className="font-medium">00:00 09/03/2024</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-medium">Số học viên</h3>
+                        <p className="text-2xl font-bold">0</p>
+                    </div>
+                </CardContent>
+            </Card>
+
+        </>
+    )
+}

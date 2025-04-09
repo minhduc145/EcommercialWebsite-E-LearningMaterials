@@ -1,7 +1,3 @@
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Facebook, Instagram, MailIcon } from "lucide-react"
-import Link from "next/link"
 
 export default function Component() {
   return (
@@ -35,7 +31,7 @@ export default function Component() {
             <img src="https://img.icons8.com/fluent/30/000000/twitter.png" />
         </a>
     </div>
-    <p className="text-center text-gray-700 font-medium">&copy; 2022 Company Ltd. All rights reservered.</p>
+    <p className="text-center text-gray-700 font-medium">&copy; 2025 Minh Duc</p>
 </footer>
   </>
   
