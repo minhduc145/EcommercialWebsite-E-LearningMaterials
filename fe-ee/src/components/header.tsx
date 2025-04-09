@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import Logo from "@/app/logo.svg"
-import type { UserModel } from "../app/models/UserModel"
+import type { UserModel } from "@/models/UserModel"
 
 import { Menu } from "lucide-react"
 import { ChevronDown, Phone, Play, GraduationCap, X } from "lucide-react"
@@ -14,12 +14,12 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuSeparator,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
@@ -53,7 +53,6 @@ export default function Header(props: IHeaderProps) {
   const txtColor = props.color === "blue" ? "text-white" : "text-gray-900"
 
   useEffect(() => {
-    console.log("Component re-rendered")
     axios
       .get("/api/accounts/get_user_login_info_by_cookie")
       .then((response) => {
@@ -87,7 +86,7 @@ export default function Header(props: IHeaderProps) {
                   <Image alt="" src={Logo} className="h-8 w-auto" />
                 </a>
                 <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
-                  
+
                 </Button>
               </div>
               <div className="mt-6 flow-root">
@@ -215,7 +214,7 @@ export function UserDropDown(props: IUserDropDownProps) {
           <DropdownMenuItem>Settings</DropdownMenuItem>
           <DropdownMenuItem>Earnings</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <Link href="User/Logout">
+          <Link href="/User/Logout">
             <DropdownMenuItem>Đăng xuất</DropdownMenuItem>
           </Link>
         </DropdownMenuContent>

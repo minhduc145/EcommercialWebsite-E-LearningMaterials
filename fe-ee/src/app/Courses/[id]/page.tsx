@@ -21,7 +21,8 @@ export default function courseDetails() {
         category_name: "Cat 01",
         description: "this is example description that never be useful for anything",
         thumbnail_url: "global_imgs/KH-demo.png",
-        author_name: "Nguyễn A"
+        author_name: "Nguyễn A",
+        price: 1000000
     }
 
     return (
@@ -54,10 +55,12 @@ export default function courseDetails() {
                         </p>
                         <div className='flex flex-col gap-1'>
                             <p className="font-bold">
-                                {c.author_name}
+                                {c.category_name}
                             </p>
                             <div className="flex gap-1 md:gap-5 ">
-                                <p>{c.category_name}</p>
+                                <p className="text-lg font-semibold text-green-600">
+                                    {formatCurrency(1500000)} {/* Hiển thị: 1.500.000 ₫ */}
+                                </p>
                                 |
                                 <StarRating rating={3} />
                             </div>
@@ -96,7 +99,7 @@ function MainTabs() {
                     >
                         Mô tả
                     </TabsTrigger>
-                    
+
                     <TabsTrigger
                         value="tai-lieu"
                         className="rounded-md data-[state=active]:bg-violet-600 data-[state=active]:text-white transition-all"
@@ -119,7 +122,7 @@ function MainTabs() {
                         </p>
                         <p>Học viên sẽ được hướng dẫn cách thức tham gia và hoàn thành bài học một cách hiệu quả.</p>
                     </TabsContent>
-                    
+
                     <TabsContent value="tai-lieu" className="space-y-4">
                         <h2 className="text-xl font-bold">TÀI LIỆU HỌC TẬP</h2>
                         <div className="space-y-3">
@@ -236,51 +239,51 @@ import {
     CardContent,
     CardHeader,
 } from "@/components/ui/card"
-import { Button } from '@/components/ui/button'
 import { Separator } from '@radix-ui/react-dropdown-menu'
 import VNPayButton from '@/components/ui/VNPAY-open-window'
+import { formatCurrency } from '../../../datadto/public-var';
 
 function SubscriptionCard() {
     return (
-        <>
-            <Card>
-                <CardHeader>
-                    <Button className='w-full bg-blue-600'>Mua học liệu</Button>
-                    <VNPayButton />
+        <Card>
+            <CardHeader className=''>
+                Mua học liệu:
+                <div>
+                <VNPayButton  />
 
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    {/* Thời gian diễn ra */}
-                    <div className="space-y-2">
-                        <h3 className="text-lg font-medium">Thời gian diễn ra</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Bắt đầu</p>
-                                <p className="font-medium">10/03/2024</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-muted-foreground">Kết thúc</p>
-                                <p className="font-medium">31/05/2030</p>
-                            </div>
+                </div>
+                
+            </CardHeader>
+            <CardContent className="space-y-6">
+                {/* Thời gian diễn ra */}
+                <div className="space-y-2">
+                    <h3 className="text-lg font-medium">Thời gian diễn ra</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <p className="text-sm text-muted-foreground">Bắt đầu</p>
+                            <p className="font-medium">10/03/2024</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-muted-foreground">Kết thúc</p>
+                            <p className="font-medium">31/05/2030</p>
                         </div>
                     </div>
-                    <Separator />
-                    {/* Thời gian đăng ký */}
-                    <div className="space-y-2">
-                        <h3 className="text-lg font-medium">Thời gian đăng ký</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <p className="font-medium">09/03/2024</p>
-                            </div>
+                </div>
+                <Separator />
+                {/* Thời gian đăng ký */}
+                <div className="space-y-2">
+                    <h3 className="text-lg font-medium">Thời gian đăng ký</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <p className="font-medium">09/03/2024</p>
                         </div>
                     </div>
-                    <div>
-                        <h3 className="text-lg font-medium">Số học viên</h3>
-                        <p className="text-2xl font-bold">0</p>
-                    </div>
-                </CardContent>
-            </Card>
-
-        </>
+                </div>
+                <div>
+                    <h3 className="text-lg font-medium">Số học viên</h3>
+                    <p className="text-2xl font-bold">0</p>
+                </div>
+            </CardContent>
+        </Card>
     )
 }
