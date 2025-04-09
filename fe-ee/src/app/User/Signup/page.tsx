@@ -44,7 +44,7 @@ export default function SignUpForm() {
         <House aria-hidden className="size-6" />
       </a>
         <div className=" mx-auto flex items-center justify-center min-h-screen py-6 bg-white lg:bg-muted ">
-            <Card className="w-full max-w-sm mx-auto">
+            <Card className="w-full max-w-sm mx-auto border-0 shadow-none lg:shadow-sm lg:border-sm">
                 <CardHeader className="text-center">
                     <CardTitle className="text-2xl">Đăng ký tài khoản</CardTitle>
                 </CardHeader>

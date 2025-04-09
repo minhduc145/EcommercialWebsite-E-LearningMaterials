@@ -68,7 +68,7 @@ export default function courseDetails() {
             <main>
                 <div className='container mx-auto'>
                     <div className='p-5 lg:pt-5 lg:flex lg:flex-row-reverse'>
-                        <div className='p-5 lg:p-0 lg:absolute lg:-my-15 z-10  lg:sticky'>
+                        <div className='lg:w-80 p-5 lg:p-0 lg:absolute lg:-my-15 z-10  lg:sticky'>
                             <SubscriptionCard />
                         </div>
                         <MainTabs />
@@ -238,6 +238,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from '@/components/ui/button'
 import { Separator } from '@radix-ui/react-dropdown-menu'
+import VNPayButton from '@/components/ui/VNPAY-open-window'
 
 function SubscriptionCard() {
     return (
@@ -245,6 +246,8 @@ function SubscriptionCard() {
             <Card>
                 <CardHeader>
                     <Button className='w-full bg-blue-600'>Mua học liệu</Button>
+                    <VNPayButton />
+
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {/* Thời gian diễn ra */}
@@ -253,11 +256,11 @@ function SubscriptionCard() {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <p className="text-sm text-muted-foreground">Bắt đầu</p>
-                                <p className="font-medium">00:00 10/03/2024</p>
+                                <p className="font-medium">10/03/2024</p>
                             </div>
                             <div>
                                 <p className="text-sm text-muted-foreground">Kết thúc</p>
-                                <p className="font-medium">23:59 31/05/2030</p>
+                                <p className="font-medium">31/05/2030</p>
                             </div>
                         </div>
                     </div>
@@ -267,7 +270,7 @@ function SubscriptionCard() {
                         <h3 className="text-lg font-medium">Thời gian đăng ký</h3>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <p className="font-medium">00:00 09/03/2024</p>
+                                <p className="font-medium">09/03/2024</p>
                             </div>
                         </div>
                     </div>

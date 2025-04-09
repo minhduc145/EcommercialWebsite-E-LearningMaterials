@@ -64,38 +64,40 @@ export default function LoginPage() {
               <CardTitle className="text-xl">Welcome</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-6">
                 <div className="grid gap-6">
-                  <div className="grid gap-6">
-                    <div className="grid gap-3">
-                      <Label htmlFor="email">Email or Username</Label>
-                      <Input
-                        {...register("id")}
-                        id="id"
-                        name="id"
-                        type="text"
-                        autoComplete="username"
-                      />
-                    </div>
-                    <div className="grid gap-3">
-                      <div className="flex items-center">
-                        <Label htmlFor="password">Password</Label>
-                        <a
-                          href="#"
-                          className="ml-auto text-sm underline-offset-4 hover:underline"
-                        >
-                          Forgot your password?
-                        </a>
+                  <form onSubmit={handleSubmit(onSubmit)}>
+                    <div className="grid gap-6">
+                      <div className="grid gap-3">
+                        <Label htmlFor="email">Email or Username</Label>
+                        <Input
+                          {...register("id")}
+                          id="id"
+                          name="id"
+                          type="text"
+                          autoComplete="username"
+                        />
                       </div>
-                      <Input id="password" {...register("password")}
-                        name="password"
-                        type="password"
-                        autoComplete="current-password" required />
+                      <div className="grid gap-3">
+                        <div className="flex items-center">
+                          <Label htmlFor="password">Password</Label>
+                          <a
+                            href="#"
+                            className="ml-auto text-sm underline-offset-4 hover:underline"
+                          >
+                            Forgot your password?
+                          </a>
+                        </div>
+                        <Input id="password" {...register("password")}
+                          name="password"
+                          type="password"
+                          autoComplete="current-password" required />
+                      </div>
+                      <Button type="submit" className="w-full bg-blue-600">
+                        Login
+                      </Button>
                     </div>
-                    <Button type="submit" className="w-full bg-blue-600">
-                      Login
-                    </Button>
-                  </div>
+                  </form>
                   <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                     <span className="bg-card text-muted-foreground relative z-10 px-2">
                       Or continue with
@@ -118,7 +120,7 @@ export default function LoginPage() {
                     </Link>
                   </div>
                 </div>
-              </form>
+              </div>
             </CardContent>
           </Card>
         </div>

@@ -1,4 +1,4 @@
-package com.beee.Service.WebSecurityService;
+package com.beee.WebSecurityService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

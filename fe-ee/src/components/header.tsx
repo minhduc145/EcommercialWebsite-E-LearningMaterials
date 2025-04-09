@@ -106,7 +106,7 @@ export default function Header(props: IHeaderProps) {
                       Solutions
                     </div>
                   </div>
-                  <div className="">
+                  <div className="pl-5 pt-5 lg:px-0 lg:pt-0">
                     {!userLoginCookie ? (
                       <Link
                         href="/User/Login"

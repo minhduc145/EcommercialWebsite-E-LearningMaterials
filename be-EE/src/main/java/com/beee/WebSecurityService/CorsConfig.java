@@ -1,4 +1,4 @@
-package com.beee.Service.WebSecurityService;
+package com.beee.WebSecurityService;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

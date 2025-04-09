@@ -5,7 +5,7 @@ import com.beee.Model.AccountModel;
 import com.beee.Model.UserModel;
 import com.beee.Repository.AccountRepo;
 import com.beee.Repository.UserRepo;
-import com.beee.Service.WebSecurityService.JwtService;
+import com.beee.WebSecurityService.JwtService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

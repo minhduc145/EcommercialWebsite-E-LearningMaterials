@@ -1,4 +1,4 @@
-package com.beee.Service.WebSecurityService;
+package com.beee.WebSecurityService;
 
 import com.beee.Model.AccountModel;
 import com.beee.Model.UserModel;
