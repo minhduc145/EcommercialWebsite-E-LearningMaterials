@@ -15,7 +15,7 @@ export default function Home() {
 			<div className="relative isolate px-6 lg:px-8">
 				<div className="mx-auto max-w-2xl py-32 sm:py-36 lg:py-44">
 					<div className="aspect-video w-full">
-						<iframe src="https://archive.org/embed/SherlockHolmes1954" className="w-full h-full" allowFullScreen></iframe>
+						<iframe allowFullScreen className="w-full h-full" src="https://archive.org/embed/CNNW_20250410_110000_CNN_News_Central?start=60&end=120"></iframe>
 					</div>
 				</div>
 				<div aria-hidden="true"

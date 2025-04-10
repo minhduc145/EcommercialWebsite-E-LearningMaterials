@@ -79,7 +79,7 @@ export default function LoginPage() {
                           autoComplete="username"
                         />
                         {errors.id && (
-                          <p className="text-red-500 text-sm">{errors.id.message}</p>
+                          <p className="text-red-500 absolute text-sm">{errors.id.message}</p>
                         )}
                       </div>
                       <div className="grid gap-3">
@@ -97,7 +97,7 @@ export default function LoginPage() {
                           type="password"
                           autoComplete="current-password" required />
                           {errors.password && (
-                          <p className="text-red-500 text-sm">{errors.password.message}</p>
+                          <p className="text-red-500 absolute text-sm">{errors.password.message}</p>
                         )}
                       </div>
                       <Button type="submit" className="w-full bg-blue-600">

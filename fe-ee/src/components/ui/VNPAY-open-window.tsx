@@ -2,14 +2,24 @@
 
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-
-export default function VNPayButton() {
+interface IProps {
+    amount: any,
+    orderInfo: string
+}
+export default function VNPayButton(props: IProps) {
     const [loading, setLoading] = useState(false);
 
     const handlePayment = async () => {
         setLoading(true);
         try {
-            const res = await fetch("http://localhost:8080/api/payment/vnpay?amount=100000&orderInfo=Thanh+toan+don+hang");
+            const url = new URL("http://localhost:8080/api/payment/vnpay");
+            url.searchParams.append("amount", props.amount);
+            url.searchParams.append("orderInfo", props.orderInfo);
+
+            const res = await fetch(url.toString(), {
+                method: "GET"
+            });
+
             const data = await res.text();
             const paymentUrl = String(data);
             window.open(

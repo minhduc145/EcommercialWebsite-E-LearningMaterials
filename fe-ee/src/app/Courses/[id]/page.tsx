@@ -8,22 +8,22 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import Link from "next/link"
-import { Badge, HomeIcon } from 'lucide-react'
+import { HomeIcon, Banknote } from 'lucide-react'
 import '@/app/assets/css/courseDetail/style.css'
 import { StarRating } from "@/components/ui/star-rating"
+const c = {
+    id: '1',
+    title: "Course name 1",
+    category_name: "Cat 01",
+    description: "this is example description that never be useful for anything",
+    thumbnail_url: "global_imgs/KH-demo.png",
+    author_name: "Nguyễn A",
+    price: 1000000
+}
 
 export default function courseDetails() {
     const params = useParams()
     const id = params.id
-    const c = {
-        id: '1',
-        title: "Course name 1",
-        category_name: "Cat 01",
-        description: "this is example description that never be useful for anything",
-        thumbnail_url: "global_imgs/KH-demo.png",
-        author_name: "Nguyễn A",
-        price: 1000000
-    }
 
     return (
 
@@ -58,8 +58,8 @@ export default function courseDetails() {
                                 {c.category_name}
                             </p>
                             <div className="flex gap-1 md:gap-5 ">
-                                <p className="text-lg font-semibold text-green-600">
-                                    {formatCurrency(1500000)} {/* Hiển thị: 1.500.000 ₫ */}
+                                <p className="text-md lg:text-lg ring-1 ring-green-600/20 ring-inset rounded-md bg-green-50 inline-flex items-center px-2 py-1 font-semibold text-green-600">
+                                    <Banknote className='size-5' /> &nbsp; {formatCurrency(1500000)} {/* Hiển thị: 1.500.000 ₫ */}
                                 </p>
                                 |
                                 <StarRating rating={3} />
@@ -249,10 +249,9 @@ function SubscriptionCard() {
             <CardHeader className=''>
                 Mua học liệu:
                 <div>
-                <VNPayButton  />
-
+                    <VNPayButton amount={c.price} orderInfo={`${c.id},${c.title}`} />
                 </div>
-                
+
             </CardHeader>
             <CardContent className="space-y-6">
                 {/* Thời gian diễn ra */}
