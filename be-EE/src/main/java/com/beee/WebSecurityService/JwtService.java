@@ -33,7 +33,7 @@ public class JwtService {
 		return Jwts.builder()
 				.setSubject(username)
 				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 giờ
+				.setExpiration(new Date(System.currentTimeMillis() + 86400000)) //a day
 				.signWith(SignatureAlgorithm.HS256, SECRET_KEY)
 				.compact();
 	}
@@ -60,7 +60,7 @@ public class JwtService {
 		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
 	}
 
-	private boolean isTokenExpired(String token) {
+	public boolean isTokenExpired(String token) {
 		return extractClaim(token, Claims::getExpiration).before(new Date());
 	}
 }

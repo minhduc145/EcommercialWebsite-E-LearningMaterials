@@ -37,7 +37,6 @@ public class PaymentServiceImpl implements PaymentService {
 		vnpParams.put("vnp_IpAddr", ipAddress);
 		vnpParams.put("vnp_CreateDate", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
 
-		// Sort & hash
 		List<String> fieldNames = new ArrayList<>(vnpParams.keySet());
 		Collections.sort(fieldNames);
 		StringBuilder hashData = new StringBuilder();
@@ -51,7 +50,6 @@ public class PaymentServiceImpl implements PaymentService {
 			}
 		}
 
-		// Remove last &
 		hashData.setLength(hashData.length() - 1);
 		query.setLength(query.length() - 1);
 

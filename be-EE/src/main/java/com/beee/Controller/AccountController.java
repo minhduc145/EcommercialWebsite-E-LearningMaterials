@@ -1,10 +1,13 @@
 package com.beee.Controller;
 
+import com.beee.Common.Constants;
+import com.beee.Common.Utilis;
 import com.beee.DTO.UserRegisterFormDTO;
 import com.beee.Model.AccountModel;
 import com.beee.Model.UserModel;
 import com.beee.Repository.AccountRepo;
 import com.beee.Repository.UserRepo;
+import com.beee.Service.ResponseService;
 import com.beee.WebSecurityService.JwtService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,7 +15,15 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -26,31 +37,31 @@ public class AccountController {
 	private UserRepo userRepo;
 	@Autowired
 	private AccountRepo accountRepo;
-
+	@Autowired
+	private ResponseService responseService;
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	@Autowired
+	UserDetailsService userDetailsService;
 	@Autowired
 	private JwtService jwtService;
 
-	BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
-
 	@PostMapping("/login")
 	public ResponseEntity login(@Valid @RequestBody AccountModel accountModel, HttpServletResponse response) {
-		Map<String, Object> responseBody = new HashMap<>();
-		AccountModel resultAccountModel = accountRepo.findAccountModelById(accountModel.getId());
-		if (resultAccountModel != null && encoder.matches(accountModel.getPassword(), resultAccountModel.getPassword())) {
-			String token = jwtService.generateToken(accountModel.getId());
-			System.out.println(token);
-			Cookie cookie = new Cookie("jwt", token);
-			cookie.setHttpOnly(true);
-			cookie.setPath("/");
-			cookie.setMaxAge(60 * 60 * 24); // 1 ngày
-			response.addCookie(cookie);
-			responseBody.put("code", "1");
-			responseBody.put("user", resultAccountModel);
-			return ResponseEntity.ok().body(responseBody);
+		responseService.disposeCookie(response, "jwt");
+		try {
+			Authentication auth = authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(accountModel.getId(), accountModel.getPassword())
+			);
+			User user = (User) auth.getPrincipal();
+			String token = jwtService.generateToken(user.getUsername());
+			responseService.addCookie(response, "jwt", token);
+			return ResponseEntity.ok(Utilis.mapOfResponse(Constants.RESULT_SUCCESS, "Đăng nhập thành công"));
+		} catch (AuthenticationException e) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utilis.mapOfResponse(Constants.RESULT_FAIL, "Sai tài khoản/ mật khẩu"));
 		}
-		responseBody.put("code", "0");
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
 	}
+
 
 	@PostMapping("/signup")
 	public ResponseEntity signup(@Valid @RequestBody UserRegisterFormDTO formBody) {
@@ -61,13 +72,22 @@ public class AccountController {
 	}
 
 	@GetMapping("/get_user_login_info_by_cookie")
-	public ResponseEntity getUserInfo(@CookieValue(name = "jwt", required = false) String token) {
-		if (token == null) {
+	public ResponseEntity getUserInfo(@CookieValue(name = "jwt", required = false) String token, HttpServletResponse response) {
+		if (token == null||jwtService.isTokenExpired(token)) {
+			responseService.disposeCookie(response, "jwt");
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa đăng nhập");
 		}
 		String username = jwtService.extractUsername(token);
 		UserModel user = userRepo.findUserModelById(username);
 		System.out.println(user);
 		return ResponseEntity.ok(user);
+	}
+
+	@GetMapping("/getGAccountInfo")
+	public ResponseEntity getGoogleAccountInfo(@AuthenticationPrincipal OAuth2User principal) {
+		if (principal != null) {
+			return ResponseEntity.ok(principal.getAttributes());
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 }

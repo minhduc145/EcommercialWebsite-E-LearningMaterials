@@ -26,7 +26,6 @@ export default function courseDetails() {
     const id = params.id
 
     return (
-
         <>
             <Breadcrumb className="px-4 py-2">
                 <BreadcrumbList>
