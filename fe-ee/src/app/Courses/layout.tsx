@@ -10,8 +10,8 @@ export default function CoursePageLayout({
         <>
             <ClientHeaderWrapper color="blue"/>
              {children}
-             <br></br>
-            <ClientFooterWrapper />
+            <br />
+            <ClientFooterWrapper/>
         </>
     )
 }

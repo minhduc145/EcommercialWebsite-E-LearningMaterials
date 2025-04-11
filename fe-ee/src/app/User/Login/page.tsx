@@ -40,7 +40,7 @@ export default function LoginPage() {
 				throw new Error("Đăng nhập lỗi")
 			window.location.href = "/"
 		}).catch(function (error) {
-			var msg = error.response.data.message
+			var msg = error.response? error.response.data.message : error.message
 			if (error.status === 404) msg = "Tài khoản hoặc mật khẩu không đúng"
 			toast.error(<div>
 				Đăng nhập Thất bại! <br /> {msg}
@@ -67,7 +67,7 @@ export default function LoginPage() {
 				position: "top-right", autoClose: 5000, hideProgressBar: false, closeOnClick: false, pauseOnHover: true, draggable: true, progress: undefined, theme: "light",
 			});
 			window.location.href = "/"
-		}else if (isFail){
+		} else if (isFail) {
 			toast.error(<div>
 				Đăng nhập không thành công! <br />
 			</div>, {
@@ -103,7 +103,7 @@ export default function LoginPage() {
 													autoComplete="username"
 												/>
 												{errors.id && (
-													<p className="text-red-500 absolute text-sm">{errors.id.message}</p>
+													<p className="text-red-500 text-sm">{errors.id.message}</p>
 												)}
 											</div>
 											<div className="grid gap-3">
@@ -121,7 +121,7 @@ export default function LoginPage() {
 													type="password"
 													autoComplete="current-password" required />
 												{errors.password && (
-													<p className="text-red-500 absolute text-sm">{errors.password.message}</p>
+													<p className="text-red-500 text-sm">{errors.password.message}</p>
 												)}
 											</div>
 											<Button type="submit" className="w-full bg-blue-600">

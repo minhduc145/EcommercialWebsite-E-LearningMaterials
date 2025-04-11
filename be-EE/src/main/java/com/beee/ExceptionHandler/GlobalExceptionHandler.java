@@ -1,5 +1,6 @@
 package com.beee.ExceptionHandler;
 
+import com.beee.Common.Constants;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,9 +13,9 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-		Map<String, String> errors = new HashMap<>();
-		errors.put("code","0");
+	public ResponseEntity<Map> handleValidationExceptions(MethodArgumentNotValidException ex) {
+		Map<String, Object> errors = new HashMap<>();
+		errors.put("result", Constants.RESULT_FAIL);
 		ex.getBindingResult().getFieldErrors().forEach(error -> {
 			errors.put(error.getField(), error.getDefaultMessage());
 		});

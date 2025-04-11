@@ -5,11 +5,9 @@ import com.beee.Common.Utilis;
 import com.beee.DTO.UserRegisterFormDTO;
 import com.beee.Model.AccountModel;
 import com.beee.Model.UserModel;
-import com.beee.Repository.AccountRepo;
 import com.beee.Repository.UserRepo;
 import com.beee.Service.ResponseService;
 import com.beee.WebSecurityService.JwtService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +19,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,18 +32,14 @@ public class AccountController {
 	@Autowired
 	private UserRepo userRepo;
 	@Autowired
-	private AccountRepo accountRepo;
-	@Autowired
 	private ResponseService responseService;
 	@Autowired
 	private AuthenticationManager authenticationManager;
 	@Autowired
-	UserDetailsService userDetailsService;
-	@Autowired
 	private JwtService jwtService;
 
 	@PostMapping("/login")
-	public ResponseEntity login(@Valid @RequestBody AccountModel accountModel, HttpServletResponse response) {
+	public ResponseEntity login(@RequestBody AccountModel accountModel, HttpServletResponse response) {
 		responseService.disposeCookie(response, "jwt");
 		try {
 			Authentication auth = authenticationManager.authenticate(
@@ -61,7 +53,6 @@ public class AccountController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utilis.mapOfResponse(Constants.RESULT_FAIL, "Sai tài khoản/ mật khẩu"));
 		}
 	}
-
 
 	@PostMapping("/signup")
 	public ResponseEntity signup(@Valid @RequestBody UserRegisterFormDTO formBody) {

@@ -2,9 +2,8 @@
 export default function Component() {
   return (
   <>
-  <hr />
   <footer className="flex flex-col space-y-10 justify-center m-10">
-
+    <hr />
     <nav className="flex justify-center flex-wrap gap-6 text-gray-500 font-medium">
         <a className="hover:text-gray-900" href="#">Home</a>
         <a className="hover:text-gray-900" href="#">About</a>

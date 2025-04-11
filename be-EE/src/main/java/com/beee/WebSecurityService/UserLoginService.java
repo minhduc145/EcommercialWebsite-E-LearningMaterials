@@ -26,8 +26,8 @@ public class UserLoginService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		AccountModel accountModel = accountRepo.findById(username)
-				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
+		AccountModel accountModel = accountRepo.findByIdOrUser_Email(username, username);
+		if (accountModel == null) throw new UsernameNotFoundException("User not found");
 		UserDetails user = User.builder()
 				.username(accountModel.getId())
 				.password(accountModel.getPassword())

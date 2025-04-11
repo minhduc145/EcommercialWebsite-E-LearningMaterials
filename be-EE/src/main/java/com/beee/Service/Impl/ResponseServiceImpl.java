@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public class ResponseServiceImpl implements ResponseService {
 	@Override
 	public void addCookie(HttpServletResponse response, String cookieName, String value) {
-		Cookie cookie = new Cookie("jwt", value);
+		Cookie cookie = new Cookie(cookieName, value);
 		cookie.setHttpOnly(true);
 		cookie.setPath("/");
 		cookie.setMaxAge(60 * 60 * 24); // a day

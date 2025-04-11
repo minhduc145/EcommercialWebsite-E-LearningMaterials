@@ -8,10 +8,10 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 
 import java.util.Map;
 
-public class GoogleRequestResolver implements OAuth2AuthorizationRequestResolver {
+public class GoogleRequestResolverConfig implements OAuth2AuthorizationRequestResolver {
 	private final OAuth2AuthorizationRequestResolver defaultResolver;
 
-	public GoogleRequestResolver(ClientRegistrationRepository repo, String uri) {
+	public GoogleRequestResolverConfig(ClientRegistrationRepository repo, String uri) {
 		this.defaultResolver = new DefaultOAuth2AuthorizationRequestResolver(repo, uri);
 	}
 

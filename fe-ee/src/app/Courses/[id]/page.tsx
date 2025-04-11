@@ -112,7 +112,7 @@ function MainTabs() {
                         Đánh giá
                     </TabsTrigger>
                 </TabsList>
-                <div className="mt-6 border rounded-lg p-6">
+                <div className="mt-3 border rounded-lg p-6">
                     <TabsContent value="mo-ta" className="space-y-4">
                         <h2 className="text-xl font-bold">BÀI DỰ THI ELEARNING</h2>
                         <p>

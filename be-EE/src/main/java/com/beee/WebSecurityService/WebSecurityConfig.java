@@ -1,12 +1,10 @@
 package com.beee.WebSecurityService;
 
 import com.beee.Common.Constants;
-import com.beee.Config.GoogleRequestResolver;
+import com.beee.Config.GoogleRequestResolverConfig;
 import com.beee.Model.AccountModel;
 import com.beee.Repository.AccountRepo;
 import com.beee.Service.ResponseService;
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,15 +12,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
-
-import java.io.IOException;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -44,7 +38,7 @@ public class WebSecurityConfig {
 				.oauth2Login(oauth2 -> oauth2
 						.authorizationEndpoint(authorization -> authorization
 								.authorizationRequestResolver(
-										new GoogleRequestResolver(
+										new GoogleRequestResolverConfig(
 												clientRegistrationRepository,
 												"/oauth2/authorization"
 										)
@@ -61,11 +55,12 @@ public class WebSecurityConfig {
 						})
 				)
 				.logout(logout -> logout
-						.logoutUrl("/api/accounts/logout")
+						.logoutRequestMatcher(new AntPathRequestMatcher("/accounts/logout", "GET"))
 						.invalidateHttpSession(true)
 						.clearAuthentication(true)
 						.deleteCookies("JSESSIONID")
 						.deleteCookies("jwt")
+						.logoutSuccessUrl(Constants.URL_FE_LOGOUT_SUCCESS)
 						.permitAll()
 				);
 		http

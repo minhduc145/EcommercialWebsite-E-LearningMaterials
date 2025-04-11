@@ -1,13 +1,5 @@
 'use client'
-import { redirect } from 'next/navigation'
+import { link_logout } from '@/datadto/public-var'
 export default function Logout() {
-    fetch('http://localhost:8080/api/accounts/logout', {
-        method: 'GET',
-        credentials: 'include'
-    }).then(() => {
-        redirect('/') 
-    }).catch(() => {
-        redirect('/') 
-    });
-
+    location.href = link_logout;
 }
