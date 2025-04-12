@@ -27,7 +27,7 @@ public class PaymentServiceImpl implements PaymentService {
 		vnpParams.put("vnp_Version", "2.1.0");
 		vnpParams.put("vnp_Command", "pay");
 		vnpParams.put("vnp_TmnCode", vnpayConfig.getTmnCode());
-		vnpParams.put("vnp_Amount", String.valueOf(amount * 100)); // VNPay yêu cầu *100
+		vnpParams.put("vnp_Amount", String.valueOf(amount * 100)); //must multiply by 100
 		vnpParams.put("vnp_CurrCode", "VND");
 		vnpParams.put("vnp_TxnRef", UUID.randomUUID().toString().replace("-", ""));
 		vnpParams.put("vnp_OrderInfo", orderInfo);
@@ -63,9 +63,29 @@ public class PaymentServiceImpl implements PaymentService {
 			SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "HmacSHA512");
 			hmac512.init(secretKey);
 			byte[] bytes = hmac512.doFinal(data.getBytes());
-			return Hex.encodeHexString(bytes).toLowerCase(); // giữ nguyên kiểu lowercase như bạn đang làm
+			return Hex.encodeHexString(bytes).toLowerCase();
 		} catch (Exception e) {
 			throw new RuntimeException("Error while generating HMAC-SHA512", e);
 		}
+	}
+//for Controlller
+
+	public String hashAllFields(Map<String, String> fields, String hashSecret) {
+		List<String> fieldNames = new ArrayList<>(fields.keySet());
+		Collections.sort(fieldNames);
+		StringBuilder hashData = new StringBuilder();
+		for (String fieldName : fieldNames) {
+			String fieldValue = fields.get(fieldName);
+			if ((fieldValue != null) && (fieldValue.length() > 0)) {
+				hashData.append(fieldName).append('=').append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII)).append('&');
+			}
+		}
+		hashData.setLength(hashData.length() - 1);
+		return HmacSHA512(hashSecret, hashData.toString());
+	}
+
+	@Override
+	public void paymentSuccessHandler() {
+		return;
 	}
 }

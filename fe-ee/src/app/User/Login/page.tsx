@@ -7,12 +7,13 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import * as yup from "yup";
 import axios from "axios";
 import { useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 import { link_google_login } from "@/lib/public-var"
+import MyToaster from "@/components/ui/toastify-template"
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "http://localhost:8080";
 const schema = yup.object({
@@ -40,20 +41,9 @@ export default function LoginPage() {
 				throw new Error("Đăng nhập lỗi")
 			window.location.href = "/"
 		}).catch(function (error) {
-			var msg = error.response? error.response.data.message : error.message
+			var msg = error.response ? error.response.data.message : error.message
 			if (error.status === 404) msg = "Tài khoản hoặc mật khẩu không đúng"
-			toast.error(<div>
-				Đăng nhập Thất bại! <br /> {msg}
-			</div>, {
-				position: "top-right",
-				autoClose: 5000,
-				hideProgressBar: false,
-				closeOnClick: false,
-				pauseOnHover: true,
-				draggable: true,
-				progress: undefined,
-				theme: "light",
-			});
+			MyToaster({ variant: "error", message: msg });
 		});
 	}
 	const searchParams = useSearchParams()
@@ -61,18 +51,10 @@ export default function LoginPage() {
 	const isFail = searchParams.has('fail')
 	useEffect(() => {
 		if (isSuccess) {
-			toast.success(<div>
-				Đăng nhập thành công! <br />
-			</div>, {
-				position: "top-right", autoClose: 5000, hideProgressBar: false, closeOnClick: false, pauseOnHover: true, draggable: true, progress: undefined, theme: "light",
-			});
+			MyToaster({ variant: "success", message: "" });
 			window.location.href = "/"
 		} else if (isFail) {
-			toast.error(<div>
-				Đăng nhập không thành công! <br />
-			</div>, {
-				position: "top-right", autoClose: 5000, hideProgressBar: false, closeOnClick: false, pauseOnHover: true, draggable: true, progress: undefined, theme: "light",
-			});
+			MyToaster({ variant: "error", message: "" });
 		}
 	}, [])
 

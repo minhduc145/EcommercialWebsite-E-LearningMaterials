@@ -12,9 +12,9 @@ public class CorsConfig {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**") // Cho phép tất cả endpoint
-						.allowedOrigins("http://localhost:3000") // Cho phép React frontend gọi API
-						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Các phương thức HTTP được phép
+				registry.addMapping("/**")
+						.allowedOriginPatterns("http://localhost:3000")
+						.allowedMethods("*")
 						.allowedHeaders("*")
 						.allowCredentials(true);
 			}

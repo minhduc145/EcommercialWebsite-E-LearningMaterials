@@ -11,6 +11,11 @@ import Link from "next/link"
 import { HomeIcon, Banknote } from 'lucide-react'
 import '@/app/assets/css/courseDetail/style.css'
 import { StarRating } from "@/components/ui/star-rating"
+
+import SockJS from "sockjs-client";
+import { Client, IMessage } from "@stomp/stompjs";
+import MyToaster from '@/components/ui/toastify-template'
+
 const c = {
     id: '1',
     title: "Course name 1",
@@ -21,9 +26,38 @@ const c = {
     price: 1000000
 }
 
+
 export default function courseDetails() {
     const params = useParams()
     const id = params.id
+    useEffect(() => {
+        const socket = new SockJS('http://localhost:8080/ws/payment');
+        const client = new Client({
+            webSocketFactory: () => socket,
+            reconnectDelay: 5000,
+            onConnect: () => {
+                console.log('✅ Connected to WebSocket');
+                client.subscribe('/topic/result', (message: IMessage) => {
+                    console.log('📩 Message received:', message.body);
+                    if (message.body === "1") {
+                        alert("Thanh toán thành công")
+                        window.location.reload();
+                    } else {
+                        alert("Thanh toán thất bại")
+                    }
+                });
+            },
+            onStompError: (frame) => {
+                console.error('❌ Broker error:', frame.headers['message']);
+            },
+        });
+
+        client.activate();
+
+        return () => {
+            client.deactivate();
+        };
+    }, []);
 
     return (
         <>
@@ -241,6 +275,8 @@ import {
 import { Separator } from '@radix-ui/react-dropdown-menu'
 import VNPayButton from '@/components/ui/VNPAY-open-window'
 import { formatCurrency } from '../../../lib/public-var';
+import { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 
 function SubscriptionCard() {
     return (
@@ -248,7 +284,7 @@ function SubscriptionCard() {
             <CardHeader className=''>
                 Mua học liệu:
                 <div>
-                    <VNPayButton amount={c.price} orderInfo={`${c.id},${c.title}`} />
+                    <VNPayButton amount={c.price} orderInfo={`${c.id}${c.title}`} />
                 </div>
 
             </CardHeader>
@@ -285,3 +321,5 @@ function SubscriptionCard() {
         </Card>
     )
 }
+
+

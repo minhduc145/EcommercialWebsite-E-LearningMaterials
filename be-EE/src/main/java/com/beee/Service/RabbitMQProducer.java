@@ -5,6 +5,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 public class RabbitMQProducer {
 	@Autowired
@@ -16,6 +18,6 @@ public class RabbitMQProducer {
 				RabbitMQConfig.ROUTING_KEY,
 				message
 		);
-		System.out.println("Sent message: " + message);
+		System.out.println("Sent: " + message);
 	}
 }

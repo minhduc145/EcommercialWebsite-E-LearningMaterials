@@ -1,13 +1,18 @@
 package com.beee.Service;
 
-import com.beee.Config.RabbitMQConfig;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RabbitMQConsumer {
-	@RabbitListener(queues = RabbitMQConfig.QUEUE)
-	public void listen(String message) {
-		System.out.println("Received message: " + message);
+	@Autowired
+	SimpMessagingTemplate template;
+
+	@RabbitListener(queues = "queue")
+	public void convertToWebSocket(String message) {
+		template.convertAndSend("/topic/result", message);
+		System.out.println("Received: " + message);
 	}
 }
