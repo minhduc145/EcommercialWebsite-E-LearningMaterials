@@ -13,7 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class ConventionalController {
+public class RedirectController {
 	@Autowired
 	private AccountRepo accountRepo;
 	@Autowired

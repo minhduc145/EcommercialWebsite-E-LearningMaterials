@@ -1,21 +1,21 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { Client, IMessage } from '@stomp/stompjs';
 
 export default function WebSocketMessage() {
-  const stompClientRef = useRef<Client | null>(null);
+  const [messageBroker, setMessageBroker] = useState('')
 
   useEffect(() => {
-    const socket = new SockJS('http://localhost:8080/ws'); // Thay bằng endpoint backend bạn
+    const socket = new SockJS('http://localhost:8080/ws');
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
       onConnect: () => {
         console.log('✅ Connected to WebSocket');
 
-        client.subscribe('/topic/test', (message: IMessage) => {
+        client.subscribe('/topic/receive', (message: IMessage) => {
           console.log('📩 Message received:', message.body);
-          alert(`Nhận được tin nhắn: ${message.body}`);
+          setMessageBroker(message.body);
         });
       },
       onStompError: (frame) => {
@@ -24,14 +24,11 @@ export default function WebSocketMessage() {
     });
 
     client.activate();
-    stompClientRef.current = client;
 
     return () => {
       client.deactivate();
     };
   }, []);
 
-  return (
-      <p>Kết nối WebSocket thành công? Gửi tin từ server để test!</p>
-  );
+  return <p>{messageBroker}</p>;
 }
