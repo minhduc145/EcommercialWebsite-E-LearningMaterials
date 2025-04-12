@@ -48,7 +48,6 @@ interface IHeaderProps {
 export default function Header(props: IHeaderProps) {
   const [userLoginCookie, setUserLoginCookie] = useState<UserModel | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
   const bgColor = props.color === "blue" ? "bg-blue-900" : ""
   const txtColor = props.color === "blue" ? "text-white" : "text-gray-900"
 
@@ -124,6 +123,7 @@ export default function Header(props: IHeaderProps) {
         </div>
 
         <div className="hidden items-center lg:flex lg:gap-x-12">
+
           {navigation.map((item) => (
             <Link key={item.name} href={item.href} className={`text-sm/6 font-semibold ${txtColor}`}>
               {item.name}
@@ -192,9 +192,9 @@ interface IUserDropDownProps {
 
 export function UserDropDown(props: IUserDropDownProps) {
   const userModel = props.userModel
-
+  console.log(props.userModel.avatarUrl)
   return (
-    <div className="transition duration-300 ease-in transform hover:-translate-y-2">
+    <div className="transition duration-300 ease-in transform hover:-translate-y-1">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="p-0">

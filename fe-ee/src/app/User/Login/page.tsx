@@ -12,7 +12,7 @@ import * as yup from "yup";
 import axios from "axios";
 import { useSearchParams } from "next/navigation"
 import { useEffect } from "react"
-import { link_google_login } from "@/datadto/public-var"
+import { link_google_login } from "@/lib/public-var"
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "http://localhost:8080";
 const schema = yup.object({

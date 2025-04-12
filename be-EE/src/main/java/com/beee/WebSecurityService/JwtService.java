@@ -1,6 +1,5 @@
 package com.beee.WebSecurityService;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -19,14 +18,12 @@ public class JwtService {
 	private final String SECRET_KEY_STRING;
 	private final SecretKey SECRET_KEY;
 
-	public JwtService() {
-		Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-		String secretKeyString = dotenv.get("JWT_SECRET_KEY");
-		if (secretKeyString == null || secretKeyString.isEmpty()) {
+	public JwtService(@Value("${jwt.secret-key}") String secretKey) {
+		if (secretKey == null || secretKey.isEmpty()) {
 			throw new IllegalArgumentException("JWT Secret Key không được để trống!");
 		}
-		this.SECRET_KEY_STRING = secretKeyString;
-		this.SECRET_KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKeyString));
+		this.SECRET_KEY_STRING = secretKey;
+		this.SECRET_KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY_STRING));
 	}
 
 	public String generateToken(String username) {

@@ -1,4 +1,4 @@
-package com.beee.Service.Impl;
+package com.beee.Service;
 
 import org.springframework.stereotype.Service;
 

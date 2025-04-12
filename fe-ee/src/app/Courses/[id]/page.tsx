@@ -240,7 +240,7 @@ import {
 } from "@/components/ui/card"
 import { Separator } from '@radix-ui/react-dropdown-menu'
 import VNPayButton from '@/components/ui/VNPAY-open-window'
-import { formatCurrency } from '../../../datadto/public-var';
+import { formatCurrency } from '../../../lib/public-var';
 
 function SubscriptionCard() {
     return (

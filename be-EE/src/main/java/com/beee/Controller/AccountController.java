@@ -43,7 +43,7 @@ public class AccountController {
 		responseService.disposeCookie(response, "jwt");
 		try {
 			Authentication auth = authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(accountModel.getId(), accountModel.getPassword())
+					new UsernamePasswordAuthenticationToken(accountModel.getId().toLowerCase(), accountModel.getPassword())
 			);
 			User user = (User) auth.getPrincipal();
 			String token = jwtService.generateToken(user.getUsername());

@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 const AppFooter = dynamic(() => import('@/components/footer'), { ssr: false });
 const Header = dynamic(() => import('@/components/header'), { ssr: false });
 import axios from "axios";
+import WebSocketMessage from '@/lib/stompClient';
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "http://localhost:8080";
 
@@ -14,6 +15,7 @@ export default function Home() {
 			<Header color='' />
 			<div className="relative isolate px-6 lg:px-8">
 				<div className="mx-auto max-w-2xl py-32 sm:py-36 lg:py-44">
+					<WebSocketMessage/>
 					<div className="aspect-video w-full">
 						<iframe allowFullScreen className="w-full h-full" src="https://archive.org/embed/CNNW_20250410_110000_CNN_News_Central?start=60&end=120"></iframe>
 					</div>

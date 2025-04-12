@@ -24,10 +24,13 @@ public class AccountModel {
 	@Column(name = "role")
 	private String role;
 
-	@OneToOne(cascade = CascadeType.ALL)
-	@MapsId
+	@Column(name = "provider")
+	private String provider;
+
+	@OneToOne
 	@JoinColumn(name = "id")
-	@JsonIgnore
+	@MapsId
 	@ToString.Exclude
+	@JsonIgnore
 	private UserModel user;
 }

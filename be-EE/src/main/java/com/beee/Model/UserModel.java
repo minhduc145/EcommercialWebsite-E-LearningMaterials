@@ -1,5 +1,6 @@
 package com.beee.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,8 +29,6 @@ public class UserModel {
 	@Column(name = "avatar_url")
 	private String avatarUrl;
 
-	@OneToOne(cascade = CascadeType.ALL)
-	@MapsId
-	@JoinColumn(name = "id")
+	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private AccountModel account;
 }
