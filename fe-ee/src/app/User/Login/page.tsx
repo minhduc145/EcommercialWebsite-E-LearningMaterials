@@ -60,7 +60,9 @@ export default function LoginPage() {
 
 	return (
 		<>
-			<Notify />
+			<div>
+				<ToastContainer />
+			</div>
 			<a className="absolute p-5 float-left" href="/">
 				<House aria-hidden className="size-6" />
 			</a>
@@ -140,12 +142,4 @@ export default function LoginPage() {
 			</div>
 		</>
 	)
-}
-
-function Notify() {
-	return (
-		<div>
-			<ToastContainer />
-		</div>
-	);
 }

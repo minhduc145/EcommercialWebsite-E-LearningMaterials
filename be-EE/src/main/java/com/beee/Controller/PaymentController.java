@@ -4,13 +4,13 @@ import com.beee.Common.Constants;
 import com.beee.Config.VnpayConfig;
 import com.beee.DTO.VnpayPaymentResponseDTO;
 import com.beee.Service.PaymentService;
-import com.beee.Service.RabbitMQConsumer;
 import com.beee.Service.RabbitMQProducer;
+import com.beee.WebSecurityService.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +28,8 @@ public class PaymentController {
 	private VnpayConfig vnpayConfig;
 	@Autowired
 	RabbitMQProducer rabbitMQProducer;
+	@Autowired
+	private JwtService jwtService;
 
 	@ResponseBody
 	@GetMapping("/vnpay")
@@ -41,15 +43,10 @@ public class PaymentController {
 		return ResponseEntity.ok(paymentUrl);
 	}
 
-	@ExceptionHandler(RequestRejectedException.class)
-	public void rejected(HttpServletResponse response, HttpServletRequest request) throws IOException {
-		System.out.println("rejected");
-		System.out.println(request.getRequestURI());
-	}
-
 	@ResponseBody
 	@GetMapping("/return")
-	public String test(VnpayPaymentResponseDTO responseDTO, HttpServletRequest request) {
+	public String test(VnpayPaymentResponseDTO responseDTO, HttpServletRequest request, @CookieValue(name = "jwt", required = false) String token) {
+		String username = jwtService.extractUsername(token);
 		Map<String, String> fields = new HashMap<>();
 		for (String key : request.getParameterMap().keySet()) {
 			if (key.startsWith("vnp_") && !key.equals("vnp_SecureHash")) {
@@ -61,16 +58,15 @@ public class PaymentController {
 		if (signValue.equals(vnp_SecureHash)) {
 			String vnp_ResponseCode = fields.get("vnp_ResponseCode");
 			if ("00".equals(vnp_ResponseCode)) {
-				System.out.println("result Thành công");
-				rabbitMQProducer.sendMessage(Constants.RESULT_SUCCESS.toString());
+				rabbitMQProducer.sendToQ2(username, Constants.RESULT_SUCCESS.toString());
 			} else {
-				System.out.println("result That bai");
-				rabbitMQProducer.sendMessage(Constants.RESULT_FAIL.toString());
+				rabbitMQProducer.sendToQ2(username, Constants.RESULT_FAIL.toString());
 			}
 		} else {
-			rabbitMQProducer.sendMessage(Constants.RESULT_FAIL.toString());
+			rabbitMQProducer.sendToQ2(username, Constants.RESULT_FAIL.toString());
 			System.out.println("Dữ liệu không hợp lệ");
 		}
+		rabbitMQProducer.sendToQ1(username, "Bạn đã thực hiện 1 giao dịch");
 		return "Done. Close this popup!";
 	}
 }

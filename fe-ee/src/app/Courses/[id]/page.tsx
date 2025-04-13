@@ -14,7 +14,6 @@ import { StarRating } from "@/components/ui/star-rating"
 
 import SockJS from "sockjs-client";
 import { Client, IMessage } from "@stomp/stompjs";
-import MyToaster from '@/components/ui/toastify-template'
 
 const c = {
     id: '1',
@@ -23,7 +22,7 @@ const c = {
     description: "this is example description that never be useful for anything",
     thumbnail_url: "global_imgs/KH-demo.png",
     author_name: "Nguyễn A",
-    price: 1000000
+    price: 1500000
 }
 
 
@@ -31,31 +30,34 @@ export default function courseDetails() {
     const params = useParams()
     const id = params.id
     useEffect(() => {
-        const socket = new SockJS('http://localhost:8080/ws/payment');
-        const client = new Client({
-            webSocketFactory: () => socket,
+        const paymentSocket = new SockJS('http://localhost:8080/ws/payment');
+        const paymentClient = new Client({
+            webSocketFactory: () => paymentSocket,
             reconnectDelay: 5000,
             onConnect: () => {
-                console.log('✅ Connected to WebSocket');
-                client.subscribe('/topic/result', (message: IMessage) => {
+                paymentClient.subscribe(`/topic/result/${JSON.parse(String(localStorage.getItem('currentUser')))?.id}`
+                , (message: IMessage) => {
                     console.log('📩 Message received:', message.body);
                     if (message.body === "1") {
-                        alert("Thanh toán thành công")
-                        window.location.reload();
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000)
                     } else {
                         alert("Thanh toán thất bại")
                     }
-                });
+                }
+                ,{
+					username: JSON.parse(String(localStorage.getItem('currentUser')))?.id
+				});
+                console.log('✅ Connected to WebSocket');
             },
             onStompError: (frame) => {
                 console.error('❌ Broker error:', frame.headers['message']);
             },
         });
-
-        client.activate();
-
+        paymentClient.activate();
         return () => {
-            client.deactivate();
+            paymentClient.deactivate();
         };
     }, []);
 
