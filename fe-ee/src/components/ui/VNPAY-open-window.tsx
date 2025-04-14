@@ -15,8 +15,10 @@ export default function VNPayButton(props: IProps) {
             const url = new URL("http://localhost:8080/api/payment/vnpay");
             url.searchParams.append("amount", props.amount);
             url.searchParams.append("orderInfo", props.orderInfo);
+            url.searchParams.append("username",JSON.parse(String(localStorage.getItem('currentUser')))?.id);
 
             const res = await fetch(url.toString(), {
+                credentials:"include",
                 method: "GET"
             });
 

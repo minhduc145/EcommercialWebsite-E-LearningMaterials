@@ -34,16 +34,16 @@ public class PaymentController {
 	@ResponseBody
 	@GetMapping("/vnpay")
 	public ResponseEntity<String> createPaymentUrl(
+			@RequestParam String username,
 			@RequestParam long amount,
 			@RequestParam String orderInfo,
 			HttpServletRequest request
 	) throws UnsupportedEncodingException {
 		String ipAddress = request.getRemoteAddr();
-		String paymentUrl = paymentService.createPaymentUrl(amount, orderInfo, ipAddress);
+		String paymentUrl = paymentService.createPaymentUrl(username, amount, orderInfo, ipAddress);
 		return ResponseEntity.ok(paymentUrl);
 	}
 
-	@ResponseBody
 	@GetMapping("/return")
 	public String test(VnpayPaymentResponseDTO responseDTO, HttpServletRequest request, @CookieValue(name = "jwt", required = false) String token) {
 		String username = jwtService.extractUsername(token);
@@ -53,20 +53,29 @@ public class PaymentController {
 				fields.put(key, request.getParameter(key));
 			}
 		}
-		String vnp_SecureHash = responseDTO.getVnp_SecureHash();
-		String signValue = paymentService.hashAllFields(fields, vnpayConfig.getHashSecret());
-		if (signValue.equals(vnp_SecureHash)) {
-			String vnp_ResponseCode = fields.get("vnp_ResponseCode");
-			if ("00".equals(vnp_ResponseCode)) {
-				rabbitMQProducer.sendToQ2(username, Constants.RESULT_SUCCESS.toString());
-			} else {
-				rabbitMQProducer.sendToQ2(username, Constants.RESULT_FAIL.toString());
+		String[] secureInfo = jwtService.extractUsername(responseDTO.getVnp_TxnRef()).split("~~");
+		if (secureInfo.length > 1) {
+			String orderInfo1 = responseDTO.getVnp_OrderInfo();
+			String orderInfo2 = secureInfo[1];
+			String username2 = secureInfo[0];
+			if (username2.equals(username) && orderInfo1.equals(orderInfo2)) {
+				String signValue = paymentService.hashAllFields(fields, vnpayConfig.getHashSecret());
+				String vnp_SecureHash = responseDTO.getVnp_SecureHash();
+				if (signValue.equals(vnp_SecureHash)) {
+					String vnp_ResponseCode = fields.get("vnp_ResponseCode");
+					if ("00".equals(vnp_ResponseCode)) {
+						rabbitMQProducer.sendToQ2(username, Constants.RESULT_SUCCESS.toString());
+					} else {
+						rabbitMQProducer.sendToQ2(username, Constants.RESULT_FAIL.toString());
+					}
+				} else {
+					rabbitMQProducer.sendToQ2(username, Constants.RESULT_FAIL.toString());
+					return "Failed. Data is missing";
+				}
+				rabbitMQProducer.sendToQ1(username, "Bạn đã thực hiện 1 giao dịch");
+				return "redirect:"+Constants.URL_FE_PAYMENT_SUCCESS;
 			}
-		} else {
-			rabbitMQProducer.sendToQ2(username, Constants.RESULT_FAIL.toString());
-			System.out.println("Dữ liệu không hợp lệ");
 		}
-		rabbitMQProducer.sendToQ1(username, "Bạn đã thực hiện 1 giao dịch");
-		return "Done. Close this popup!";
+		return "Failed. Data is missing";
 	}
 }

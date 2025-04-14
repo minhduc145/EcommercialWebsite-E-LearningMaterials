@@ -26,13 +26,17 @@ public class JwtService {
 		this.SECRET_KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY_STRING));
 	}
 
-	public String generateToken(String username) {
+	public String generateToken(String username, long expireMillis) {
 		return Jwts.builder()
 				.setSubject(username)
 				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + 86400000)) //a day
+				.setExpiration(new Date(System.currentTimeMillis() + expireMillis)) //a day
 				.signWith(SignatureAlgorithm.HS256, SECRET_KEY)
 				.compact();
+	}
+
+	public String generateToken(String username) {
+		return generateToken(username, 86400000); // 1 ngày mặc định
 	}
 
 	public String extractUsername(String token) {

@@ -2,6 +2,7 @@ package com.beee.Service.Impl;
 
 import com.beee.Config.VnpayConfig;
 import com.beee.Service.PaymentService;
+import com.beee.WebSecurityService.JwtService;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,16 +21,18 @@ import java.util.*;
 public class PaymentServiceImpl implements PaymentService {
 	@Autowired
 	private VnpayConfig vnpayConfig;
+	@Autowired
+	private JwtService jwtService;
 
 
-	public String createPaymentUrl(long amount, String orderInfo, String ipAddress) throws UnsupportedEncodingException {
+	public String createPaymentUrl(String username, long amount, String orderInfo, String ipAddress) throws UnsupportedEncodingException {
 		Map<String, String> vnpParams = new HashMap<>();
 		vnpParams.put("vnp_Version", "2.1.0");
 		vnpParams.put("vnp_Command", "pay");
 		vnpParams.put("vnp_TmnCode", vnpayConfig.getTmnCode());
 		vnpParams.put("vnp_Amount", String.valueOf(amount * 100)); //must multiply by 100
 		vnpParams.put("vnp_CurrCode", "VND");
-		vnpParams.put("vnp_TxnRef", UUID.randomUUID().toString().replace("-", ""));
+		vnpParams.put("vnp_TxnRef", jwtService.generateToken(username + "~~" + orderInfo, 900000));
 		vnpParams.put("vnp_OrderInfo", orderInfo);
 		vnpParams.put("vnp_OrderType", "other");
 		vnpParams.put("vnp_Locale", "vn");

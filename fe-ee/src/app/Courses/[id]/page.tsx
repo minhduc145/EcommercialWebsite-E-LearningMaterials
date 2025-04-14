@@ -277,8 +277,7 @@ import {
 import { Separator } from '@radix-ui/react-dropdown-menu'
 import VNPayButton from '@/components/ui/VNPAY-open-window'
 import { formatCurrency } from '../../../lib/public-var';
-import { useEffect, useState } from 'react'
-import { toast } from 'react-toastify'
+import { useEffect } from 'react'
 
 function SubscriptionCard() {
     return (
@@ -286,7 +285,7 @@ function SubscriptionCard() {
             <CardHeader className=''>
                 Mua học liệu:
                 <div>
-                    <VNPayButton amount={c.price} orderInfo={`${c.id}${c.title}`} />
+                    <VNPayButton amount={c.price} orderInfo={`${c.id}_${c.title}`} />
                 </div>
 
             </CardHeader>

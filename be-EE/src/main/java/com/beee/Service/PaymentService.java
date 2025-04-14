@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Service
 public interface PaymentService {
-	public String createPaymentUrl(long amount, String orderInfo, String ipAddress) throws UnsupportedEncodingException;
+	public String createPaymentUrl(String username, long amount, String orderInfo, String ipAddress) throws UnsupportedEncodingException;
 
 	public String hashAllFields(Map<String, String> fields, String hashSecret);
 
