@@ -57,9 +57,9 @@ public class UserLoginService implements UserDetailsService {
 			responseService.addCookie(response, "jwt", jwtService.generateToken(accountModel.getId()));
 			response.sendRedirect(Constants.URL_FE_LOGIN_SUCCESS);
 		} else {
-			UUID randomUUID = UUID.randomUUID();
+			System.out.println(principal);
 			UserModel newUserModel = new UserModel().builder()
-					.id(randomUUID.toString())
+					.id(principal.getAttribute("sub"))
 					.email(principal.getAttribute("email"))
 					.avatarUrl(principal.getAttribute("picture"))
 					.firstName(principal.getAttribute("given_name"))
@@ -72,7 +72,7 @@ public class UserLoginService implements UserDetailsService {
 					.build();
 			newUserModel.setAccount(newAccountModel);
 			userRepo.save(newUserModel);
-			responseService.addCookie(response, "jwt", jwtService.generateToken(randomUUID.toString()));
+			responseService.addCookie(response, "jwt", jwtService.generateToken(newUserModel.getId()));
 			response.sendRedirect(Constants.URL_FE_LOGIN_SUCCESS);
 		}
 	}

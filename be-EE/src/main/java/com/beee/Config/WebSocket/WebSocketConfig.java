@@ -23,23 +23,23 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws") // endpoint để client kết nối
 				.setAllowedOriginPatterns("http://localhost:3000")
-				.addInterceptors(new JwtHandshakeInterceptor())
+//				.addInterceptors(new JwtHandshakeInterceptor())
 				.withSockJS(); // dùng SockJS fallback nếu browser k hỗ trợ WS
 		registry.addEndpoint("/ws/payment")
 				.setAllowedOriginPatterns("http://localhost:3000")
-				.addInterceptors(new JwtHandshakeInterceptor())
+//				.addInterceptors(new JwtHandshakeInterceptor())
 				.withSockJS();
 		registry.addEndpoint("/ws/notification")
 				.setAllowedOriginPatterns("http://localhost:3000")
-				.addInterceptors(new JwtHandshakeInterceptor())
+//				.addInterceptors(new JwtHandshakeInterceptor())
 				.withSockJS();
 	}
 
-	@Autowired
-	private CustomStompInterceptor customStompInterceptor;
-
-	@Override
-	public void configureClientInboundChannel(ChannelRegistration registration) {
-		registration.interceptors(customStompInterceptor);
-	}
+//	@Autowired
+//	private CustomStompInterceptor customStompInterceptor;
+//
+//	@Override
+//	public void configureClientInboundChannel(ChannelRegistration registration) {
+//		registration.interceptors(customStompInterceptor);
+//	}
 }

@@ -13,8 +13,8 @@ import java.sql.Timestamp;
 @ToString
 @Builder
 @Entity
-@Table(name = "subscription_records")
-public class SubscriptionRecordModel {
+@Table(name = "subscription")
+public class SubscriptionModel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")

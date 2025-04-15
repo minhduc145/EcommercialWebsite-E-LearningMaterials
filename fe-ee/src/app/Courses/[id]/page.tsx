@@ -159,9 +159,9 @@ function MainTabs() {
                     </TabsContent>
 
                     <TabsContent value="tai-lieu" className="space-y-4">
-                        <h2 className="text-xl font-bold">TÀI LIỆU HỌC TẬP</h2>
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-2">
+                        <div className=" ">
+                            <CourseFileAccordion/>
+                            {/* <div className="flex items-center gap-2">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="24"
@@ -220,7 +220,7 @@ function MainTabs() {
                                 <a href="#" className="text-blue-600 hover:underline">
                                     Tài liệu tham khảo.docx
                                 </a>
-                            </div>
+                            </div> */}
                         </div>
                     </TabsContent>
                     <TabsContent value="danh-gia" className="space-y-4">
@@ -278,6 +278,7 @@ import { Separator } from '@radix-ui/react-dropdown-menu'
 import VNPayButton from '@/components/ui/VNPAY-open-window'
 import { formatCurrency } from '../../../lib/public-var';
 import { useEffect } from 'react'
+import CourseFileAccordion from './components/course-file-accordion'
 
 function SubscriptionCard() {
     return (

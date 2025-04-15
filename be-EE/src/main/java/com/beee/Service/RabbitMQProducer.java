@@ -1,7 +1,6 @@
 package com.beee.Service;
 
 import com.beee.Config.RabbitMQConfig;
-import com.beee.Model.MessageObjectModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
