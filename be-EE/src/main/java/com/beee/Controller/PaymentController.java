@@ -5,6 +5,7 @@ import com.beee.Config.VnpayConfig;
 import com.beee.DTO.VnpayPaymentResponseDTO;
 import com.beee.Service.PaymentService;
 import com.beee.Service.RabbitMQProducer;
+import com.beee.Service.ResponseService;
 import com.beee.WebSecurityService.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,6 +31,8 @@ public class PaymentController {
 	RabbitMQProducer rabbitMQProducer;
 	@Autowired
 	private JwtService jwtService;
+	@Autowired
+	private ResponseService responseService;
 
 	@ResponseBody
 	@GetMapping("/vnpay")
@@ -37,43 +40,46 @@ public class PaymentController {
 			@RequestParam String username,
 			@RequestParam long amount,
 			@RequestParam String orderInfo,
-			HttpServletRequest request
+			HttpServletRequest request, HttpServletResponse response
 	) throws UnsupportedEncodingException {
 		String ipAddress = request.getRemoteAddr();
 		String paymentUrl = paymentService.createPaymentUrl(username, amount, orderInfo, ipAddress);
+		responseService.addCookie(response,"payment",jwtService.generateToken(username + "~~" + orderInfo, 900000));
 		return ResponseEntity.ok(paymentUrl);
 	}
 
 	@GetMapping("/return")
-	public String test(VnpayPaymentResponseDTO responseDTO, HttpServletRequest request, @CookieValue(name = "jwt", required = false) String token) {
-		String username = jwtService.extractUsername(token);
-		Map<String, String> fields = new HashMap<>();
-		for (String key : request.getParameterMap().keySet()) {
-			if (key.startsWith("vnp_") && !key.equals("vnp_SecureHash")) {
-				fields.put(key, request.getParameter(key));
+	public String test(VnpayPaymentResponseDTO responseDTO, HttpServletRequest request, @CookieValue(name = "jwt", required = false) String token, @CookieValue(name = "payment", required = false) String paymentToken) {
+		if(!jwtService.isTokenExpired(paymentToken)) {
+			String username = jwtService.extractUsername(token);
+			Map<String, String> fields = new HashMap<>();
+			for (String key : request.getParameterMap().keySet()) {
+				if (key.startsWith("vnp_") && !key.equals("vnp_SecureHash")) {
+					fields.put(key, request.getParameter(key));
+				}
 			}
-		}
-		String[] secureInfo = jwtService.extractUsername(responseDTO.getVnp_TxnRef()).split("~~");
-		if (secureInfo.length > 1) {
-			String orderInfo1 = responseDTO.getVnp_OrderInfo();
-			String orderInfo2 = secureInfo[1];
-			String username2 = secureInfo[0];
-			if (username2.equals(username) && orderInfo1.equals(orderInfo2)) {
-				String signValue = paymentService.hashAllFields(fields, vnpayConfig.getHashSecret());
-				String vnp_SecureHash = responseDTO.getVnp_SecureHash();
-				if (signValue.equals(vnp_SecureHash)) {
-					String vnp_ResponseCode = fields.get("vnp_ResponseCode");
-					if ("00".equals(vnp_ResponseCode)) {
-						rabbitMQProducer.sendToQ2(username, Constants.RESULT_SUCCESS.toString());
+			String[] secureInfo = jwtService.extractUsername(paymentToken).split("~~");
+			if (secureInfo.length > 1) {
+				String orderInfo1 = responseDTO.getVnp_OrderInfo();
+				String orderInfo2 = secureInfo[1];
+				String username2 = secureInfo[0];
+				if (username2.equals(username) && orderInfo1.equals(orderInfo2)) {
+					String signValue = paymentService.hashAllFields(fields, vnpayConfig.getHashSecret());
+					String vnp_SecureHash = responseDTO.getVnp_SecureHash();
+					if (signValue.equals(vnp_SecureHash)) {
+						String vnp_ResponseCode = fields.get("vnp_ResponseCode");
+						if ("00".equals(vnp_ResponseCode)) {
+							rabbitMQProducer.sendToQ2(username, Constants.RESULT_SUCCESS.toString());
+						} else {
+							rabbitMQProducer.sendToQ2(username, Constants.RESULT_FAIL.toString());
+						}
 					} else {
 						rabbitMQProducer.sendToQ2(username, Constants.RESULT_FAIL.toString());
+						return "Failed. Data is missing";
 					}
-				} else {
-					rabbitMQProducer.sendToQ2(username, Constants.RESULT_FAIL.toString());
-					return "Failed. Data is missing";
+					rabbitMQProducer.sendToQ1(username, "Bạn đã thực hiện 1 giao dịch");
+					return "redirect:"+Constants.URL_FE_PAYMENT_SUCCESS;
 				}
-				rabbitMQProducer.sendToQ1(username, "Bạn đã thực hiện 1 giao dịch");
-				return "redirect:"+Constants.URL_FE_PAYMENT_SUCCESS;
 			}
 		}
 		return "Failed. Data is missing";

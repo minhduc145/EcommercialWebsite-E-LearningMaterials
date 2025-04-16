@@ -32,7 +32,7 @@ public class PaymentServiceImpl implements PaymentService {
 		vnpParams.put("vnp_TmnCode", vnpayConfig.getTmnCode());
 		vnpParams.put("vnp_Amount", String.valueOf(amount * 100)); //must multiply by 100
 		vnpParams.put("vnp_CurrCode", "VND");
-		vnpParams.put("vnp_TxnRef", jwtService.generateToken(username + "~~" + orderInfo, 900000));
+		vnpParams.put("vnp_TxnRef", UUID.randomUUID().toString());
 		vnpParams.put("vnp_OrderInfo", orderInfo);
 		vnpParams.put("vnp_OrderType", "other");
 		vnpParams.put("vnp_Locale", "vn");
@@ -71,8 +71,8 @@ public class PaymentServiceImpl implements PaymentService {
 			throw new RuntimeException("Error while generating HMAC-SHA512", e);
 		}
 	}
-//for Controlller
 
+	//for Controlller
 	public String hashAllFields(Map<String, String> fields, String hashSecret) {
 		List<String> fieldNames = new ArrayList<>(fields.keySet());
 		Collections.sort(fieldNames);
