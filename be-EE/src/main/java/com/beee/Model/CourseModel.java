@@ -24,8 +24,11 @@ public class CourseModel {
 	@Column(name = "id")
 	private Integer id;
 
-	@Column(name = "title")
-	private String title;
+	@Column(name = "created_at")
+	private Timestamp createdAt;
+
+	@Column(name = "creator_id", updatable = false, insertable = false)
+	private String creatorId;
 
 	@Column(name = "description", columnDefinition = "TEXT")
 	private String description;
@@ -36,22 +39,19 @@ public class CourseModel {
 	@Column(name = "price")
 	private BigDecimal price;
 
+	@Column(name = "status")
+	private String status;
+
 	@Column(name = "thumbnail_url")
 	private String thumbnailUrl;
 
-	@Column(name = "creator_id", updatable = false, insertable = false)
-	private String creatorId;
-
-	@CreationTimestamp
-	@Column(name = "created_at")
-	private Timestamp createdAt;
-
-	@Column(name = "status")
-	private String status;
+	@Column(name = "title")
+	private String title;
 
 	@ManyToOne
 	@JoinColumn(name = "creator_id", referencedColumnName = "id")
 	private UserModel creator;
+
 	@ManyToOne
 	@JoinColumn(name = "category_id", referencedColumnName = "id")
 	private CategoryModel category;

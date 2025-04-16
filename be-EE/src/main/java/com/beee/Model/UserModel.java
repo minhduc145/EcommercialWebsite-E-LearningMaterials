@@ -6,8 +6,7 @@ import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 @ToString
 @Builder
 @Entity
@@ -28,6 +27,9 @@ public class UserModel {
 
 	@Column(name = "avatar_url")
 	private String avatarUrl;
+
+	@Column(name = "phone")
+	private String phone;
 
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private AccountModel account;

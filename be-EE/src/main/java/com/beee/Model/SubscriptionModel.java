@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @ToString
 @Builder
 @Entity
-@Table(name = "subscription")
+@Table(name = "subscriptions")
 public class SubscriptionModel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,8 +26,8 @@ public class SubscriptionModel {
 	@Column(name = "status")
 	private String status;
 
-	@Column(name = "subscribed_datetime")
-	private Timestamp subscribedDatetime;
+	@Column(name = "created_at")
+	private Timestamp created_at;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", referencedColumnName = "id")
