@@ -44,13 +44,15 @@ public class PaymentController {
 	) throws UnsupportedEncodingException {
 		String ipAddress = request.getRemoteAddr();
 		String paymentUrl = paymentService.createPaymentUrl(username, amount, orderInfo, ipAddress);
-		responseService.addCookie(response,"payment",jwtService.generateToken(username + "~~" + orderInfo, 900000));
+		responseService.addCookie(response, "payment", jwtService.generateToken(username + "~~" + orderInfo, 900000));
 		return ResponseEntity.ok(paymentUrl);
 	}
 
 	@GetMapping("/return")
-	public String test(VnpayPaymentResponseDTO responseDTO, HttpServletRequest request, @CookieValue(name = "jwt", required = false) String token, @CookieValue(name = "payment", required = false) String paymentToken) {
-		if(!jwtService.isTokenExpired(paymentToken)) {
+	public String test(VnpayPaymentResponseDTO responseDTO, HttpServletRequest request, HttpServletResponse response,
+	                   @CookieValue(name = "jwt", required = false) String token,
+	                   @CookieValue(name = "payment", required = false) String paymentToken) {
+		if (!jwtService.isTokenExpired(paymentToken)) {
 			String username = jwtService.extractUsername(token);
 			Map<String, String> fields = new HashMap<>();
 			for (String key : request.getParameterMap().keySet()) {
@@ -78,10 +80,11 @@ public class PaymentController {
 						return "Failed. Data is missing";
 					}
 					rabbitMQProducer.sendToQ1(username, "Bạn đã thực hiện 1 giao dịch");
-					return "redirect:"+Constants.URL_FE_PAYMENT_SUCCESS;
+					return "redirect:" + Constants.URL_FE_PAYMENT_SUCCESS;
 				}
 			}
 		}
+		responseService.disposeCookie(response, "payment");
 		return "Failed. Data is missing";
 	}
 }

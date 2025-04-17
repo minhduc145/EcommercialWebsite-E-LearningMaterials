@@ -8,9 +8,11 @@ interface MarkdownRendererProps {
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   return (
     <div className="prose max-w-none">
-      <ReactMarkdown>{content}</ReactMarkdown>
+      <ReactMarkdown>
+        {content}</ReactMarkdown>
     </div>
   );
 };
 
 export default MarkdownRenderer;
+

@@ -18,6 +18,7 @@ public class AccountModel {
 	@Column(name = "id")
 	private String id;
 
+	@JsonIgnore
 	@Column(name = "password")
 	private String password;
 

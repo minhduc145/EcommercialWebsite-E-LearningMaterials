@@ -98,11 +98,11 @@ function FileAccordion() {
         <AccordionItem key={folder.id} value={folder.id} className="border rounded-md overflow-hidden">
           <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-gray-50">
             <div className="flex items-center justify-between w-full">
-              <div className="font-medium text-lg">{folder.name}</div>
+              <div className="font-medium text-md md:text-lg">{folder.name}</div>
               <div className="flex items-center gap-2">
                 <div className="text-gray-500 text-sm flex items-center gap-1">
-                  <File className="size-3" />
-                  {folder.files.length} tài liệu
+                  <File className="hidden size-2 md:inline" />
+                  <span className="font-normal">{folder.files.length} tài liệu</span>
                 </div>
               </div>
             </div>

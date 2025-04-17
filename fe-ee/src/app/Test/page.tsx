@@ -15,6 +15,7 @@ export default function AIInterface() {
 	const [copied, setCopied] = useState(false)
 
 	const handleSubmit = async () => {
+		// alert(process.env.NEXT_PUBLIC_GROQ_API_KEY)
 		setIsLoading(true)
 		setResponse("")
 		const res = await fetch("/api/groq", {

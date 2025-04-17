@@ -1,7 +1,8 @@
 package com.beee.Controller;
 
 import com.beee.Common.Constants;
-import com.beee.Common.Utilis;
+import com.beee.Common.Utils;
+import com.beee.DTO.UserLoginFormDTO;
 import com.beee.DTO.UserRegisterFormDTO;
 import com.beee.Model.AccountModel;
 import com.beee.Model.UserModel;
@@ -39,18 +40,18 @@ public class AccountController {
 	private JwtService jwtService;
 
 	@PostMapping("/login")
-	public ResponseEntity login(@RequestBody AccountModel accountModel, HttpServletResponse response) {
+	public ResponseEntity login(@RequestBody Map<String,String> params, HttpServletResponse response) {
 		responseService.disposeCookie(response, "jwt");
 		try {
 			Authentication auth = authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(accountModel.getId().toLowerCase(), accountModel.getPassword())
+					new UsernamePasswordAuthenticationToken(params.get("id").toLowerCase().trim(), params.get("password"))
 			);
 			User user = (User) auth.getPrincipal();
 			String token = jwtService.generateToken(user.getUsername());
 			responseService.addCookie(response, "jwt", token);
-			return ResponseEntity.ok(Utilis.mapOfResponse(Constants.RESULT_SUCCESS, "Đăng nhập thành công"));
+			return ResponseEntity.ok(Utils.mapOfResponse(Constants.RESULT_SUCCESS, "Đăng nhập thành công"));
 		} catch (AuthenticationException e) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utilis.mapOfResponse(Constants.RESULT_FAIL, "Sai tài khoản/ mật khẩu"));
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, "Sai tài khoản/ mật khẩu"));
 		}
 	}
 

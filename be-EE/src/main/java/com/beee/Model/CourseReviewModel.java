@@ -1,10 +1,8 @@
 package com.beee.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Timestamp;
 
@@ -24,12 +22,14 @@ public class CourseReviewModel {
 	private String comment;
 
 	@Column(name = "star_rate")
-	private Integer star_rate;
+	private Integer starRate;
 
 	@Column(name = "created_at")
-	private Timestamp created_at;
+	private Timestamp createdAt;
 
 	@ManyToOne
+	@ToString.Exclude
+	@JsonIgnore
 	@JoinColumn(name = "course_id", referencedColumnName = "id")
 	private CourseModel course;
 

@@ -1,6 +1,8 @@
 package com.beee.Common;
 
 public class Constants {
+	public static final Integer PAGEABLE_PAGE_SIZE = 5;
+
 	public final static Integer RESULT_SUCCESS = 1;
 	public final static Integer RESULT_FAIL = 0;
 
