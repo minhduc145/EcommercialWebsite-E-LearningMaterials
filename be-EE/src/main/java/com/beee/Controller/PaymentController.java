@@ -1,5 +1,6 @@
 package com.beee.Controller;
 
+import ch.qos.logback.core.model.Model;
 import com.beee.Common.Constants;
 import com.beee.Config.VnpayConfig;
 import com.beee.DTO.VnpayPaymentResponseDTO;
@@ -10,6 +11,8 @@ import com.beee.WebSecurityService.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.security.web.firewall.RequestRejectedException;
@@ -34,18 +37,26 @@ public class PaymentController {
 	@Autowired
 	private ResponseService responseService;
 
+	@GetMapping("/hihi")
+	public String hihi(Model model) {
+		return "course-runner";
+	}
 	@ResponseBody
 	@GetMapping("/vnpay")
 	public ResponseEntity<String> createPaymentUrl(
-			@RequestParam String username,
+			@CookieValue(name = "jwt", required = false) String jwt,
 			@RequestParam long amount,
 			@RequestParam String orderInfo,
 			HttpServletRequest request, HttpServletResponse response
 	) throws UnsupportedEncodingException {
-		String ipAddress = request.getRemoteAddr();
-		String paymentUrl = paymentService.createPaymentUrl(username, amount, orderInfo, ipAddress);
-		responseService.addCookie(response, "payment", jwtService.generateToken(username + "~~" + orderInfo, 900000));
-		return ResponseEntity.ok(paymentUrl);
+		if (jwt != null && !jwtService.isTokenExpired(jwt)) {
+			String username = jwtService.extractUsername(jwt);
+			String ipAddress = request.getRemoteAddr();
+			String paymentUrl = paymentService.createPaymentUrl(username, amount, orderInfo, ipAddress);
+			responseService.addCookie(response, "payment", jwtService.generateToken(username + "~~" + orderInfo, 900000));
+			return ResponseEntity.ok(paymentUrl);
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 
 	@GetMapping("/return")

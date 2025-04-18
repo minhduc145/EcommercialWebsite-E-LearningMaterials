@@ -7,11 +7,17 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 import java.net.URI;
+import java.time.Duration;
 
 @Configuration
 public class S3Config {
+
 	@Value("${cloud.aws.credentials.access-key}")
 	private String accessKey;
 
@@ -24,13 +30,41 @@ public class S3Config {
 	@Value("${cloud.aws.region}")
 	private String region;
 
+
 	@Bean
 	public S3Client s3Client() {
 		AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKey, secretKey);
 		return S3Client.builder()
-				.endpointOverride(URI.create(endpoint)) // Cấu hình endpoint Cloudflare R2
-				.region(Region.of(region)) // Cấu hình vùng APAC (Asia-Pacific)
-				.credentialsProvider(StaticCredentialsProvider.create(awsCreds)) // Cung cấp thông tin xác thực
+				.endpointOverride(URI.create(endpoint))
+				.region(Region.of(region))
+				.credentialsProvider(StaticCredentialsProvider.create(awsCreds))
 				.build();
+	}
+
+	@Bean
+	public S3Presigner s3Presigner() {
+		AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKey, secretKey);
+		return S3Presigner.builder()
+				.endpointOverride(URI.create(endpoint))
+				.region(Region.of(region))
+				.credentialsProvider(StaticCredentialsProvider.create(awsCreds))
+				.build();
+	}
+
+	public String generatePresignedUrl(String key) {
+		S3Presigner presigner = s3Presigner();
+
+		GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+				.bucket("ee-learning-01")
+				.key(key)
+				.build();
+
+		GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+				.signatureDuration(Duration.ofMinutes(60))
+				.getObjectRequest(getObjectRequest)
+				.build();
+
+		PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
+		return presignedRequest.url().toString();
 	}
 }

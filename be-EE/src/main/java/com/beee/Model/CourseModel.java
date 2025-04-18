@@ -2,14 +2,9 @@ package com.beee.Model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,10 +23,6 @@ public class CourseModel {
 	@Column(name = "created_at")
 	private Timestamp createdAt;
 
-	@Column(name = "creator_id", updatable = false, insertable = false)
-	private String creatorId;
-
-	@Lob
 	@Column(name = "description", columnDefinition = "TEXT")
 	private String description;
 
@@ -57,7 +48,4 @@ public class CourseModel {
 	@ManyToOne
 	@JoinColumn(name = "category_id", referencedColumnName = "id")
 	private CategoryModel category;
-//
-//	@OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-//	List<CourseReviewModel> reviews;
 }

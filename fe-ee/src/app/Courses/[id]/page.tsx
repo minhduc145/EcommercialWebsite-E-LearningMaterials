@@ -165,7 +165,7 @@ function MainTabs({ course }: ICourseProp) {
                 <div className="mt-3 border rounded-lg p-6">
                     <TabsContent value="mo-ta" className="space-y-4 flex flex-col-reverse">
                         <div className="aspect-video w-full">
-                            <iframe className="w-full h-full" src="https://www.youtube.com/embed/D0UnqGm_miA" title="Dummy Video For Website" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
+                            <iframe className="w-full h-full" src="https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev/Getting%20started%20with%20iSpring/res/index.html" allowFullScreen></iframe>
                         </div>
                         <br />
                         {/* <MarkdownRenderer content={course?.description} /> */}
@@ -278,20 +278,19 @@ import {
     CardHeader,
 } from "@/components/ui/card"
 import { Separator } from '@radix-ui/react-dropdown-menu'
-import VNPayButton from '@/components/ui/VNPAY-open-window'
+import VNPayButton from '@/components/VNPAY-open-window'
 import { formatCurrency } from '../../../lib/public-var';
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import CourseFileAccordion from './components/course-file-accordion'
-import { getAverageStarReview, getCourse, getCourseReview, getSumAllStarReview } from '@/app/api/api-courses'
+import { getAverageStarReview, getCourse, getCourseReview } from '@/app/api/api-courses'
 import { Button } from '@/components/ui/button'
 import { formatDate, formatDateTime } from '@/lib/utils'
-import MarkdownRenderer from '@/components/ui/MarkdownRenderer'
 import { UserModel } from '@/models/UserModel'
 import PaginationCluster from '@/components/ui/pagination-button-cluster'
 
 function SubscriptionCard({ course }: ICourseProp) {
     const user: UserModel = JSON.parse(String(localStorage.getItem('currentUser')))
-    const i: boolean | false = user?.id === course.creatorId
+    const i: boolean | false = user?.id === course.creator.id
     return (
         <Card>
             <CardHeader className=''>

@@ -40,11 +40,11 @@ public class AccountController {
 	private JwtService jwtService;
 
 	@PostMapping("/login")
-	public ResponseEntity login(@RequestBody Map<String,String> params, HttpServletResponse response) {
+	public ResponseEntity login(@RequestBody UserLoginFormDTO loginFormDTO, HttpServletResponse response) {
 		responseService.disposeCookie(response, "jwt");
 		try {
 			Authentication auth = authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(params.get("id").toLowerCase().trim(), params.get("password"))
+					new UsernamePasswordAuthenticationToken(loginFormDTO.getId().toLowerCase().trim(), loginFormDTO.getPassword())
 			);
 			User user = (User) auth.getPrincipal();
 			String token = jwtService.generateToken(user.getUsername());
@@ -67,7 +67,7 @@ public class AccountController {
 	public ResponseEntity getUserInfo(@CookieValue(name = "jwt", required = false) String token, HttpServletResponse response) {
 		if (token == null||jwtService.isTokenExpired(token)) {
 			responseService.disposeCookie(response, "jwt");
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa đăng nhập");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, "Chưa đăng nhập"));
 		}
 		String username = jwtService.extractUsername(token);
 		UserModel user = userRepo.findUserModelById(username);

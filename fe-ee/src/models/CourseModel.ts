@@ -5,7 +5,6 @@ import { CourseReviewModel } from './CourseReviewModel';
 export interface CourseModel {
   id: number;
   createdAt: string;
-  creatorId: string;
   description: string;
   isAvailable: boolean;
   price: number | 0;
