@@ -1,7 +1,7 @@
 'use client'
 import '@/app/assets/css/products/products.css'
 import '@/app/assets/js/globals.js'
-import {CourseModel} from "../../models/CourseModel"
+import { CourseModel } from "../../models/CourseModel"
 import {
   Carousel,
   CarouselContent,
@@ -27,7 +27,7 @@ export default function Courses() {
   }, [])
 
   return (
-    <>
+    <div className=' min-h-dvh'>
       <div className="banner m-0 p-0 inset-x-0 top-0 w-full h-96 bg-blue-900 rounded-bl-3xl rounded-br-3xl bg-left">
         <div className="grid w-full h-80 grid-cols-1 inset-x-0 lg:grid-cols-2">
           <div className='m-auto text-white'>
@@ -50,7 +50,7 @@ export default function Courses() {
           </div>
         </div>
       </main>
-    </>
+    </div>
   )
 }
 
@@ -74,36 +74,42 @@ function ControlledCarousel({ list }: ICourseListProps) {
 
   return (
     <div>
-      <Carousel className='mx-auto'>
-        <CarouselContent>
-          {list.map((course) => (
-            <CarouselItem className='w-full h-80 ' key={course.id}>
-              <div className="relative flex h-full items-center justify-center">
-                <Image
-                  src={processedThumbnailUrl(course.thumbnailUrl)}
-                  alt={course.title}
-                  fill
-                  className="object-cover  rounded rounded-2xl"
-                />
-                <div className="absolute   rounded rounded-2xl inset-0 bg-[rgba(0,0,0,0.70)] z-10"></div>
-                <div className="absolute inset-0 z-20 flex flex-col justify-center items-start text-white px-8 md:px-16">
-                  <h3 className="text-2xl md:text-4xl font-bold drop-shadow-lg">{course.title}</h3>
-                  <div className="mt-2 text-sm md:text-lg text-white max-w-xl line-clamp-2">
-                    <p dangerouslySetInnerHTML={{ __html: course?.description ?? "" }}></p>
+      {list.length !== 0 ? (
+        <Carousel className='mx-auto'>
+          <CarouselContent>
+            {list?.map((course) => (
+              <CarouselItem className='w-full h-80 ' key={course.id}>
+                <div className="relative flex h-full items-center justify-center">
+                  <Image
+                    src={processedThumbnailUrl(course.thumbnailUrl)}
+                    alt={course.title}
+                    fill
+                    className="object-cover  rounded rounded-2xl"
+                  />
+                  <div className="absolute   rounded rounded-2xl inset-0 bg-[rgba(0,0,0,0.70)] z-10"></div>
+                  <div className="absolute inset-0 z-20 flex flex-col justify-center items-start text-white px-8 md:px-16">
+                    <h3 className="text-2xl md:text-4xl font-bold drop-shadow-lg">{course.title}</h3>
+                    <div className="mt-2 text-sm md:text-lg text-white max-w-xl line-clamp-4">
+                      <p dangerouslySetInnerHTML={{ __html: course?.description ?? "" }}></p>
+                    </div>
+                    <Button asChild className="mt-20 rounded-full bg-blue-600 hover:bg-blue-700">
+                      <Link href={`/Courses/${course.id}`}>Xem chi tiết</Link>
+                    </Button>
                   </div>
-                  <Button asChild className="mt-20 rounded-full bg-blue-600 hover:bg-blue-700">
-                    <Link href={`/Courses/${course.id}`}>Xem chi tiết</Link>
-                  </Button>
                 </div>
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <div className='hidden md:block'>
-          <CarouselPrevious />
-          <CarouselNext />
-        </div>
-      </Carousel>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <div className='hidden md:block'>
+            <CarouselPrevious />
+            <CarouselNext />
+          </div>
+        </Carousel>
+      ) : (
+        <p className='mx-auto text-center'>Không có dữ liệu</p>
+      )}
+
+
     </div>
   );
 };

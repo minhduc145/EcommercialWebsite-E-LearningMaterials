@@ -25,3 +25,7 @@ export async function getSumAllStarReview(id: string | null) {
 export async function getAverageStarReview(id: string | null) {
     return await axios.get("/api/courses/getReview/getAverageStar/" + id)
 }
+
+export async function getCourseData(id: string | null) {
+    return await axios.get("/api/courses/getCourseData/" + id)
+}

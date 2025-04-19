@@ -78,7 +78,7 @@ export default function courseDetails() {
     }, []);
 
     return (
-        <>
+        <div className=' min-h-dvh'>
             <Breadcrumb className="px-4 py-2">
                 <BreadcrumbList>
                     <BreadcrumbItem>
@@ -90,7 +90,7 @@ export default function courseDetails() {
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
-                        <BreadcrumbPage>Chi tiết học liệu</BreadcrumbPage>
+                        <BreadcrumbPage>Xem học liệu</BreadcrumbPage>
                     </BreadcrumbItem>
 
                 </BreadcrumbList>
@@ -130,7 +130,7 @@ export default function courseDetails() {
 
                 </div>
             </main>
-        </>
+        </div>
 
     )
 }
@@ -138,6 +138,12 @@ export default function courseDetails() {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ProgressBar } from '@/components/ui/progress'
 function MainTabs({ course }: ICourseProp) {
+    const [courseData, setCourseData] = useState<CourseDataModel[]>([])
+    useEffect(() => {
+        getCourseData(String(course.id)).then((response) => {
+            setCourseData(response?.data)
+        })
+    }, [])
     return (
         <div className="w-full max-w-4xl mx-auto p-4">
             <Tabs defaultValue="mo-ta" className="w-full">
@@ -165,15 +171,19 @@ function MainTabs({ course }: ICourseProp) {
                 <div className="mt-3 border rounded-lg p-6">
                     <TabsContent value="mo-ta" className="space-y-4 flex flex-col-reverse">
                         <div className="aspect-video w-full">
-                            <iframe className="w-full h-full" src="https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev/Getting%20started%20with%20iSpring/res/index.html" allowFullScreen></iframe>
+                            <iframe className="w-full h-full" src="https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev/Getting%20started%20with%20iSpring/res/index.html" allowFullScreen ></iframe>
                         </div>
                         <br />
                         {/* <MarkdownRenderer content={course?.description} /> */}
-                        <div dangerouslySetInnerHTML={{ __html: course?.description ?? "" }}></div>
+                        <div dangerouslySetInnerHTML={{ __html: course?.description ?? "<p class='text-center'>Không có dữ liệu<p>" }}></div>
                     </TabsContent>
                     <TabsContent value="tai-lieu" className="space-y-4">
                         <div className=" ">
-                            <CourseFileAccordion />
+                            {courseData.length != 0 ? (
+                                <CourseFileAccordion course_data={courseData ?? []} />
+                            ) : (
+                                <p className='text-center'>Không có dữ liệu</p>
+                            )}
                         </div>
                     </TabsContent>
                     <TabsContent value="danh-gia" className="space-y-4">
@@ -187,7 +197,7 @@ function MainTabs({ course }: ICourseProp) {
     )
 }
 
-function CommentLayout({ id }: IReviewProp) {
+const CommentLayout = ({ id }: IReviewProp) => {
     const [reviews, setReviews] = useState<CourseReviewModel[]>([])
     const [reviewLength, setReviewLength] = useState<number>(0)
     const [totalPages, setTotalPages] = useState<number>(0)
@@ -282,11 +292,12 @@ import VNPayButton from '@/components/VNPAY-open-window'
 import { formatCurrency } from '../../../lib/public-var';
 import { useEffect, useState } from 'react'
 import CourseFileAccordion from './components/course-file-accordion'
-import { getAverageStarReview, getCourse, getCourseReview } from '@/app/api/api-courses'
+import { getAverageStarReview, getCourse, getCourseData, getCourseReview } from '@/app/api/api-courses'
 import { Button } from '@/components/ui/button'
 import { formatDate, formatDateTime } from '@/lib/utils'
 import { UserModel } from '@/models/UserModel'
 import PaginationCluster from '@/components/ui/pagination-button-cluster'
+import { CourseDataModel } from '@/models/CourseDataModel'
 
 function SubscriptionCard({ course }: ICourseProp) {
     const user: UserModel = JSON.parse(String(localStorage.getItem('currentUser')))
@@ -319,15 +330,14 @@ function SubscriptionCard({ course }: ICourseProp) {
                         </div>
                         <div>
                             <h3 className="text-lg font-medium">Ngày đăng ký</h3>
-                            {/* <i>Chưa đăng ký</i> */}
-                            <p className="font-medium">09/04/2024</p>
+                            {i ? (<p className="font-medium">09/04/2024</p>) : (<i>Chưa đăng ký</i>)}
                         </div>
                     </div>
                 </div>
                 <Separator />
                 <div>
                     <h3 className="text-lg font-medium">Số học viên</h3>
-                    <p className="text-2xl font-bold">0</p>
+                    <p className="text-2xl font-bold">{course.subscriberNumber}</p>
                 </div>
             </CardContent>
         </Card >

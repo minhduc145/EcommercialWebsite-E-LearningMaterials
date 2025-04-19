@@ -72,6 +72,7 @@ public class PaymentController {
 				}
 			}
 			String[] secureInfo = jwtService.extractUsername(paymentToken).split("~~");
+			responseService.disposeCookie(response, "payment");
 			if (secureInfo.length > 1) {
 				String orderInfo1 = responseDTO.getVnp_OrderInfo();
 				String orderInfo2 = secureInfo[1];
@@ -95,7 +96,6 @@ public class PaymentController {
 				}
 			}
 		}
-		responseService.disposeCookie(response, "payment");
 		return "Failed. Data is missing";
 	}
 }

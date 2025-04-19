@@ -41,6 +41,9 @@ public class CourseModel {
 	@Column(name = "title")
 	private String title;
 
+	@Column(name = "subscriber_number")
+	private Long subscriberNumber;
+
 	@ManyToOne
 	@JoinColumn(name = "creator_id", referencedColumnName = "id")
 	private UserModel creator;

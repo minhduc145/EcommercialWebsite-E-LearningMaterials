@@ -1,9 +1,13 @@
 package com.beee.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,10 +21,12 @@ public class CourseDataModel {
 	private Integer id;
 
 	@ManyToOne
-	@JoinColumn(name = "folder_id")
-	private CourseFolderModel folder;
+	@JoinColumn(name = "container_id", referencedColumnName = "id")
+	private CourseContainerModel container;
 
+	@JsonIgnore
+	@ToString.Exclude
 	@ManyToOne
-	@JoinColumn(name = "course_id")
+	@JoinColumn(name = "course_id", referencedColumnName = "id")
 	private CourseModel course;
 }

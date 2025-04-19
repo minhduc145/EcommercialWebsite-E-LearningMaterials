@@ -14,4 +14,5 @@ export interface CourseModel {
   creator: UserModel;
   category: CategoryModel;
   reviews: CourseReviewModel[] | null
+  subscriberNumber: number | 0
 }
