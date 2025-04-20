@@ -43,7 +43,7 @@ export default function Courses() {
       <main>
         <div className="container mx-auto px-4">
           <div className='featured-materials'>
-            <p className='font-bold'>CÁC HỌC LIỆU NỔI BẬT</p>
+            <p className='font-bold mb-2'>CÁC HỌC LIỆU NỔI BẬT</p>
             <ControlledCarousel list={courses} />
             <br />
 

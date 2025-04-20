@@ -46,9 +46,9 @@ const data = {
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
+      title: "Khóa học",
       url: "#",
-      icon: IconListDetails,
+      icon: IconFolder,
     },
     {
       title: "Analytics",
@@ -58,10 +58,10 @@ const data = {
     {
       title: "Projects",
       url: "#",
-      icon: IconFolder,
+      icon: IconListDetails,
     },
     {
-      title: "Team",
+      title: "Người dùng",
       url: "#",
       icon: IconUsers,
     },

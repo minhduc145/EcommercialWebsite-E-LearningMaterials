@@ -1,20 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
-    ChevronLeft,
-    ChevronRight,
     FileText,
     Video,
-    Calendar,
-    Clock,
-    ListChecks,
-    Star,
-    FileCode,
     PanelLeftClose,
+    HomeIcon,
+    FileVideo,
+    PanelLeftOpen,
     PanelLeft,
     Menu,
-    HomeIcon,
 } from "lucide-react"
 import {
     Breadcrumb,
@@ -31,8 +26,14 @@ import Link from "next/link"
 
 export default function CourseLayout() {
     const [openSections, setOpenSections] = useState<string[]>(["noi-dung-khoa-hoc"])
-    const [sidebarMinimized, setSidebarMinimized] = useState(false)
+    const [sidebarMinimized, setSidebarMinimized] = useState(true)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const [onMobile, setOnMobile] = useState(false)
+
+    useEffect(()=>{
+
+    },[])
+
 
     const toggleSidebar = () => {
         setSidebarMinimized(!sidebarMinimized)
@@ -65,17 +66,18 @@ export default function CourseLayout() {
                 </BreadcrumbList>
             </Breadcrumb>
 
+
+
+
+
             <div className="flex flex-col md:flex-row min-h-max bg-background">
-                {/* Mobile Header */}
                 <div className="md:hidden flex items-center justify-between p-4 border-b border-border">
                     <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-                        <Menu className="h-5 w-5" />
+                    {sidebarMinimized ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
                     </Button>
                     <h1 className="text-lg font-semibold">Thông tin khóa học</h1>
                     <div className="w-9"></div> {/* Spacer for alignment */}
                 </div>
-
-                {/* Sidebar */}
                 <div
                     className={cn(
                         "border-r border-border bg-card transition-all duration-300 ease-in-out",
@@ -84,7 +86,7 @@ export default function CourseLayout() {
                         !mobileMenuOpen && "hidden md:block",
                     )}
                 >
-                    <div className="p-4 border-b border-border flex items-center justify-between">
+                    <div className={` hidden md:flex p-4 border-b border-border  items-center justify-between`}>
                         <h2 className={cn("text-lg font-semibold", sidebarMinimized && "hidden")}>NỘI DUNG</h2>
                         <Button variant="outline" size="icon" onClick={toggleSidebar} className="ml-auto">
                             {sidebarMinimized ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
@@ -92,37 +94,42 @@ export default function CourseLayout() {
                     </div>
 
                     <div className={cn("overflow-auto h-[calc(100vh-64px)]", sidebarMinimized && "hidden")}>
-                        {/* Course Content Section */}
                         <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
-
                             <Accordion type="multiple" className="w-full">
                                 <AccordionItem value="bai-giang-e-learning" className="border-b border-border/50">
                                     <AccordionTrigger className="px-4 py-2">
                                         <span className="font-medium">Bài giảng E-Learning Scorm</span>
                                     </AccordionTrigger>
                                     <AccordionContent>
-                                        <div className="px-4 py-2 border-b border-border/50 bg-muted/50">
-                                            <div className="flex items-center">
-                                                <Badge variant="secondary" className="mr-2">
-                                                    <FileText className="h-3 w-3 mr-1" />
-                                                    Bài giảng
-                                                </Badge>
+                                        <Link href={`https://www.google.com`}>
+                                            <div className="px-4 py-2 border-b border-border/50 bg-muted/50">
+                                                <div className="flex items-center">
+                                                    <Badge variant="secondary" className="mr-2">
+                                                        <FileText className="h-3 w-3 mr-1" />
+                                                        Bài giảng
+                                                    </Badge>
+
+                                                </div>
+                                                <div className="pl-2 mt-2 font-medium">
+                                                    Kế hoạch bài dạy Unit 7: Television - Lesson 2: A Closer Look 1
+                                                </div>
                                             </div>
-                                            <div className="pl-2 mt-2 font-medium">
-                                                Kế hoạch bài dạy Unit 7: Television - Lesson 2: A Closer Look 1
+                                        </Link>
+
+                                        <Link href={`https://www.google.com`}>
+                                            <div className="px-4 py-2 border-b border-border/50 bg-muted/50">
+                                                <div className="flex items-center">
+                                                    <Badge variant="secondary" className="mr-2">
+                                                        <FileVideo className="h-3 w-3 mr-1" />
+                                                        Bài giảng
+                                                    </Badge>
+
+                                                </div>
+                                                <div className="pl-2 mt-2 font-medium">
+                                                    Kế hoạch bài dạy Unit 7: Television - Lesson 2: A Closer Look 1
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="px-4 py-2 border-b border-border/50 bg-muted/50">
-                                            <div className="flex items-center">
-                                                <Badge variant="secondary" className="mr-2">
-                                                    <FileText className="h-3 w-3 mr-1" />
-                                                    Bài giảng
-                                                </Badge>
-                                            </div>
-                                            <div className="pl-2 mt-2 font-medium">
-                                                Kế hoạch bài dạy Unit 7: Television - Lesson 2: A Closer Look 1
-                                            </div>
-                                        </div>
+                                        </Link>
                                     </AccordionContent>
                                 </AccordionItem>
 
@@ -155,28 +162,29 @@ export default function CourseLayout() {
                     </div>
                 </div>
 
-                {/* Main Content */}
                 <div className={cn("flex-1 overflow-auto transition-all duration-300", mobileMenuOpen && "md:ml-0")}>
-                    {/* <iframe
-                        src={`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent('https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev/note-02042025.txt')}`}
-                        width="100%"
-                        height="800px"
-                    /> */}
-                    <div className="px-0 md:px-6">                        <iframe
-                        src={`https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev/WebServices_notes_by_Sekhar_Sir_JavabynataraJ.pdf#toolbar=1&navpanes=1&scrollbar=1`}
-                        style={{
-                            width: '100%',
-                            height: '90vh',
-                            maxWidth: '100%',
-                            border: 'none',
-                            overflow: 'hidden',
-                        }}
-                        allowFullScreen
-                    />
-                    </div>
+                    <div className="px-0 md:px-6">
 
+                        {/* {`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent('https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev/note-02042025.txt')} */}
+                        <iframe
+                            src={`https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev/WebServices_notes_by_Sekhar_Sir_JavabynataraJ.pdf`}
+                            // src={`https://m3u8player.org/player.html?url=https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8`}
+                            title="YouTube video player" frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin" allowFullScreen
+                            style={{
+                                width: '100%',
+                                height: '85dvh',
+                                maxWidth: '100%',
+                                maxHeight: '85dvh',
+                                border: 'none',
+                                overflow: 'hidden',
+                            }}
+                        >
+                        </iframe>
+                    </div>
                 </div>
-            </div>
+            </div >
         </>
 
     )

@@ -309,7 +309,7 @@ function SubscriptionCard({ course }: ICourseProp) {
                     i ? (
                         <>
                             <div>
-                                <Button className='w-full bg-blue-600'>Sử dụng học liệu</Button>
+                                <Button className='w-full bg-blue-600'><Link href={`/Courses/Use/${course.id}`}>Sử dụng học liệu</Link> </Button>
                             </div></>
                     ) : (
                         <>
