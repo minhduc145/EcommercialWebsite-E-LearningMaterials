@@ -6,14 +6,23 @@ export default async function getAllCourses() {
     return await axios.get("/api/courses/getAll")
 }
 
+export async function getSearchCourses(keyword: string, pageIndex: number) {
+    return await axios.get("/api/courses/search", {
+        params: {
+            pageIndex: pageIndex || 1,
+            keyWord: keyword
+        }
+    })
+}
+
 export async function getCourse(id: string | null) {
     return await axios.get("/api/courses/get/" + id)
 }
 
 export async function getCourseReview(id: string | null, currentPage: any) {
-    return await axios.get("/api/courses/getReview/" + id,{
-        params:{
-            pageIndex:currentPage
+    return await axios.get("/api/courses/getReview/" + id, {
+        params: {
+            pageIndex: currentPage
         }
     })
 }

@@ -8,11 +8,12 @@ const groq = new Groq({
 
 interface ChatRequest {
   message: string;
+  model?: string; 
 }
 
 export async function POST(req: Request) {
   try {
-    const { message }: ChatRequest = await req.json();
+    const { message , model}: ChatRequest = await req.json();
     const completion = await groq.chat.completions.create({
       messages: [
         {
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
         },
       ],
       // model: "llama-3.1-8b-instant",
-      model: "gemma2-9b-it",
+      model: model || "gemma2-9b-it",
       // model: "meta-llama/llama-4-maverick-17b-128e-instruct"
       // model: "meta-llama/llama-4-scout-17b-16e-instruct"
       // model: "deepseek-r1-distill-llama-70b"

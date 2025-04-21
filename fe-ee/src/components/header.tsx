@@ -35,6 +35,7 @@ import SockJS from "sockjs-client";
 import { Client, IMessage } from "@stomp/stompjs";
 import MyToaster from "./ui/toastify-template";
 import { ToastContainer } from "react-toastify";
+import { getUserInfo } from "@/app/api/api-account";
 
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "http://localhost:8080";
@@ -75,14 +76,11 @@ export default function Header(props: IHeaderProps) {
     if (currentUser) {
       setUserLoginCookie(currentUser);
     } else {
-      axios
-        .get("/api/accounts/get_user_login_info_by_cookie")
-        .then((response) => {
-          setUserLoginCookie(response.data);
-        })
-        .catch(() => {
-          console.log("null");
-        });
+      getUserInfo().then(response => {
+        setUserLoginCookie(response.data);
+      }).catch(() => {
+        console.log("null");
+      });
     }
   }, []);
 

@@ -26,6 +26,7 @@ import {
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { UserModel } from "@/models/UserModel"
+import { getAccountInfo, getUserInfo } from "../api/api-account"
 
 // Define types for our navigation items
 interface NavItemType {
@@ -52,8 +53,8 @@ export default function DashboardLayout({
   // Main navigation items
   const mainNavItems: NavItemType[] = [
     { icon: LayoutDashboard, label: "Dashboard", url: "/AdminPage/Details", isActive: activeItem === "/AdminPage/Details" },
-    { icon: FileText, label: "Các Khóa học", url: "/AdminPage/Courses", isActive: activeItem === "/AdminPage/Courses" },
-    { icon: TypeIcon, label: "Các loại học liệu", url: "/AdminPage/Types", isActive: activeItem === "/AdminPage/Types" },
+    { icon: FileText, label: "Quản lý học liệu", url: "/AdminPage/Courses", isActive: activeItem === "/AdminPage/Courses" },
+    { icon: TypeIcon, label: "Quản lý Loại học liệu", url: "/AdminPage/Types", isActive: activeItem === "/AdminPage/Types" },
 
   ]
 
@@ -103,8 +104,10 @@ export default function DashboardLayout({
   const [currentUser, setCurrentUser] = useState<UserModel>()
 
   useEffect(() => {
-    setCurrentUser(JSON.parse(String(localStorage.getItem('currentUser'))) ?? null)
-  },[])
+    getUserInfo().then(response => {
+      setCurrentUser(response?.data ?? null)
+    })
+  }, [])
 
   if (currentUser && currentUser.account.role.toLowerCase() === "admin")
     return (
@@ -191,7 +194,7 @@ export default function DashboardLayout({
         {/* Main content */}
         <div className="flex-1 overflow-auto bg-white">
           <header className="border-b p-4 bg-white shadow-sm">
-            <h1 className="text-lg font-medium text-slate-800 text-center">{title}</h1>
+            <h1 className="text-xl font-bold text-center">{title}</h1>
           </header>
           <main className="p-4">
 
@@ -202,7 +205,7 @@ export default function DashboardLayout({
       </div>
     )
   return (
-    <>Cần một admin</>
+    <>Cần một admin <a className="text-blue-500 underline" href="/User/Login">Đăng nhập tài khoản ADMIN</a></>
   )
 }
 

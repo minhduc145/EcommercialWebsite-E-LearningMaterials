@@ -298,9 +298,17 @@ import { formatDate, formatDateTime } from '@/lib/utils'
 import { UserModel } from '@/models/UserModel'
 import PaginationCluster from '@/components/ui/pagination-button-cluster'
 import { CourseDataModel } from '@/models/CourseDataModel'
+import { getUserInfo } from '@/app/api/api-account'
 
 function SubscriptionCard({ course }: ICourseProp) {
-    const user: UserModel = JSON.parse(String(localStorage.getItem('currentUser')))
+      const [user, setCurrentUser] = useState<UserModel>()
+    
+    useEffect(() => {
+        getUserInfo().then(response => {
+          setCurrentUser(response?.data ?? null)
+        })
+      }, [])
+
     const i: boolean | false = user?.id === course.creator.id
     return (
         <Card>

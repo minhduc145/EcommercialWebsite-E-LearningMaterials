@@ -6,6 +6,7 @@ import com.beee.Repository.CourseRepo;
 import com.beee.Repository.ReviewRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +29,15 @@ public class CourseController {
 	@GetMapping("/getAll")
 	public ResponseEntity getAllCourses() {
 		return ResponseEntity.ok(courseRepo.findAll());
+	}
+
+	@GetMapping("/search")
+	public ResponseEntity searchCourses(@RequestParam Map<String, String> params) {
+		Integer pageIndex = Integer.parseInt(params.get("pageIndex"));
+		if (pageIndex == null || pageIndex < 1) pageIndex = 1;
+		pageIndex--;
+		PageRequest pr = PageRequest.of(pageIndex, 7, Sort.by(Sort.Direction.DESC, "createdAt"));
+		return ResponseEntity.ok(courseRepo.findAll(pr));
 	}
 
 	@GetMapping("/get/{id}")
