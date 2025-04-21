@@ -1,0 +1,236 @@
+"use client"
+
+import type React from "react"
+
+import { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
+import {
+  LayoutDashboard,
+  BarChart,
+  FolderKanban,
+  Users,
+  FileText,
+  Database,
+  FileBarChart,
+  MessageSquareText,
+  MoreHorizontal,
+  ChevronLeft,
+  ChevronRight,
+  Building2,
+  type LucideIcon,
+  CreditCard,
+  User2Icon,
+  Building,
+  TypeIcon,
+} from "lucide-react"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
+import { UserModel } from "@/models/UserModel"
+
+// Define types for our navigation items
+interface NavItemType {
+  icon: LucideIcon
+  label: string
+  url: string
+  isActive?: boolean
+}
+
+interface NavGroupType {
+  title?: string
+  items: NavItemType[]
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const [title, setTitle] = useState("Chi tiết")
+  const [collapsed, setCollapsed] = useState(false)
+  const [activeItem, setActiveItem] = useState("")
+
+  // Main navigation items
+  const mainNavItems: NavItemType[] = [
+    { icon: LayoutDashboard, label: "Dashboard", url: "/AdminPage/Details", isActive: activeItem === "/AdminPage/Details" },
+    { icon: FileText, label: "Các Khóa học", url: "/AdminPage/Courses", isActive: activeItem === "/AdminPage/Courses" },
+    { icon: TypeIcon, label: "Các loại học liệu", url: "/AdminPage/Types", isActive: activeItem === "/AdminPage/Types" },
+
+  ]
+
+  // User section items
+  const userItems: NavItemType[] = [
+    { icon: User2Icon, label: "Người dùng", url: "/AdminPage/Users", isActive: activeItem === "/AdminPage/Users" },
+    { icon: FileBarChart, label: "Reports", url: "/AdminPage/Reports", isActive: activeItem === "/AdminPage/Reports" },
+  ]
+
+  // Payment section items
+  const paymentItems: NavItemType[] = [
+    { icon: CreditCard, label: "Giao dịch", url: "/AdminPage/Transaction", isActive: activeItem === "/AdminPage/Transaction" },
+  ]
+
+  // All navigation groups
+  const navGroups: NavGroupType[] = [
+    {
+      title: "Khóa học",
+      items: mainNavItems
+    },
+    {
+      title: "Người dùng",
+      items: userItems
+    },
+    {
+      title: "Thanh toán",
+      items: paymentItems
+    }
+  ]
+
+  // User profile data
+  const userProfile = {
+    initials: "CN",
+    name: "shadcn",
+    email: "m@example.com",
+  }
+
+  const toggleSidebar = () => {
+    setCollapsed(!collapsed)
+  }
+
+  const handleNavItemClick = (label: string, url: string) => {
+    setActiveItem(url)
+    setTitle(label)
+  }
+
+  const [currentUser, setCurrentUser] = useState<UserModel>()
+
+  useEffect(() => {
+    setCurrentUser(JSON.parse(String(localStorage.getItem('currentUser'))) ?? null)
+  },[])
+
+  if (currentUser && currentUser.account.role.toLowerCase() === "admin")
+    return (
+      <div className="flex h-screen w-full">
+        {/* Sidebar */}
+        <div
+          className={cn(
+            "border-r bg-slate-50 flex flex-col h-full transition-all duration-300 ease-in-out",
+            collapsed ? "w-16" : "w-60",
+          )}
+        >
+          {/* Company header */}
+          <div className="p-3.5 border-b bg-slate-100 flex items-center justify-between gap-1">
+            <a href="/">
+              <div className={cn("flex items-center", collapsed ? "justify-center w-full" : "")}>
+                <Building2 className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                {!collapsed && <span className="ml-2 font-semibold text-slate-800">{"eEdu"}</span>}
+              </div>
+            </a>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-200"
+            >
+              {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            </Button>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 overflow-auto p-2">
+            {/* Render all navigation groups */}
+            {navGroups.map((group, groupIndex) => (
+              <div key={groupIndex} className={groupIndex > 0 ? "mt-6" : ""}>
+                {/* Group title (if any) */}
+                {!collapsed && group.title && (
+                  <div className="text-xs font-medium text-slate-500 px-2 py-1.5">{group.title}</div>
+                )}
+
+                {/* Group items */}
+                <div className="space-y-1 mt-1">
+                  {group.items.map((item, itemIndex) => (
+                    <NavItem
+                      key={itemIndex}
+                      icon={<item.icon className="h-4 w-4" />}
+                      label={item.label}
+                      url={item.url}
+                      active={item.isActive}
+                      collapsed={collapsed}
+                      onClick={() => handleNavItemClick(item.label, item.url)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </nav>
+
+          {/* User profile */}
+          <div
+            className={cn(
+              "border-t p-4 flex items-center bg-slate-100",
+              collapsed ? "justify-center p-2" : "justify-between",
+            )}
+          >
+            <div className={cn("flex items-center", collapsed ? "" : "gap-2")}>
+              <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-medium">
+                {userProfile.initials}
+              </div>
+              {!collapsed && (
+                <div>
+                  <div className="text-sm font-medium">{userProfile.name}</div>
+                  <div className="text-xs text-slate-500">{userProfile.email}</div>
+                </div>
+              )}
+            </div>
+            {!collapsed && (
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-slate-700">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div className="flex-1 overflow-auto bg-white">
+          <header className="border-b p-4 bg-white shadow-sm">
+            <h1 className="text-lg font-medium text-slate-800 text-center">{title}</h1>
+          </header>
+          <main className="p-4">
+
+            {children}
+
+          </main>
+        </div>
+      </div>
+    )
+  return (
+    <>Cần một admin</>
+  )
+}
+
+interface NavItemProps {
+  icon: React.ReactNode
+  label: string
+  url: string
+  active?: boolean
+  collapsed?: boolean
+  onClick?: () => void
+}
+
+function NavItem({ icon, label, url, active, collapsed, onClick }: NavItemProps) {
+  return (
+    <Link
+      href={url}
+      className={cn(
+        "flex items-center rounded-md text-sm",
+        collapsed ? "justify-center p-2" : "gap-2 px-2 py-1.5",
+        active ? "bg-blue-100 text-blue-700 font-medium" : "text-slate-600 hover:bg-slate-200 hover:text-slate-800",
+      )}
+      title={collapsed ? label : undefined}
+      onClick={() => {
+        if (onClick) onClick()
+      }}
+    >
+      {icon}
+      {!collapsed && <span>{label}</span>}
+    </Link>
+  );
+}

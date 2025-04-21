@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import ChatBox from "@/components/floating-chatbox";
+
 // import { ThemeProvider } from "@/components/theme-provider"
 
 const inter = Inter({
@@ -21,7 +23,8 @@ export default function RootLayout({
   return (
     <html lang="vi" className={`${inter.variable} antialiased`}>
       <body className="font-inter">
-         {children}
+        {children}
+       <ChatBox/>
       </body>
     </html>
   );

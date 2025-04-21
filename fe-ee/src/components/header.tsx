@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import {useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Logo from "@/app/logo.svg";
@@ -102,8 +102,7 @@ export default function Header(props: IHeaderProps) {
       onConnect: () => {
         console.log("✅ Connected to WebSocket");
         newMessageClient.subscribe(
-          `/topic/receive/${
-            JSON.parse(String(localStorage.getItem("currentUser")))?.id
+          `/topic/receive/${JSON.parse(String(localStorage.getItem("currentUser")))?.id
           }`,
           (message: IMessage) => {
             console.log("📩 Message received:", message.body);
@@ -282,7 +281,7 @@ interface IUserDropDownProps {
 }
 
 export function UserDropDown(props: IUserDropDownProps) {
-	const userModel = props.userModel;
+  const userModel = props.userModel;
   return (
     <div className="transition duration-300 ease-in transform hover:-translate-y-1">
       <DropdownMenu>
@@ -308,6 +307,11 @@ export function UserDropDown(props: IUserDropDownProps) {
           <DropdownMenuItem>Settings</DropdownMenuItem>
           <DropdownMenuItem>Earnings</DropdownMenuItem>
           <DropdownMenuSeparator />
+          {userModel?.account.role.toLowerCase() === "admin" && <>
+            <a href="/AdminPage">
+              <DropdownMenuItem>Dành cho ADMIN</DropdownMenuItem>
+            </a>
+          </>}
           <Link href="/User/Logout">
             <DropdownMenuItem>Đăng xuất</DropdownMenuItem>
           </Link>
