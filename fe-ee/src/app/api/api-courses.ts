@@ -38,3 +38,11 @@ export async function getAverageStarReview(id: string | null) {
 export async function getCourseData(id: string | null) {
     return await axios.get("/api/courses/getCourseData/" + id)
 }
+
+export async function deleteCourse(idSet: string[] | []) {
+    const params = new URLSearchParams();
+    idSet.forEach(id => params.append('idSet', id));
+    return await axios.delete("/api/courses/delete", {
+        data: idSet
+    })
+}

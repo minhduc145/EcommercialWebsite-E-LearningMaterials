@@ -301,13 +301,13 @@ import { CourseDataModel } from '@/models/CourseDataModel'
 import { getUserInfo } from '@/app/api/api-account'
 
 function SubscriptionCard({ course }: ICourseProp) {
-      const [user, setCurrentUser] = useState<UserModel>()
-    
+    const [user, setCurrentUser] = useState<UserModel>()
+
     useEffect(() => {
         getUserInfo().then(response => {
-          setCurrentUser(response?.data ?? null)
+            setCurrentUser(response?.data ?? null)
         })
-      }, [])
+    }, [])
 
     const i: boolean | false = user?.id === course.creator.id
     return (
@@ -317,7 +317,7 @@ function SubscriptionCard({ course }: ICourseProp) {
                     i ? (
                         <>
                             <div>
-                                <Button className='w-full bg-blue-600'><Link href={`/Courses/Use/${course.id}`}>Sử dụng học liệu</Link> </Button>
+                                <Link href={`/Courses/Use/${course.id}`}> <Button className='w-full bg-blue-600'>Sử dụng học liệu</Button></Link>
                             </div></>
                     ) : (
                         <>

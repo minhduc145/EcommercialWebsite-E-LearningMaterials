@@ -3,7 +3,7 @@ import { CategoryModel } from './CategoryModel';
 import { CourseReviewModel } from './CourseReviewModel';
 
 export interface CourseModel {
-  id: number;
+  id: string;
   createdAt: string;
   description: string;
   isAvailable: boolean;

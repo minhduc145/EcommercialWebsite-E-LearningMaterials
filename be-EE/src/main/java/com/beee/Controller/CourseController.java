@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -73,4 +74,15 @@ public class CourseController {
 		else return ResponseEntity.ok(new ArrayList<String>());
 	}
 
+	@DeleteMapping("/delete")
+	public ResponseEntity deleteCourses(@RequestBody List<String> params) {
+		try {
+			for (String id : params) {
+				courseRepo.deleteById(Integer.parseInt(id));
+			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok(1);
+	}
 }

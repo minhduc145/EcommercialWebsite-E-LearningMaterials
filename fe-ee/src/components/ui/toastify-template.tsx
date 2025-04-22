@@ -10,7 +10,7 @@ export default function MyToaster(props: IProps) {
         toast.info(<div>
             Thông báo:
             <br />
-            {props.message}
+            {props.message&&props.message}
         </div>, {
             position: "top-right",
             autoClose: 5000,
@@ -24,9 +24,9 @@ export default function MyToaster(props: IProps) {
     }
     else if (props.variant === "error") {
         toast.error(<div>
-            Thất bại:
+            Thất bại
             <br />
-            {props.message}
+            {props.message&&props.message}
         </div>, {
             position: "top-right",
             autoClose: 5000,
@@ -40,9 +40,9 @@ export default function MyToaster(props: IProps) {
     }
     else if (props.variant === "success") {
         toast.success(<div>
-            Thành công:
+            Thành công
             <br />
-            {props.message}
+            {props.message&&props.message}
         </div>, {
             position: "top-right",
             autoClose: 5000,
@@ -57,7 +57,7 @@ export default function MyToaster(props: IProps) {
         toast.warn(<div>
             Cảnh báo:
             <br />
-            {props.message}
+            {props.message&&props.message}
         </div>, {
             position: "top-right",
             autoClose: 5000,

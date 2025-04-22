@@ -22,11 +22,13 @@ import {
   User2Icon,
   Building,
   TypeIcon,
+  DatabaseIcon,
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { UserModel } from "@/models/UserModel"
 import { getAccountInfo, getUserInfo } from "../api/api-account"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 // Define types for our navigation items
 interface NavItemType {
@@ -46,6 +48,14 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+  const [currentUser, setCurrentUser] = useState<UserModel>()
+
+  useEffect(() => {
+    getUserInfo().then(response => {
+      setCurrentUser(response?.data ?? null)
+    })
+  }, [])
+
   const [title, setTitle] = useState("Chi tiết")
   const [collapsed, setCollapsed] = useState(false)
   const [activeItem, setActiveItem] = useState("")
@@ -55,6 +65,7 @@ export default function DashboardLayout({
     { icon: LayoutDashboard, label: "Dashboard", url: "/AdminPage/Details", isActive: activeItem === "/AdminPage/Details" },
     { icon: FileText, label: "Quản lý học liệu", url: "/AdminPage/Courses", isActive: activeItem === "/AdminPage/Courses" },
     { icon: TypeIcon, label: "Quản lý Loại học liệu", url: "/AdminPage/Types", isActive: activeItem === "/AdminPage/Types" },
+    { icon: DatabaseIcon, label: "Quản lý Kho dữ liệu", url: "/AdminPage/CourseData", isActive: activeItem === "/AdminPage/CourseData" },
 
   ]
 
@@ -87,9 +98,8 @@ export default function DashboardLayout({
 
   // User profile data
   const userProfile = {
-    initials: "CN",
-    name: "shadcn",
-    email: "m@example.com",
+    name: currentUser?.lastName + " " + currentUser?.firstName,
+    email: currentUser?.email,
   }
 
   const toggleSidebar = () => {
@@ -101,13 +111,7 @@ export default function DashboardLayout({
     setTitle(label)
   }
 
-  const [currentUser, setCurrentUser] = useState<UserModel>()
 
-  useEffect(() => {
-    getUserInfo().then(response => {
-      setCurrentUser(response?.data ?? null)
-    })
-  }, [])
 
   if (currentUser && currentUser.account.role.toLowerCase() === "admin")
     return (
@@ -173,9 +177,10 @@ export default function DashboardLayout({
             )}
           >
             <div className={cn("flex items-center", collapsed ? "" : "gap-2")}>
-              <div className="h-8 w-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-medium">
-                {userProfile.initials}
-              </div>
+              <Avatar>
+                <AvatarImage src={currentUser.avatarUrl} alt="User settings" />
+                <AvatarFallback>{currentUser.firstName.charAt(0)}</AvatarFallback>
+              </Avatar>
               {!collapsed && (
                 <div>
                   <div className="text-sm font-medium">{userProfile.name}</div>
