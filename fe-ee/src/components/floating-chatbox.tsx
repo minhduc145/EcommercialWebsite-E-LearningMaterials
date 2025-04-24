@@ -22,7 +22,7 @@ export default function ChatBox() {
         const userMessage = { from: 'You', text: input, isLast: true };
         setMessages((prev) => [...prev, userMessage]);
         setInput('');
-        await getAnswer(userMessage.text.concat(", ưu tiên trả lời bằng tiếng Việt, ngắn gọn"));
+        await getAnswer(userMessage.text.concat(" (ưu tiên trả lời bằng tiếng Việt, ngắn gọn)"));
     };
 
     const getAnswer = async (userText: string) => {

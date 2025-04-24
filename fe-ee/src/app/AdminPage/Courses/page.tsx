@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ToastContainer } from "react-toastify"
 import MyToaster from "@/components/ui/toastify-template"
 import { formatDateTime } from "@/lib/utils"
+import Link from "next/link"
 
 export default function Page() {
     const [courses, setCourses] = useState<CourseModel[]>([])
@@ -49,10 +50,6 @@ export default function Page() {
 
     const handleSortChange = (value: string) => {
         setSortBy(value)
-    }
-
-    const handleAddNew = () => {
-        console.log("Add new course")
     }
 
     const getCourse = () => {
@@ -90,7 +87,7 @@ export default function Page() {
 
     const handleDelete = (id: string[]) => {
         deleteCourse(id).then(() => {
-            MyToaster({variant:"success", message:""})
+            MyToaster({ variant: "success", message: "" })
             setSelectedRows([])
             setReloadKey(!reloadKey)
         })
@@ -101,9 +98,12 @@ export default function Page() {
             <ToastContainer />
             <div>
                 <div className="flex justify-between items-center mb-6">
-                    <Button onClick={handleAddNew} className="flex items-center gap-2 hover:opacity-50">
-                        <Plus className="h-4 w-4" /> Thêm mới
-                    </Button>
+                    <Link href={"/AdminPage/Courses/Add"}>
+                        <Button className="flex items-center gap-2 hover:opacity-50">
+                            <Plus className="h-4 w-4" /> Thêm mới
+                        </Button>
+                    </Link>
+
                 </div>
 
                 {/* Search and filter controls */}
@@ -150,7 +150,7 @@ export default function Page() {
                     {selectedRows.length > 0 && (
                         <div className="flex items-center gap-2">
                             <span className="text-sm font-medium">{selectedRows.length} đã chọn</span>
-                            <Button variant="outline" size="sm" onClick={()=> handleDelete(selectedRows) }>
+                            <Button variant="outline" size="sm" onClick={() => handleDelete(selectedRows)}>
                                 Xóa đã chọn
                             </Button>
                         </div>
