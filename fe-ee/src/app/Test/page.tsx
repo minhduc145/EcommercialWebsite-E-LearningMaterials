@@ -15,7 +15,6 @@ export default function AIInterface() {
 	const [copied, setCopied] = useState(false)
 
 	const handleSubmit = async () => {
-		// alert(process.env.NEXT_PUBLIC_GROQ_API_KEY)
 		setIsLoading(true)
 		setResponse("")
 		const res = await fetch("/api/groq", {
@@ -40,7 +39,7 @@ export default function AIInterface() {
 	return (
 		<div className="container mx-auto p-4 max-w-5xl">
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-100">
-				{/* Question Section */}
+
 				<div className="flex flex-col">
 					<h2 className="text-lg font-medium mb-2">Ask a Question</h2>
 					<div className="flex-1 flex flex-col">
@@ -63,7 +62,6 @@ export default function AIInterface() {
 					</div>
 				</div>
 
-				{/* Answer Section */}
 				<div className="flex flex-col">
 					<div className="flex justify-between items-center mb-2">
 						<h2 className="text-lg font-medium">Answer</h2>
@@ -91,13 +89,9 @@ export default function AIInterface() {
 									<Skeleton className="h-4 w-[85%]" />
 									<Skeleton className="h-4 w-[70%]" />
 								</div>
-							) : response ? (
+							) : response && (
 								<div className="prose dark:prose-invert max-w-none">
 									<MarkdownRenderer content={response} />
-								</div>
-							) : (
-								<div className="h-full flex items-center justify-center text-muted-foreground">
-									Your answer will appear here
 								</div>
 							)}
 						</CardContent>
