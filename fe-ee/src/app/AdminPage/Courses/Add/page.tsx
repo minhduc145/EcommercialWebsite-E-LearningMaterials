@@ -56,7 +56,7 @@ const MainTab = () => {
             <TabsContent value="information">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Thông tin học liệu</CardTitle>
+                        <CardTitle></CardTitle>
                         <CardDescription>Nhập thông tin chi tiết về học liệu của bạn.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -70,14 +70,7 @@ const MainTab = () => {
                         <CardTitle>Tài liệu</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                        <div className="space-y-1">
-                            <Label htmlFor="current">Current password</Label>
-                            <Input id="current" type="password" />
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor="new">New password</Label>
-                            <Input id="new" type="password" />
-                        </div>
+                        <DataTab />
                     </CardContent>
                 </Card>
             </TabsContent>
@@ -89,6 +82,8 @@ const MainTab = () => {
 
 const InfoTab = ({ bannerUrl, setBannerUrl, name, setName, description, setDescription }
     : { bannerUrl: string, setBannerUrl: (i: string) => void, name: string, setName: (i: string) => void, description: string, setDescription: (i: string) => void }) => {
+    const defaultBannerUrl = ("/global_imgs/KH-demo.png");
+
     return (
         <>
             <div className="space-y-1">
@@ -112,10 +107,6 @@ const InfoTab = ({ bannerUrl, setBannerUrl, name, setName, description, setDescr
                         </div>
                     </RadioGroup>
                 </div>
-                <div className="flex flex-col gap-1">
-                    <Label htmlFor="price">Giá</Label>
-                    <Input id="price" placeholder="Nhập giá" type="number" />
-                </div>
                 <div className="w-auto flex flex-col gap-1">
                     <Label htmlFor="type">Loại</Label>
                     <Select>
@@ -131,14 +122,16 @@ const InfoTab = ({ bannerUrl, setBannerUrl, name, setName, description, setDescr
                         </SelectContent>
                     </Select>
                 </div>
+                <div className="flex flex-col gap-1">
+                    <Label htmlFor="price">Giá</Label>
+                    <Input id="price" placeholder="Nhập giá" type="number" />
+                </div>
+
             </div>
             <div className="space-y-1">
                 <div>
-                    <Label htmlFor="cover">Ảnh bìa</Label>
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <Input id="cover-url" placeholder="Nhập đường dẫn ảnh" />
+                    <div className="grid grid-cols-1 gap-4">
                         <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-500">hoặc</span>
                             <div className="relative flex-1">
                                 <Input
                                     id="cover-file"
@@ -147,7 +140,7 @@ const InfoTab = ({ bannerUrl, setBannerUrl, name, setName, description, setDescr
                                     className="absolute inset-0 cursor-pointer opacity-0"
                                 />
                                 <Button variant="outline" className="w-full">
-                                    Chọn tệp ảnh
+                                    Tải ảnh bìa lên
                                 </Button>
                             </div>
                         </div>
@@ -169,7 +162,15 @@ const InfoTab = ({ bannerUrl, setBannerUrl, name, setName, description, setDescr
         </>
     )
 }
+import { FileExplorer } from "@/components/ui/file-manager"
 
+const DataTab = () => {
+    return (
+        <>
+            <FileExplorer />
+        </>
+    )
+}
 
 import {
     Dialog,
@@ -190,7 +191,7 @@ const AIModal = ({ name, handleChange }: { name: string, handleChange: (i: strin
     const [wordCount, setWordCount] = useState(300);
     const [isLoading, setIsLoading] = useState(false)
     const [allowIcons, setAllowIcons] = useState(false)
- 
+
 
 
     const handleSubmit = async () => {
@@ -234,7 +235,7 @@ Thông tin gợi ý: ${cue}
                         <div className="flex flex-col gap-4">
                             <div>
                                 <p className="font-bold">Tên học liệu:</p>
-                                <p>{name?name:"<Không có dữ liệu>"}</p>
+                                <p>{name ? name : "<Không có dữ liệu>"}</p>
                             </div>
                             <div className="flex flex-col md:flex-row gap-5">
                                 <div>
@@ -274,7 +275,7 @@ Thông tin gợi ý: ${cue}
                                             <Skeleton className="h-4 w-[70%]" />
                                         </div>
                                     ) : response && (
-                                        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(response)}}></div>
+                                        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(response) }}></div>
                                     )}
                                 </CardContent>
                             </Card>

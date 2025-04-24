@@ -1,226 +1,274 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useRef } from "react"
+import * as React from "react"
+import { File, FileText, Folder, FolderPlus, FilePlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ChevronRight, MoreHorizontal, Plus, Upload } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { cn } from "@/lib/utils"
 
-// Mock data
-const initialFolders = [
-  { id: 1, name: "Documents", path: "/" },
-  { id: 2, name: "Images", path: "/" },
-  { id: 3, name: "Downloads", path: "/" },
-  { id: 4, name: "Reports", path: "/Documents" },
+// Simple data types
+interface FileType {
+  id: string
+  name: string
+  type: string
+  dateCreated: string
+  author: string
+}
+
+interface FolderType {
+  id: string
+  name: string
+  files: FileType[]
+}
+
+// Initial data
+const initialFolders: FolderType[] = [
+  {
+    id: "1",
+    name: "Bài giảng E-Learning",
+    files: [
+      {
+        id: "f1",
+        name: "Bài giảng Unit 7: Television - Lesson 2",
+        type: "scorm",
+        dateCreated: "15:25:6 10/03/2024",
+        author: "tthong.hp.qti",
+      },
+      {
+        id: "f2",
+        name: "Video hướng dẫn sử dụng",
+        type: "mp4",
+        dateCreated: "15:41:7 10/03/2024",
+        author: "tthong.hp.qti",
+      },
+    ],
+  },
+  {
+    id: "2",
+    name: "Kế hoạch bài dạy",
+    files: [
+      {
+        id: "f3",
+        name: "Kế hoạch Unit 7: Television",
+        type: "pdf",
+        dateCreated: "14:30:0 09/03/2024",
+        author: "tthong.hp.qti",
+      },
+    ],
+  },
+  {
+    id: "3",
+    name: "Video Thuyết minh",
+    files: [
+      {
+        id: "f4",
+        name: "Hướng dẫn sử dụng bài giảng",
+        type: "mp4",
+        dateCreated: "10:15:3 08/03/2024",
+        author: "tthong.hp.qti",
+      },
+    ],
+  },
 ]
 
-const initialFiles = [
-  { id: 1, name: "Report.pdf", size: "2.4 MB", path: "/Documents" },
-  { id: 2, name: "Budget.xlsx", size: "1.8 MB", path: "/Documents" },
-  { id: 3, name: "Profile.jpg", size: "3.2 MB", path: "/Images" },
-  { id: 4, name: "Project.zip", size: "15.7 MB", path: "/Downloads" },
-]
+export function FileExplorer() {
+  const [folders, setFolders] = React.useState<FolderType[]>(initialFolders)
+  const [selectedFolder, setSelectedFolder] = React.useState<FolderType>(initialFolders[0])
+  const [newFolderName, setNewFolderName] = React.useState("")
+  const [newFileName, setNewFileName] = React.useState("")
+  const [newFileType, setNewFileType] = React.useState("scorm")
+  const [isAddFolderOpen, setIsAddFolderOpen] = React.useState(false)
+  const [isAddFileOpen, setIsAddFileOpen] = React.useState(false)
 
-export default function StretchingFileManager() {
-  const [currentPath, setCurrentPath] = useState("/")
-  const [newFolderDialog, setNewFolderDialog] = useState(false)
-  const [newFolderName, setNewFolderName] = useState("")
-  const [folders, setFolders] = useState(initialFolders)
-  const [files, setFiles] = useState(initialFiles)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  // Filter items based on current path
-  const currentFolders = folders.filter((f) => f.path === currentPath)
-  const currentFiles = files.filter((f) => f.path === currentPath)
-
-  // Get breadcrumb items
-  const getBreadcrumbs = () => {
-    if (currentPath === "/") return [{ name: "Upload", path: "/" }]
-
-    const paths = currentPath.split("/").filter(Boolean)
-    const breadcrumbs = [{ name: "Upload", path: "/" }]
-
-    let buildPath = ""
-    paths.forEach((path) => {
-      buildPath += `/${path}`
-      breadcrumbs.push({ name: path, path: buildPath })
-    })
-
-    return breadcrumbs
-  }
-
-  // Create new folder
-  const handleCreateFolder = () => {
+  // Add a new folder
+  const addFolder = () => {
     if (!newFolderName.trim()) return
 
-    setFolders([
-      ...folders,
-      {
-        id: folders.length + 1,
-        name: newFolderName,
-        path: currentPath,
-      },
-    ])
+    const newFolder = {
+      id: Date.now().toString(),
+      name: newFolderName,
+      files: [],
+    }
 
+    setFolders([...folders, newFolder])
     setNewFolderName("")
-    setNewFolderDialog(false)
+    setIsAddFolderOpen(false)
   }
 
-  // Handle file upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFiles = e.target.files
-    if (!uploadedFiles?.length) return
+  // Add a new file to the selected folder
+  const addFile = () => {
+    if (!newFileName.trim()) return
 
-    const newFiles = Array.from(uploadedFiles).map((file, index) => ({
-      id: files.length + index + 1,
-      name: file.name,
-      size: `${(file.size / 1024).toFixed(1)} KB`,
-      path: currentPath,
-    }))
+    const newFile = {
+      id: Date.now().toString(),
+      name: newFileName,
+      type: newFileType,
+      dateCreated: new Date().toLocaleString(),
+      author: "current.user",
+    }
 
-    setFiles([...files, ...newFiles])
+    const updatedFolders = folders.map((folder) => {
+      if (folder.id === selectedFolder.id) {
+        return { ...folder, files: [...folder.files, newFile] }
+      }
+      return folder
+    })
 
-    // Reset the file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+    setFolders(updatedFolders)
+    setSelectedFolder(updatedFolders.find((f) => f.id === selectedFolder.id)!)
+    setNewFileName("")
+    setIsAddFileOpen(false)
+  }
+
+  // Get icon based on file type
+  const getFileIcon = (type: string) => {
+    switch (type) {
+      case "pdf":
+        return <FileText className="h-5 w-5 text-red-500" />
+      case "mp4":
+        return <File className="h-5 w-5 text-purple-500" />
+      case "scorm":
+        return <File className="h-5 w-5 text-blue-500" />
+      default:
+        return <File className="h-5 w-5 text-gray-500" />
     }
   }
 
-  // Navigate to folder
-  const navigateToFolder = (folderName: string) => {
-    setCurrentPath(`${currentPath === "/" ? "" : currentPath}/${folderName}`)
-  }
-
   return (
-    <div className="flex flex-col h-full w-full border rounded-md">
-      {/* Header */}
-      <div className="border-b p-3 flex justify-between items-center bg-muted/30">
-        <div className="flex items-center gap-1 text-sm overflow-x-auto">
-          {getBreadcrumbs().map((crumb, i) => (
-            <div key={i} className="flex items-center whitespace-nowrap">
-              {i > 0 && <ChevronRight className="h-3 w-3 mx-1 opacity-50 flex-shrink-0" />}
-              <Button variant="link" className="p-0 h-auto" onClick={() => setCurrentPath(crumb.path)}>
-                {crumb.name}
+    <div className="flex border rounded-md h-[600px]">
+      {/* Folders panel */}
+      <div className="w-1/3 border-r flex flex-col">
+        <div className="p-3 border-b flex justify-between items-center">
+          <h3 className="font-medium">Các thư mục</h3>
+          <Dialog open={isAddFolderOpen} onOpenChange={setIsAddFolderOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <FolderPlus className="h-4 w-4" />
               </Button>
-            </div>
-          ))}
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Thêm thư mục mới</DialogTitle>
+              </DialogHeader>
+              <div className="py-4">
+                <Label htmlFor="folder-name">Tên thư mục</Label>
+                <Input
+                  id="folder-name"
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  placeholder="Nhập tên thư mục"
+                  className="mt-2"
+                />
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAddFolderOpen(false)}>
+                  Hủy
+                </Button>
+                <Button onClick={addFolder}>Tạo mới</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-3 w-3 mr-1" /> Upload
-          </Button>
-          <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" multiple />
-          <Button size="sm" onClick={() => setNewFolderDialog(true)}>
-            <Plus className="h-3 w-3 mr-1" /> Folder
-          </Button>
-        </div>
-      </div>
-
-      {/* Contents */}
-      <div className="flex-1 overflow-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b bg-muted/20">
-              <th className="text-left py-2 px-4 font-medium">Name</th>
-              <th className="text-right py-2 px-4 font-medium w-[100px]">Size</th>
-              <th className="w-[50px] px-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* Folders */}
-            {currentFolders.map((folder) => (
-              <tr
-                key={`folder-${folder.id}`}
-                className="border-b hover:bg-muted/30 cursor-pointer"
-                onClick={() => navigateToFolder(folder.name)}
+        <ScrollArea className="flex-1">
+          <div className="p-2">
+            {folders.map((folder) => (
+              <div
+                key={folder.id}
+                className={cn(
+                  "flex items-center py-2 px-3 rounded-md cursor-pointer hover:bg-gray-100",
+                  selectedFolder.id === folder.id && "bg-gray-100 font-medium",
+                )}
+                onClick={() => setSelectedFolder(folder)}
               >
-                <td className="py-2 px-4">
-                  <div className="flex items-center">
-                    <span className="font-medium">📁 {folder.name}</span>
-                  </div>
-                </td>
-                <td className="py-2 px-4 text-right text-muted-foreground">—</td>
-                <td className="py-2 px-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>Rename</DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-500">Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </td>
-              </tr>
+                <Folder className="h-4 w-4 text-blue-600 mr-2" />
+                <span className="truncate">{folder.name}</span>
+                <span className="ml-auto text-xs text-gray-500">{folder.files.length}</span>
+              </div>
             ))}
-
-            {/* Files */}
-            {currentFiles.map((file) => (
-              <tr key={`file-${file.id}`} className="border-b hover:bg-muted/30">
-                <td className="py-2 px-4 truncate max-w-0 w-full">
-                  <div className="flex items-center">
-                    <span className="truncate">📄 {file.name}</span>
-                  </div>
-                </td>
-                <td className="py-2 px-4 text-right text-muted-foreground whitespace-nowrap">{file.size}</td>
-                <td className="py-2 px-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>Download</DropdownMenuItem>
-                      <DropdownMenuItem>Rename</DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-500">Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </td>
-              </tr>
-            ))}
-
-            {/* Empty state */}
-            {currentFolders.length === 0 && currentFiles.length === 0 && (
-              <tr>
-                <td colSpan={3} className="py-8 text-center text-muted-foreground">
-                  <p>This folder is empty</p>
-                  <div className="flex gap-2 justify-center mt-3">
-                    <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>
-                      Upload Files
-                    </Button>
-                    <Button size="sm" onClick={() => setNewFolderDialog(true)}>
-                      New Folder
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+          </div>
+        </ScrollArea>
       </div>
 
-      {/* New folder dialog */}
-      <Dialog open={newFolderDialog} onOpenChange={setNewFolderDialog}>
-        <DialogContent className="sm:max-w-[350px]">
-          <DialogHeader>
-            <DialogTitle>New Folder</DialogTitle>
-          </DialogHeader>
-          <Input placeholder="Folder name" value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)} />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setNewFolderDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreateFolder}>Create</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Files panel */}
+      <div className="w-2/3 flex flex-col">
+        <div className="p-3 border-b flex justify-between items-center">
+          <h3 className="font-medium">{selectedFolder.name}</h3>
+          <Dialog open={isAddFileOpen} onOpenChange={setIsAddFileOpen}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <FilePlus className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Thêm tệp tin mới</DialogTitle>
+              </DialogHeader>
+              <div className="py-4 space-y-4">
+                <div>
+                  <Label htmlFor="file-name">Tên tệp tin</Label>
+                  <Input
+                    id="file-name"
+                    value={newFileName}
+                    onChange={(e) => setNewFileName(e.target.value)}
+                    placeholder="Nhập tên tệp tin"
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label>Loại tệp tin</Label>
+                  <RadioGroup value={newFileType} onValueChange={setNewFileType} className="mt-2">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="scorm" id="scorm" />
+                      <Label htmlFor="scorm">SCORM</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="pdf" id="pdf" />
+                      <Label htmlFor="pdf">PDF</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="mp4" id="mp4" />
+                      <Label htmlFor="mp4">Video (MP4)</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAddFileOpen(false)}>
+                  Hủy
+                </Button>
+                <Button onClick={addFile}>Tạo mới</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <ScrollArea className="flex-1">
+          {selectedFolder.files.length > 0 ? (
+            <div className="p-4 space-y-2">
+              {selectedFolder.files.map((file) => (
+                <div key={file.id} className="flex items-center p-2 rounded-md hover:bg-gray-50">
+                  {getFileIcon(file.type)}
+                  <div className="ml-3">
+                    <div className="font-medium">{file.name}</div>
+                    <div className="text-xs text-gray-500">
+                      Ngày tạo: {file.dateCreated} • Người tạo: {file.author}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              Không có tệp tin nào trong thư mục này
+            </div>
+          )}
+        </ScrollArea>
+      </div>
     </div>
   )
 }

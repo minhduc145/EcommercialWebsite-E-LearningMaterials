@@ -21,7 +21,7 @@ export default function MyEditor({ value, handleChange }: { value: string, handl
             'advlist', 'autolink', 'lists', 'link', 'charmap', 'preview',
           ],
           toolbar:
-            'undo redo |fontfamily forecolor bold italic underline strikethrough subscript superscript |alignleft aligncenter alignright | bullist numlist | link image  |',
+            'undo redo |fontfamily fontsize forecolor bold italic underline strikethrough subscript superscript |alignleft aligncenter alignright | bullist numlist | link image  |',
           tinymceScriptSrc: `https://cdn.tiny.cloud/1/${process.env.NEXT_PUBLIC_TINYMCE_API_KEY}/tinymce/7/tinymce.min.js`,
         }}
         onEditorChange={handleEditorChange}

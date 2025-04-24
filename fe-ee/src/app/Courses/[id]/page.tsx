@@ -95,7 +95,7 @@ export default function courseDetails() {
 
                 </BreadcrumbList>
             </Breadcrumb>
-            <div className="flex items-center justify-center relative thumbnail w-full bg-center  left-0 bottom-0 bg-cover h-[200px]" style={{ backgroundImage: `url(${course?.thumbnailUrl})` }}>
+            <div className="flex items-center justify-center relative thumbnail w-full bg-center  left-0 bottom-0 bg-cover h-[300px]" style={{ backgroundImage: `url(${course?.thumbnailUrl})` }}>
                 <div className="absolute inset-0 bg-gradient-to-r from-[#1a2a54]/80 via-[#001f3f]/40 to-transparent z-10"></div>
                 <div className='flex relative  items-center gap-3 md:gap-10 container mx-auto px-4 pt-2 text-white z-20'>
                     <div>
@@ -122,7 +122,7 @@ export default function courseDetails() {
             <main>
                 <div className='container mx-auto'>
                     <div className='p-5 lg:pt-5 lg:flex lg:flex-row-reverse'>
-                        <div className='lg:w-80 p-5 lg:p-0 lg:absolute lg:-my-15 z-10  lg:sticky'>
+                        <div className='lg:w-80 p-5 lg:p-0 lg:absolute lg:-my-20 z-10  lg:sticky'>
                             {course && <SubscriptionCard course={course} />}
                         </div>
                         {course && <MainTabs course={course} />}

@@ -1,9 +1,9 @@
-import StretchingFileManager from "@/components/ui/file-manager";
+import { FileExplorer } from "@/components/ui/file-manager";
 
 export default function File(){
     return(
         <>
-        <StretchingFileManager/>
+        <FileExplorer/>
         </>
     )
 }
