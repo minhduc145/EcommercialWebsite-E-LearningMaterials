@@ -1,12 +1,13 @@
 "use client"
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from "@/components/ui/breadcrumb"
-import { ArrowLeft, Check, Clipboard, Loader2, Send } from "lucide-react"
+import { ArrowLeft, Loader2, Send } from "lucide-react"
 import Link from "next/link"
 import type React from "react"
 import { ToastContainer } from "react-toastify"
 
 export default function Page() {
+
 
     return (
         <>
@@ -37,12 +38,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useState } from "react"
 import MyEditor from "@/components/editor"
-import { cn } from "@/lib/utils"
 
 const MainTab = () => {
     const [bannerUrl, setBannerUrl] = useState("/global_imgs/KH-demo.png")
-
     const [name, setName] = useState("")
+    const [description, setDescription] = useState("")
     return (
         <Tabs defaultValue="information">
             <TabsList className="grid w-full grid-cols-2">
@@ -60,82 +60,7 @@ const MainTab = () => {
                         <CardDescription>Nhập thông tin chi tiết về học liệu của bạn.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="space-y-1">
-                            <div className="grow-1 flex flex-col gap-1">
-                                <Label htmlFor="name">Tên học liệu</Label>
-                                <Input id="name" placeholder="Nhập tên học liệu" />
-                            </div>
-                        </div>
-
-                        <div className="space-y-1 flex gap-10 justify-around">
-                            <div className="flex flex-col gap-1  justify-around">
-                                <Label>Trạng thái</Label>
-                                <RadioGroup defaultValue="open" className="flex gap-4">
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="open" id="open" />
-                                        <Label htmlFor="open">Mở</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="closed" id="closed" />
-                                        <Label htmlFor="closed">Đóng</Label>
-                                    </div>
-                                </RadioGroup>
-                            </div>
-                            <div className="flex flex-col gap-1">
-                                <Label htmlFor="price">Giá</Label>
-                                <Input id="price" placeholder="Nhập giá" type="number" />
-                            </div>
-                            <div className="w-auto flex flex-col gap-1">
-                                <Label htmlFor="type">Loại</Label>
-                                <Select>
-                                    <SelectTrigger id="type">
-                                        <SelectValue placeholder="Chọn loại học liệu" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="book">Sách</SelectItem>
-                                        <SelectItem value="document">Tài liệu</SelectItem>
-                                        <SelectItem value="video">Video</SelectItem>
-                                        <SelectItem value="audio">Audio</SelectItem>
-                                        <SelectItem value="other">Khác</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                        <div className="space-y-1">
-                            <div>
-                                <Label htmlFor="cover">Ảnh bìa</Label>
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <Input id="cover-url" placeholder="Nhập đường dẫn ảnh" />
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-sm text-gray-500">hoặc</span>
-                                        <div className="relative flex-1">
-                                            <Input
-                                                id="cover-file"
-                                                type="file"
-                                                accept="image/*"
-                                                className="absolute inset-0 cursor-pointer opacity-0"
-                                            />
-                                            <Button variant="outline" className="w-full">
-                                                Chọn tệp ảnh
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div><img className="mx-auto my-3 max-w-full" src={bannerUrl} alt="banner-img" /></div>
-                        </div>
-
-                        <div className="space-y-1 flex-col gap-2">
-                            <div>
-                                <Label htmlFor="cover">Mô tả</Label>
-                            </div>
-                            <div><AIModal name={name} /></div>
-                            <div className="max-w-full">
-                                <MyEditor />
-
-                            </div>
-
-                        </div>
+                        <InfoTab bannerUrl={bannerUrl} setBannerUrl={setBannerUrl} name={name} setName={setName} description={description} setDescription={setDescription} />
                     </CardContent>
                 </Card>
             </TabsContent>
@@ -162,6 +87,90 @@ const MainTab = () => {
     )
 }
 
+const InfoTab = ({ bannerUrl, setBannerUrl, name, setName, description, setDescription }
+    : { bannerUrl: string, setBannerUrl: (i: string) => void, name: string, setName: (i: string) => void, description: string, setDescription: (i: string) => void }) => {
+    return (
+        <>
+            <div className="space-y-1">
+                <div className="grow-1 flex flex-col gap-1">
+                    <Label htmlFor="name">Tên học liệu</Label>
+                    <Input value={name} id="name" placeholder="Nhập tên học liệu" onChange={(e) => setName(e.currentTarget.value)} />
+                </div>
+            </div>
+
+            <div className="space-y-1 flex gap-10 justify-around">
+                <div className="flex flex-col gap-1  justify-around">
+                    <Label>Trạng thái</Label>
+                    <RadioGroup defaultValue="open" className="flex gap-4">
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="open" id="open" />
+                            <Label htmlFor="open">Mở</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="closed" id="closed" />
+                            <Label htmlFor="closed">Đóng</Label>
+                        </div>
+                    </RadioGroup>
+                </div>
+                <div className="flex flex-col gap-1">
+                    <Label htmlFor="price">Giá</Label>
+                    <Input id="price" placeholder="Nhập giá" type="number" />
+                </div>
+                <div className="w-auto flex flex-col gap-1">
+                    <Label htmlFor="type">Loại</Label>
+                    <Select>
+                        <SelectTrigger id="type">
+                            <SelectValue placeholder="Chọn loại học liệu" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="book">Sách</SelectItem>
+                            <SelectItem value="document">Tài liệu</SelectItem>
+                            <SelectItem value="video">Video</SelectItem>
+                            <SelectItem value="audio">Audio</SelectItem>
+                            <SelectItem value="other">Khác</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+            <div className="space-y-1">
+                <div>
+                    <Label htmlFor="cover">Ảnh bìa</Label>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <Input id="cover-url" placeholder="Nhập đường dẫn ảnh" />
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-500">hoặc</span>
+                            <div className="relative flex-1">
+                                <Input
+                                    id="cover-file"
+                                    type="file"
+                                    accept="image/*"
+                                    className="absolute inset-0 cursor-pointer opacity-0"
+                                />
+                                <Button variant="outline" className="w-full">
+                                    Chọn tệp ảnh
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div><img className="mx-auto my-3 max-w-full" src={bannerUrl} alt="banner-img" /></div>
+            </div>
+
+            <div className="space-y-1 flex-col gap-2">
+                <div>
+                    <Label htmlFor="cover">Mô tả</Label>
+                </div>
+                <div><AIModal name={name} handleChange={setDescription} /></div>
+                <div className="max-w-full">
+                    <MyEditor value={description} handleChange={setDescription} />
+
+                </div>
+            </div>
+        </>
+    )
+}
+
+
 import {
     Dialog,
     DialogContent,
@@ -172,18 +181,21 @@ import {
 } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
+import { DialogClose } from "@radix-ui/react-dialog"
+import DOMPurify from 'dompurify';
 
-const AIModal = ({ name }: { name: string }) => {
+const AIModal = ({ name, handleChange }: { name: string, handleChange: (i: string) => void }) => {
     const [cue, setCue] = useState("");
     const [response, setResponse] = useState("");
     const [wordCount, setWordCount] = useState(300);
     const [isLoading, setIsLoading] = useState(false)
     const [allowIcons, setAllowIcons] = useState(false)
+ 
 
 
     const handleSubmit = async () => {
         var message = `
-Viết ví dụ cho phần mô tả của một khóa học online "${name}" từ những thông tin gợi ý bên dưới (khoảng ${wordCount} từ).
+Viết ví dụ cho phần mô tả của một khóa học online "${name?.trim()}" từ những thông tin gợi ý bên dưới (khoảng ${wordCount} từ).
 
 Yêu cầu trả về bắt buộc phải đáp ứng các tiêu chí sau: 
 1. Trả về nội dung HTML thuần, không dùng Markdown (dù chỉ 1 ký tự như ** hay -).
@@ -215,30 +227,29 @@ Thông tin gợi ý: ${cue}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[80%] max-h-[90vh] flex flex-col">
                 <DialogHeader>
-                    <DialogTitle>Tạo mô tả mẫu:</DialogTitle>
+                    <DialogTitle className="mx-auto">Tạo mô tả mẫu:</DialogTitle>
                 </DialogHeader>
                 <div className="overflow-y-auto flex-1">
                     <div className="grid gap-4 py-4">
                         <div className="flex flex-col gap-4">
                             <div>
                                 <p className="font-bold">Tên học liệu:</p>
-                                <p>{"hihihihihi "}</p>
+                                <p>{name?name:"<Không có dữ liệu>"}</p>
                             </div>
                             <div className="flex flex-col md:flex-row gap-5">
-
                                 <div>
-                                    <p className="font-bold">Số từ</p>
-                                    <Input type="number" min={50} max={500} defaultValue={wordCount} onInput={(e) => setWordCount(e.currentTarget.valueAsNumber ?? 50)}></Input>
+                                    <p className="font-bold">Số từ:</p>
+                                    <Input type="number" min={50} max={500} defaultValue={wordCount} onChange={(e) => setWordCount(e.currentTarget.valueAsNumber ?? 50)}></Input>
                                 </div>
                                 <div className="flex flex-col gap-1  justify-around">
                                     <Label>Cho phép thêm Icon, Emoji:</Label>
-                                    <RadioGroup defaultValue="open" className="flex gap-4">
+                                    <RadioGroup defaultValue="0" className="flex gap-4">
                                         <div className="flex items-center space-x-2">
                                             <RadioGroupItem value="1" id="y" onClick={() => setAllowIcons(true)} />
                                             <Label htmlFor="y">Có</Label>
                                         </div>
                                         <div className="flex items-center space-x-2">
-                                            <RadioGroupItem value="0" id="n" onClick={() => setAllowIcons(false)} />
+                                            <RadioGroupItem value="0" id="n" defaultChecked={true} onClick={() => setAllowIcons(false)} />
                                             <Label htmlFor="n">Không</Label>
                                         </div>
                                     </RadioGroup>
@@ -253,7 +264,7 @@ Thông tin gợi ý: ${cue}
                                 <p className="font-bold">Kết quả:</p>
                             </div>
                             <Card className="flex-1 overflow-auto">
-                                <CardContent className="px-4 h-96">
+                                <CardContent className="px-4 min-h-[100px]">
                                     {isLoading ? (
                                         <div className="space-y-2 mt-4">
                                             <Skeleton className="h-4 w-full" />
@@ -263,16 +274,12 @@ Thông tin gợi ý: ${cue}
                                             <Skeleton className="h-4 w-[70%]" />
                                         </div>
                                     ) : response && (
-                                        <div className="prose dark:prose-invert max-w-none">
-                                            <div dangerouslySetInnerHTML={{ __html: response }}></div>
-                                        </div>
+                                        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(response)}}></div>
                                     )}
                                 </CardContent>
                             </Card>
                         </div>
-
                     </div>
-
                 </div>
                 <DialogFooter>
                     <Button type="submit" onClick={handleSubmit} disabled={!cue.trim() || isLoading} className="bg-blue-600">
@@ -286,7 +293,9 @@ Thông tin gợi ý: ${cue}
                             </>
                         )}
                     </Button>
-                    <Button>Sử dụng</Button>
+                    <DialogClose asChild>
+                        <Button onClick={() => handleChange(response)}>Sử dụng</Button>
+                    </DialogClose>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
