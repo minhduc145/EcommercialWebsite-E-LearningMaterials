@@ -43,4 +43,10 @@ public class CourseFileModel {
 	@ManyToOne
 	@JoinColumn(name = "container_id", referencedColumnName = "id")
 	private CourseContainerModel container;
+
+	@JsonIgnore
+	@ToString.Exclude
+	@ManyToOne
+	@JoinColumn(name = "author_id", referencedColumnName = "id")
+	private UserModel user;
 }

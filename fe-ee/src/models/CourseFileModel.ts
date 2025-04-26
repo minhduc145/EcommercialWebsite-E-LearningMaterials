@@ -1,7 +1,8 @@
 export interface CourseFileModel {
     id: string;
     name: string;
-    created_at: string;
+    createdAt: string;
     type: string;       
     extension: string; 
+    authorId: string;
   }

@@ -43,6 +43,11 @@ const MainTab = () => {
     const [bannerUrl, setBannerUrl] = useState("/global_imgs/KH-demo.png")
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
+
+
+    const [isReady, setIsReady] = useState(false)
+
+    
     return (
         <Tabs defaultValue="information">
             <TabsList className="grid w-full grid-cols-2">
@@ -70,7 +75,7 @@ const MainTab = () => {
                         <CardTitle>Tài liệu</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                        <DataTab />
+                        <DataTab ready={isReady}/>
                     </CardContent>
                 </Card>
             </TabsContent>
@@ -162,12 +167,12 @@ const InfoTab = ({ bannerUrl, setBannerUrl, name, setName, description, setDescr
         </>
     )
 }
-import { FileExplorer } from "@/components/ui/file-manager"
+import { FileExplorer } from "@/components/file-manager"
 
-const DataTab = () => {
+const DataTab = ({ready}:{ready:boolean}) => {
     return (
         <>
-            <FileExplorer />
+            <FileExplorer ready ={ready}/>
         </>
     )
 }

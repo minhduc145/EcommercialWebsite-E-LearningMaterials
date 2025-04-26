@@ -11,7 +11,9 @@ public class Constants {
 	public final static String URL_FE_LOGIN_DEFAULT = "http://localhost:3000/User/Login";
 	public final static String URL_FE_LOGOUT_SUCCESS = "http://localhost:3000/";
 
-	public final static String URL_FE_PAYMENT_SUCCESS = "http://localhost:3000/Payment/Finished";
+	public final static String URL_FE_PAYMENT_SUCCESS = "http://localhost:3000/Payment/Finished?success";
+	public final static String URL_FE_PAYMENT_FAIL = "http://localhost:3000/Payment/Finished?fail";
+
 
 	public final static String ROLE_ADMIN = "ADMIN";
 	public final static String ROLE_USER = "USER";

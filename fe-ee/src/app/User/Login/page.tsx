@@ -50,6 +50,7 @@ export default function LoginPage() {
 	const isSuccess = searchParams.has('success')
 	const isFail = searchParams.has('fail')
 	useEffect(() => {
+		localStorage.removeItem('currentUser');
 		if (isSuccess) {
 			MyToaster({ variant: "success", message: "" });
 			window.location.href = "/"

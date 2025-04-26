@@ -4,5 +4,5 @@ export interface CourseContainerModel {
     id: string;
     name: string;
     createdAt: string;
-    files: CourseFileModel[];
+    files: CourseFileModel[] | [];
   }

@@ -18,3 +18,21 @@ export const formatDateTime = (isoString: string): string => {
     minute: '2-digit',
   }).format(new Date(isoString));
 };
+//cache
+const CACHE_NAME = 'my-app-cache-v1';
+
+export async function putToCache(request: string | Request, response: Response) {
+  const cache = await caches.open(CACHE_NAME);
+  await cache.put(request, response);
+}
+
+export async function getFromCache(request: string | Request): Promise<Response | undefined> {
+  const cache = await caches.open(CACHE_NAME);
+  const match = await cache.match(request);
+  return match || undefined;
+}
+
+export async function deleteFromCache(request: string | Request) {
+  const cache = await caches.open(CACHE_NAME);
+  await cache.delete(request);
+}

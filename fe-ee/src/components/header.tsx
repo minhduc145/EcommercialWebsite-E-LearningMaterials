@@ -36,6 +36,7 @@ import { Client, IMessage } from "@stomp/stompjs";
 import MyToaster from "./ui/toastify-template";
 import { ToastContainer } from "react-toastify";
 import { getUserInfo } from "@/app/api/api-account";
+import { getFromCache, putToCache } from "@/lib/utils";
 
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "http://localhost:8080";
@@ -70,25 +71,19 @@ export default function Header(props: IHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const bgColor = props.color === "blue" ? "bg-blue-900" : "border-b  supports-[backdrop-filter]:bg-background/60";
   const txtColor = props.color === "blue" ? "text-white" : "text-gray-900";
-  const currentUser = JSON.parse(String(localStorage.getItem("currentUser")));
-
+  
   useEffect(() => {
-    if (currentUser) {
-      setUserLoginCookie(currentUser);
+    const storedUser = localStorage.getItem("currentUser");
+    if (storedUser) {
+      setUserLoginCookie(JSON.parse(storedUser));
     } else {
       getUserInfo().then(response => {
         setUserLoginCookie(response.data);
-      }).catch(() => {
-        console.log("null");
+        localStorage.setItem("currentUser", JSON.stringify(response.data));
       });
     }
   }, []);
 
-  useEffect(() => {
-    if (userLoginCookie) {
-      localStorage.setItem("currentUser", JSON.stringify(userLoginCookie));
-    }
-  }, [userLoginCookie]);
 
   useEffect(() => {
     const newMessageSocket = new SockJS(
@@ -280,6 +275,7 @@ interface IUserDropDownProps {
 
 export function UserDropDown(props: IUserDropDownProps) {
   const userModel = props.userModel;
+
   return (
     <div className="transition duration-300 ease-in transform hover:-translate-y-1">
       <DropdownMenu>

@@ -24,4 +24,17 @@ public class FilesController {
 			return ResponseEntity.status(500).body("File upload failed: " + e.getMessage());
 		}
 	}
+
+	@DeleteMapping("/delete")
+	public ResponseEntity<String> deleteFile(@CookieValue(name = "jwt", required = false) String token, String fileKey) {
+		try {
+			System.out.println(fileKey);
+			s3Service.deleteObject(fileKey);
+			return ResponseEntity.ok("File deleted successfully!");
+		} catch (Exception e) {
+			return ResponseEntity.status(500).body("File deleted failed: " + e.getMessage());
+		}
+	}
+
+
 }

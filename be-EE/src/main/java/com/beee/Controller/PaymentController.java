@@ -82,17 +82,18 @@ public class PaymentController {
 					String vnp_SecureHash = responseDTO.getVnp_SecureHash();
 					if (signValue.equals(vnp_SecureHash)) {
 						String vnp_ResponseCode = fields.get("vnp_ResponseCode");
+						rabbitMQProducer.sendToQ1(username, "Bạn đã thực hiện 1 giao dịch");
 						if ("00".equals(vnp_ResponseCode)) {
 							rabbitMQProducer.sendToQ2(username, Constants.RESULT_SUCCESS.toString());
+							return "redirect:" + Constants.URL_FE_PAYMENT_SUCCESS;
 						} else {
 							rabbitMQProducer.sendToQ2(username, Constants.RESULT_FAIL.toString());
+							return "redirect:" + Constants.URL_FE_PAYMENT_FAIL;
 						}
 					} else {
 						rabbitMQProducer.sendToQ2(username, Constants.RESULT_FAIL.toString());
 						return "Failed. Data is missing";
 					}
-					rabbitMQProducer.sendToQ1(username, "Bạn đã thực hiện 1 giao dịch");
-					return "redirect:" + Constants.URL_FE_PAYMENT_SUCCESS;
 				}
 			}
 		}

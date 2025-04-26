@@ -1,5 +1,6 @@
 package com.beee.Config;
 
+import com.beee.Common.Constants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,6 +8,8 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
@@ -51,20 +54,5 @@ public class S3Config {
 				.build();
 	}
 
-	public String generatePresignedUrl(String key) {
-		S3Presigner presigner = s3Presigner();
 
-		GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-				.bucket("ee-learning-01")
-				.key(key)
-				.build();
-
-		GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-				.signatureDuration(Duration.ofMinutes(60))
-				.getObjectRequest(getObjectRequest)
-				.build();
-
-		PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
-		return presignedRequest.url().toString();
-	}
 }

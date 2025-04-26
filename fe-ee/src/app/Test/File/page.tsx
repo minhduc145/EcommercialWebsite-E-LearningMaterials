@@ -1,4 +1,4 @@
-import { FileExplorer } from "@/components/ui/file-manager";
+import { FileExplorer } from "@/components/file-manager";
 
 export default function File(){
     return(
