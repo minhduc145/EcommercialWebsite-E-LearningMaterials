@@ -1,6 +1,7 @@
 package com.beee.Service.Impl;
 
 import com.beee.Common.Constants;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -14,11 +15,17 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.util.stream.Stream;
 
 @Service
 public class S3ServiceImpl {
@@ -46,6 +53,7 @@ public class S3ServiceImpl {
 			Files.delete(tempFile);
 		}
 	}
+
 	public String generatePresignedUploadUrl(String objectKey) {
 		PutObjectRequest putRequest = PutObjectRequest.builder()
 				.bucket(Constants.CLOUD_BUCKET_NAME)
@@ -57,6 +65,7 @@ public class S3ServiceImpl {
 				.putObjectRequest(putRequest)
 		).url().toString();
 	}
+
 	public String generatePresignedUrl(String key) {
 		GetObjectRequest getObjectRequest = GetObjectRequest.builder()
 				.bucket(Constants.CLOUD_BUCKET_NAME)
@@ -77,5 +86,60 @@ public class S3ServiceImpl {
 				.build();
 		DeleteObjectResponse response = s3Client.deleteObject(deleteRequest);
 		System.out.println("Deleted: " + key);
+	}
+
+	public String convertMp4StreamToHlsAndUploadReturnM3u8Url(String mp4Url, String s3BasePath, S3Client s3Client, S3Presigner s3Presigner) throws IOException, InterruptedException {
+		Path tempDir = Files.createTempDirectory("hls_output");
+
+		ProcessBuilder builder = new ProcessBuilder(
+				"ffmpeg",
+				"-i", "-",
+				"-c:v", "copy",
+				"-c:a", "aac", "-strict", "experimental",
+				"-f", "hls",
+				"-hls_time", "10",
+				"-hls_playlist_type", "vod",
+				tempDir.resolve("index.m3u8").toString()
+		);
+
+		builder.redirectErrorStream(true);
+		Process process = builder.start();
+
+		URI uri = URI.create(mp4Url);
+		URL url = uri.toURL();
+		try (InputStream mp4Stream = url.openStream();
+		     OutputStream ffmpegInput = process.getOutputStream()) {
+			mp4Stream.transferTo(ffmpegInput);
+		}
+
+		int exitCode = process.waitFor();
+		if (exitCode != 0) {
+			throw new RuntimeException("Failed to convert mp4 to HLS, exit code: " + exitCode);
+		}
+
+		try (Stream<Path> files = Files.walk(tempDir)) {
+			files.filter(Files::isRegularFile).forEach(filePath -> {
+				String filename = filePath.getFileName().toString();
+				String s3Key = s3BasePath + "/" + filename;
+
+				try {
+					s3Client.putObject(PutObjectRequest.builder()
+									.bucket(Constants.CLOUD_BUCKET_NAME)
+									.key(s3Key)
+									.contentType(Files.probeContentType(filePath))
+									.build(),
+							filePath
+					);
+					System.out.println("Uploaded to S3: " + s3Key);
+				} catch (IOException e) {
+					throw new RuntimeException("Failed to upload file " + filename, e);
+				}
+			});
+		}
+
+		FileUtils.deleteDirectory(new File(""));
+
+		// Trả URL public cho file index.m3u8
+		return generatePresignedUrl(s3BasePath + "/index.m3u8");
 	}
 }
