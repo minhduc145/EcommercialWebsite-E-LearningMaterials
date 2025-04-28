@@ -22,6 +22,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -68,14 +69,17 @@ public class AccountController {
 
 	@PostMapping("/get_user_login_info_by_cookie")
 	public ResponseEntity getUserInfo(@CookieValue(name = "jwt", required = false) String token, HttpServletResponse response) {
-		if (token == null || jwtService.isTokenExpired(token)) {
-			responseService.disposeCookie(response, "jwt");
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, "Chưa đăng nhập"));
+		if (StringUtils.hasText(token)) {
+			if (jwtService.isTokenExpired(token)) {
+				responseService.disposeCookie(response, "jwt");
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, "Chưa đăng nhập"));
+			}
+			String username = jwtService.extractUsername(token);
+			UserModel user = userRepo.findUserModelById(username);
+			System.out.println(user);
+			return ResponseEntity.ok(user);
 		}
-		String username = jwtService.extractUsername(token);
-		UserModel user = userRepo.findUserModelById(username);
-		System.out.println(user);
-		return ResponseEntity.ok(user);
+		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping("/isAdmin")
@@ -84,6 +88,7 @@ public class AccountController {
 			responseService.disposeCookie(response, "jwt");
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
 		}
+
 		String username = jwtService.extractUsername(token);
 		return ResponseEntity.ok().body(accountRepo.existsByIdAndRole(username, "ADMIN"));
 	}

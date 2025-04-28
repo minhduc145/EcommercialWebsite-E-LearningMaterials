@@ -71,7 +71,7 @@ export default function Header(props: IHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const bgColor = props.color === "blue" ? "bg-blue-900" : "border-b  supports-[backdrop-filter]:bg-background/60";
   const txtColor = props.color === "blue" ? "text-white" : "text-gray-900";
-  
+
   useEffect(() => {
     const storedUser = localStorage.getItem("currentUser");
     if (storedUser) {
@@ -80,7 +80,7 @@ export default function Header(props: IHeaderProps) {
       getUserInfo().then(response => {
         setUserLoginCookie(response.data);
         localStorage.setItem("currentUser", JSON.stringify(response.data));
-      });
+      }).catch(() => console.log("null"));
     }
   }, []);
 
