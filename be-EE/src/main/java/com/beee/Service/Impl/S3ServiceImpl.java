@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service
@@ -38,10 +39,11 @@ public class S3ServiceImpl {
 	// Phương thức để upload file lên Cloudflare R2 hoặc S3
 	@Async
 	public void uploadFile(String bucketName, String key, MultipartFile multipartFile) throws IOException {
+		String fileKey = UUID.randomUUID().toString();
 		// Tạo yêu cầu upload tệp
 		PutObjectRequest putObjectRequest = PutObjectRequest.builder()
 				.bucket(bucketName)
-				.key(key)
+				.key(fileKey + "/" + key)
 				.build();
 
 		// Chuyển MultipartFile thành tệp tạm để upload
@@ -72,7 +74,7 @@ public class S3ServiceImpl {
 				.key(key)
 				.build();
 		GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-				.signatureDuration(Duration.ofMinutes(60))
+				.signatureDuration(Duration.ofMinutes(30))
 				.getObjectRequest(getObjectRequest)
 				.build();
 		PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);

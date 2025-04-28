@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 public class FilesController {
 	@Autowired
 	private S3ServiceImpl s3Service;
+	@Autowired
+	private S3ServiceImpl s3ServiceImpl;
 
 	@PostMapping("/upload")
 	public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
@@ -36,5 +38,10 @@ public class FilesController {
 		}
 	}
 
+	@GetMapping("/getSigned")
+	public ResponseEntity getSignedUrl(@CookieValue(name = "jwt", required = false) String token, @RequestParam String fileKey) {
+		String signedUrl = s3ServiceImpl.generatePresignedUrl(fileKey);
+		return ResponseEntity.ok(signedUrl);
+	}
 
 }
