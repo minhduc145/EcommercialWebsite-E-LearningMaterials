@@ -36,6 +36,7 @@
     "@radix-ui/react-tooltip": "^1.2.0",
     "@stomp/stompjs": "^7.1.1",
     "@tabler/icons-react": "^3.31.0",
+    "@tailwindcss/typography": "^0.5.16",
     "@tanstack/react-table": "^8.21.3",
     "@tinymce/tinymce-react": "^6.1.0",
     "axios": "^1.8.4",

@@ -160,7 +160,7 @@ export default function Page() {
                 <div className="border rounded-md overflow-hidden">
                     <div className="overflow-x-auto">
                         <Table>
-                            {!courses || courses.length === 0 ? <TableCaption>Không có dữ liệu.</TableCaption> : null}
+                            {!courses || courses.length === 0 ? <TableCaption className="my-3">Không có dữ liệu.</TableCaption> : null}
                             <TableHeader className="bg-blue-600 ">
                                 <TableRow>
                                     <TableHead className="w-[50px] ">

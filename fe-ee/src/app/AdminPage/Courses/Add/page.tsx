@@ -28,7 +28,6 @@ export default function Page() {
     )
 }
 
-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -43,9 +42,7 @@ const MainTab = () => {
     const [bannerFile, setBannerFile] = useState<File>()
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
-
-
-    const [isReady, setIsReady] = useState(false)
+    const [tab2Ready, setTab2Ready] = useState(false)
 
 
     return (
@@ -54,7 +51,7 @@ const MainTab = () => {
                 <TabsTrigger value="information" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
                     Thông tin
                 </TabsTrigger>
-                <TabsTrigger value="data" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                <TabsTrigger disabled={!tab2Ready} value="data" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
                     Tài liệu
                 </TabsTrigger>
             </TabsList>
@@ -65,7 +62,8 @@ const MainTab = () => {
                         <CardDescription>Nhập thông tin chi tiết về học liệu của bạn.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <InfoTab bannerFile={bannerFile} setBannerFile={setBannerFile} name={name} setName={setName} description={description} setDescription={setDescription} />
+                        <InfoTab bannerFile={bannerFile} setBannerFile={setBannerFile} name={name} setName={setName} 
+                        description={description} setDescription={setDescription} setTab2Ready={setTab2Ready} />
                     </CardContent>
                 </Card>
             </TabsContent>
@@ -75,20 +73,20 @@ const MainTab = () => {
                         <CardTitle>Tài liệu</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                        <DataTab ready={isReady} />
+                        <DataTab />
                     </CardContent>
                 </Card>
             </TabsContent>
-
-            <Button className="w-50 bg-green-500 hover:bg-green-600">Lưu</Button>
         </Tabs>
     )
 }
 
-const InfoTab = ({ bannerFile, setBannerFile, name, setName, description, setDescription }
-    : { bannerFile: File | undefined, setBannerFile: (i: File) => void, name: string, setName: (i: string) => void, description: string, setDescription: (i: string) => void }) => {
-    const defaultBannerUrl = ("/global_imgs/KH-demo.png");
+const InfoTab = ({ bannerFile, setBannerFile, name, setName, description, setDescription, setTab2Ready }
+    : { bannerFile: File | undefined, setBannerFile: (i: File) => void, name: string, setName: (i: string) => void, description: string, setDescription: (i: string) => void, setTab2Ready: (i: boolean) => void }) => {
+    const handleInfoSave = () => {
+        setTab2Ready(true)
 
+    }
     return (
         <>
             <div className="space-y-1">
@@ -158,7 +156,7 @@ const InfoTab = ({ bannerFile, setBannerFile, name, setName, description, setDes
                 </div>
                 <div className="relative mx-auto my-3 w-full max-w-4xl h-56 bg-gray-100 overflow-hidden rounded-md">
                     <img
-                        className="object-contain w-full h-full"
+                        className="object-fill w-full h-full"
                         src={bannerFile ? URL.createObjectURL(bannerFile) : "/global_imgs/KH-demo.png"}
                         alt="banner-img"
                     />
@@ -172,18 +170,20 @@ const InfoTab = ({ bannerFile, setBannerFile, name, setName, description, setDes
                 <div><AIModal name={name} handleChange={setDescription} /></div>
                 <div className="max-w-full">
                     <MyEditor value={description} handleChange={setDescription} />
-
                 </div>
+            </div>
+            <div className="justify-self-end">
+                <Button className="w-50 bg-green-500 hover:bg-green-600" onClick={handleInfoSave}>Lưu</Button>
             </div>
         </>
     )
 }
 import { FileExplorer } from "@/components/file-manager"
 
-const DataTab = ({ ready }: { ready: boolean }) => {
+const DataTab = () => {
     return (
         <>
-            <FileExplorer ready={ready} />
+            <FileExplorer />
         </>
     )
 }

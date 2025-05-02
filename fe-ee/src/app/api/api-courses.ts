@@ -46,3 +46,7 @@ export async function deleteCourse(idSet: string[] | []) {
         data: idSet
     })
 }
+
+export async function getCategories() {
+    return await axios.get("/api/categories")
+}

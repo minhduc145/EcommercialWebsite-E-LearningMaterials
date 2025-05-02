@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
+import { cn, formatDateTime } from "@/lib/utils"
 import type { CourseContainerModel } from "@/models/CourseContainerModel"
 import type { CourseFileModel } from "@/models/CourseFileModel"
 
@@ -87,6 +87,20 @@ const initialFolders: CourseContainerModel[] = [
   },
 ]
 
+const FileType = [] =[
+  {
+    id: "scorm",
+    name:"SCORM"
+  },
+  {
+    id: "media",
+    name:"Đa phương tiện"
+  },
+  {
+    id: "document",
+    name:"Tài liệu"
+  }
+]
 // Helper function to get file icon based on type
 const getFileIcon = (type: string) => {
   switch (type) {
@@ -101,7 +115,7 @@ const getFileIcon = (type: string) => {
   }
 }
 
-export function FileExplorer({ ready }: { ready: boolean }) {
+export function FileExplorer() {
   // State management
   const [folders, setFolders] = useState<CourseContainerModel[]>(initialFolders)
   const [selectedFolder, setSelectedFolder] = useState<CourseContainerModel>(initialFolders[0])
@@ -308,7 +322,7 @@ export function FileExplorer({ ready }: { ready: boolean }) {
                   <div className="ml-3 flex-1">
                     <div className="font-medium">{file.name}</div>
                     <div className="text-xs text-gray-500">
-                      Ngày tạo: {file.createdAt} • Người tạo: {file.authorId}
+                      Ngày tạo: {formatDateTime(file.createdAt)} • Người tạo: {file.authorId}
                     </div>
                   </div>
                   <Popover>

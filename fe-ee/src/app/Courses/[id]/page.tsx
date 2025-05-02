@@ -170,12 +170,12 @@ function MainTabs({ course }: ICourseProp) {
                 </TabsList>
                 <div className="mt-3 border rounded-lg p-6">
                     <TabsContent value="mo-ta" className="space-y-4 flex flex-col-reverse">
-                        <div className="aspect-video w-full">
+                        {/* <div className="aspect-video w-full">
                             <iframe className="w-full h-full" src="https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev/Getting%20started%20with%20iSpring/res/index.html" allowFullScreen ></iframe>
-                        </div>
+                        </div> */}
                         <br />
                         {/* <MarkdownRenderer content={course?.description} /> */}
-                        <div dangerouslySetInnerHTML={{ __html: course?.description ?? "<p class='text-center'>Không có dữ liệu<p>" }}></div>
+                        <div className='reset' dangerouslySetInnerHTML={{ __html: course?.description ?? "<p class='text-center'>Không có dữ liệu<p>" }}/>
                     </TabsContent>
                     <TabsContent value="tai-lieu" className="space-y-4">
                         <div className=" ">

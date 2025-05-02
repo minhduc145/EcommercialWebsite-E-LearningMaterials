@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ChatBox from "@/components/floating-chatbox";
+import { ToastContainer } from "react-toastify";
 
 // import { ThemeProvider } from "@/components/theme-provider"
 
@@ -23,6 +24,7 @@ export default function RootLayout({
   return (
     <html lang="vi" className={`${inter.variable} antialiased`}>
       <body className="font-inter">
+        <ToastContainer/>
         {children}
        <ChatBox/>
       </body>

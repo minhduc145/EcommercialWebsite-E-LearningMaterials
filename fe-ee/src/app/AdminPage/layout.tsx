@@ -64,7 +64,7 @@ export default function DashboardLayout({
   const mainNavItems: NavItemType[] = [
     { icon: LayoutDashboard, label: "Dashboard", url: "/AdminPage/Details", isActive: activeItem === "/AdminPage/Details" },
     { icon: FileText, label: "Quản lý học liệu", url: "/AdminPage/Courses", isActive: activeItem === "/AdminPage/Courses" },
-    { icon: TypeIcon, label: "Quản lý Loại học liệu", url: "/AdminPage/Types", isActive: activeItem === "/AdminPage/Types" },
+    { icon: TypeIcon, label: "Quản lý Loại học liệu", url: "/AdminPage/Categories", isActive: activeItem === "/AdminPage/Categories" },
     { icon: DatabaseIcon, label: "Quản lý Kho dữ liệu", url: "/AdminPage/CourseData", isActive: activeItem === "/AdminPage/CourseData" },
 
   ]

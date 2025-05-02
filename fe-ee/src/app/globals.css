@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+.reset * {
+  all: revert;
+}
+
 /* Dành cho Chrome, Edge, Safari */
 ::-webkit-scrollbar {
   width: 5px;
