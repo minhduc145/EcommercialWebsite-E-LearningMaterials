@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/files")
 public class FilesController {
@@ -18,9 +20,8 @@ public class FilesController {
 	@PostMapping("/upload")
 	public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
 		try {
-			String bucketName = Constants.CLOUD_BUCKET_NAME;
 			String fileKey = file.getOriginalFilename();
-			s3Service.uploadFile(bucketName, fileKey, file);
+			s3Service.uploadFile(file);
 			return ResponseEntity.ok("File uploaded successfully!");
 		} catch (Exception e) {
 			return ResponseEntity.status(500).body("File upload failed: " + e.getMessage());

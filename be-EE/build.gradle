@@ -44,6 +44,18 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.18.0'
     // https://mvnrepository.com/artifact/software.amazon.awssdk/s3
     implementation 'software.amazon.awssdk:s3:2.31.20'
+
+    // AWS SDK S3: Cung cấp S3Client và các API liên quan đến S3
+    implementation 'software.amazon.awssdk:s3:2.31.20'
+
+    // AWS SDK Apache HTTP Client: Cung cấp ApacheHttpClient để tùy chỉnh HTTP
+    implementation 'software.amazon.awssdk:apache-client:2.31.20'
+
+    // AWS SDK Core: Cung cấp các thành phần cốt lõi
+    implementation 'software.amazon.awssdk:aws-core:2.31.20'
+
+    // AWS SDK Auth: Cung cấp các cơ chế xác thực, bao gồm AwsBasicCredentials
+    implementation 'software.amazon.awssdk:auth:2.31.20'
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket:3.4.4'
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-amqp

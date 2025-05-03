@@ -53,9 +53,9 @@ public class AccountController {
 			User user = (User) auth.getPrincipal();
 			String token = jwtService.generateToken(user.getUsername());
 			responseService.addCookie(response, "jwt", token);
-			return ResponseEntity.ok(Utils.mapOfResponse(Constants.RESULT_SUCCESS, "Đăng nhập thành công"));
+			return ResponseEntity.ok(Utils.mapOfResponse(Constants.RESULT_SUCCESS, "Đăng nhập thành công", null));
 		} catch (AuthenticationException e) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, "Sai tài khoản/ mật khẩu"));
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, "Sai tài khoản/ mật khẩu", null));
 		}
 	}
 
@@ -72,7 +72,7 @@ public class AccountController {
 		if (StringUtils.hasText(token)) {
 			if (jwtService.isTokenExpired(token)) {
 				responseService.disposeCookie(response, "jwt");
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, "Chưa đăng nhập"));
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, "Chưa đăng nhập", null));
 			}
 			String username = jwtService.extractUsername(token);
 			UserModel user = userRepo.findUserModelById(username);

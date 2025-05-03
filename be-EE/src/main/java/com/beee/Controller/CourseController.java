@@ -1,19 +1,20 @@
 package com.beee.Controller;
 
 import com.beee.Common.Constants;
+import com.beee.Model.CourseModel;
 import com.beee.Repository.CourseDataRepo;
 import com.beee.Repository.CourseRepo;
 import com.beee.Repository.ReviewRepo;
+import com.beee.Service.Impl.S3ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -26,6 +27,8 @@ public class CourseController {
 
 	@Autowired
 	private CourseDataRepo courseDataRepo;
+	@Autowired
+	private S3ServiceImpl s3ServiceImpl;
 
 	@GetMapping("/getAll")
 	public ResponseEntity getAllCourses() {
@@ -72,6 +75,19 @@ public class CourseController {
 		if (id != null)
 			return ResponseEntity.ok(courseDataRepo.findAllByCourse_Id(id));
 		else return ResponseEntity.ok(new ArrayList<String>());
+	}
+
+	@PostMapping("/add/info")
+	public ResponseEntity addCourseInfo(@ModelAttribute CourseModel courseModel, @RequestParam(name = "bannerFile", required = false) MultipartFile bannerFile) throws IOException {
+		System.out.println(courseModel);
+		System.out.println(bannerFile);
+		if (bannerFile != null) {
+			String randomId = UUID.randomUUID().toString();
+			String fileName = bannerFile.getOriginalFilename();
+			String fileKey = randomId + fileName.substring(fileName.lastIndexOf('.'));
+			s3ServiceImpl.uploadFile(Constants.CLOUD_BUCKET_NAME, "banner/" + fileKey, bannerFile);
+		}
+		return ResponseEntity.ok().build();
 	}
 
 	@DeleteMapping("/delete")

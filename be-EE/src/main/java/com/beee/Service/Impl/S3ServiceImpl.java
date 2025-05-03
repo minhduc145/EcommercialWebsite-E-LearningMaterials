@@ -5,7 +5,9 @@ import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
@@ -36,14 +38,12 @@ public class S3ServiceImpl {
 	@Autowired
 	private S3Presigner s3Presigner;
 
+
 	// Phương thức để upload file lên Cloudflare R2 hoặc S3
-	@Async
 	public void uploadFile(String bucketName, String key, MultipartFile multipartFile) throws IOException {
-		String fileKey = UUID.randomUUID().toString();
-		// Tạo yêu cầu upload tệp
 		PutObjectRequest putObjectRequest = PutObjectRequest.builder()
 				.bucket(bucketName)
-				.key(fileKey + "/" + key)
+				.key(key)
 				.build();
 
 		// Chuyển MultipartFile thành tệp tạm để upload
@@ -55,6 +55,60 @@ public class S3ServiceImpl {
 			Files.delete(tempFile);
 		}
 	}
+
+	//
+//	public void uploadFile(MultipartFile file, String key) {
+//		try {
+//			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+//					.bucket(Constants.CLOUD_BUCKET_NAME)
+//					.key(key)
+//					.contentType(file.getContentType())
+//					.build();
+//
+//			s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
+//		} catch (IOException e) {
+//			throw new RuntimeException("Failed to upload file to Cloudflare R2", e);
+//		}
+//	}
+	public void uploadFile(MultipartFile file, String newFileName) {
+		try {
+			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+					.bucket(Constants.CLOUD_BUCKET_NAME)
+					.key(newFileName)
+					.contentType(file.getContentType()) // OK
+					.build();
+
+			// Truyền content length chính xác ở RequestBody (rất quan trọng)
+			RequestBody requestBody = RequestBody.fromInputStream(file.getInputStream(), file.getSize());
+
+			s3Client.putObject(putObjectRequest, requestBody);
+
+		} catch (IOException e) {
+			throw new RuntimeException("Upload thất bại", e);
+		}
+	}
+
+	public void uploadFile(MultipartFile file) throws IOException {
+		if (file == null || file.isEmpty()) {
+			throw new IllegalArgumentException("File is null or empty");
+		}
+
+		// Lưu file tạm
+		File tempFile = Files.createTempFile("s3-upload-", file.getOriginalFilename()).toFile();
+		file.transferTo(tempFile);
+
+		try {
+			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+					.bucket(Constants.CLOUD_BUCKET_NAME)
+					.key(file.getOriginalFilename())
+					.build();
+
+			s3Client.putObject(putObjectRequest, RequestBody.fromFile(tempFile));
+		} finally {
+			tempFile.delete(); // Xóa file tạm
+		}
+	}
+
 
 	public String generatePresignedUploadUrl(String objectKey) {
 		PutObjectRequest putRequest = PutObjectRequest.builder()
