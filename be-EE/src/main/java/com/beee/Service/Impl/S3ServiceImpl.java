@@ -21,12 +21,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -37,7 +39,37 @@ public class S3ServiceImpl {
 
 	@Autowired
 	private S3Presigner s3Presigner;
+	public void uploadFileViaSignedUrl(MultipartFile file, String objectKey) {
+		try {
+			// 1. Lấy signed URL từ hàm bạn có sẵn
+			String signedUrl = generatePresignedUploadUrl(objectKey);
 
+			// 2. Mở kết nối HTTP PUT đến signed URL
+			HttpURLConnection connection = (HttpURLConnection) new URL(signedUrl).openConnection();
+			connection.setDoOutput(true);
+			connection.setRequestMethod("PUT");
+			connection.setRequestProperty("Content-Type", file.getContentType());
+
+			// 3. Gửi file qua stream
+			try (OutputStream os = connection.getOutputStream();
+			     InputStream is = file.getInputStream()) {
+				byte[] buffer = new byte[8192];
+				int bytesRead;
+				while ((bytesRead = is.read(buffer)) != -1) {
+					os.write(buffer, 0, bytesRead);
+				}
+			}
+
+			// 4. Kiểm tra response
+			int responseCode = connection.getResponseCode();
+			if (responseCode != 200) {
+				throw new RuntimeException("Upload failed with HTTP code: " + responseCode);
+			}
+
+		} catch (IOException e) {
+			throw new RuntimeException("Error during signed URL upload", e);
+		}
+	}
 
 	// Phương thức để upload file lên Cloudflare R2 hoặc S3
 	public void uploadFile(String bucketName, String key, MultipartFile multipartFile) throws IOException {
@@ -56,20 +88,7 @@ public class S3ServiceImpl {
 		}
 	}
 
-	//
-//	public void uploadFile(MultipartFile file, String key) {
-//		try {
-//			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-//					.bucket(Constants.CLOUD_BUCKET_NAME)
-//					.key(key)
-//					.contentType(file.getContentType())
-//					.build();
-//
-//			s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
-//		} catch (IOException e) {
-//			throw new RuntimeException("Failed to upload file to Cloudflare R2", e);
-//		}
-//	}
+
 	public void uploadFile(MultipartFile file, String newFileName) {
 		try {
 			PutObjectRequest putObjectRequest = PutObjectRequest.builder()

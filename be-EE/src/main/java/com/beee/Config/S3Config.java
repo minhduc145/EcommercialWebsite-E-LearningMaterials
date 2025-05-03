@@ -9,6 +9,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -38,16 +39,23 @@ public class S3Config {
 	@Bean
 	public S3Client s3Client() {
 		AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKey, secretKey);
+
 		return S3Client.builder()
-				.endpointOverride(URI.create(endpoint))
-				.region(Region.of(region))
+				.endpointOverride(URI.create(endpoint)) // Cloudflare R2 endpoint
+				.region(Region.US_EAST_1) // ⚠️ Bắt buộc với R2
 				.credentialsProvider(StaticCredentialsProvider.create(awsCreds))
+				.serviceConfiguration(
+						S3Configuration.builder()
+								.pathStyleAccessEnabled(true) // ⚠️ Cũng bắt buộc với R2
+								.build()
+				)
 				.httpClient(ApacheHttpClient.builder()
 						.connectionTimeout(Duration.ofSeconds(60))
 						.socketTimeout(Duration.ofSeconds(60))
 						.build())
 				.build();
 	}
+
 
 	@Bean
 	public S3Presigner s3Presigner() {

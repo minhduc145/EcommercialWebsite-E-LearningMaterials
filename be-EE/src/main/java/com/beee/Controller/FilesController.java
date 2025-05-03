@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/files")
@@ -20,8 +21,8 @@ public class FilesController {
 	@PostMapping("/upload")
 	public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
 		try {
-			String fileKey = file.getOriginalFilename();
-			s3Service.uploadFile(file);
+			String newFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+			s3Service.uploadFileViaSignedUrl(file, newFileName);
 			return ResponseEntity.ok("File uploaded successfully!");
 		} catch (Exception e) {
 			return ResponseEntity.status(500).body("File upload failed: " + e.getMessage());
