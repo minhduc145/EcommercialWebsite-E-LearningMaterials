@@ -10,7 +10,7 @@ import { useEffect, useState } from "react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { MoreHorizontal, Search, Plus, SortAsc } from "lucide-react"
+import { MoreHorizontal, Search, Plus, SortAsc, LoaderIcon, Loader2, RefreshCcw, RefreshCcwDotIcon } from "lucide-react"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -24,6 +24,7 @@ import { ToastContainer } from "react-toastify"
 import MyToaster from "@/components/ui/toastify-template"
 import { formatDateTime } from "@/lib/utils"
 import Link from "next/link"
+import { IconRefresh } from "@tabler/icons-react"
 
 export default function Page() {
     const [courses, setCourses] = useState<CourseModel[]>([])
@@ -147,14 +148,23 @@ export default function Page() {
                     <i>
                         <b>Danh sách gồm có:</b>&nbsp;{totalElements} bản ghi
                     </i>
-                    {selectedRows.length > 0 && (
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">{selectedRows.length} đã chọn</span>
-                            <Button variant="outline" size="sm" onClick={() => handleDelete(selectedRows)}>
-                                Xóa đã chọn
-                            </Button>
+                    <div  className="flex gap-2 items-center">
+                        <div>
+                            {selectedRows.length > 0 && (
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium">{selectedRows.length} đã chọn</span>
+                                    <Button variant="outline" size="sm" onClick={() => handleDelete(selectedRows)}>
+                                        Xóa đã chọn
+                                    </Button>
+                                </div>
+                            )}
                         </div>
-                    )}
+                        <Button variant={"secondary"} className="bg-green-500 hover:bg-green-600 text-white" onClick={()=>setReloadKey(!reloadKey)}>
+                            <RefreshCcw className="size-4"/>
+                        </Button>
+
+                    </div>
+
                 </div>
 
                 <div className="border rounded-md overflow-hidden">

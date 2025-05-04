@@ -1,14 +1,17 @@
 package com.beee.Controller;
 
 import com.beee.Common.Constants;
+import com.beee.Common.Utils;
+import com.beee.Model.CategoryModel;
 import com.beee.Model.CourseModel;
-import com.beee.Repository.CourseDataRepo;
-import com.beee.Repository.CourseRepo;
-import com.beee.Repository.ReviewRepo;
+import com.beee.Repository.*;
 import com.beee.Service.Impl.S3ServiceImpl;
+import com.beee.WebSecurityService.JwtService;
+import jdk.jshell.execution.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +32,13 @@ public class CourseController {
 	private CourseDataRepo courseDataRepo;
 	@Autowired
 	private S3ServiceImpl s3ServiceImpl;
+	@Autowired
+	private CategoryRepo categoryRepo;
+	@Autowired
+	private JwtService jwtService;
+	private AccountRepo accountRepo;
+	@Autowired
+	private UserRepo userRepo;
 
 	@GetMapping("/getAll")
 	public ResponseEntity getAllCourses() {
@@ -78,16 +88,33 @@ public class CourseController {
 	}
 
 	@PostMapping("/add/info")
-	public ResponseEntity addCourseInfo(@ModelAttribute CourseModel courseModel, @RequestParam(name = "bannerFile", required = false) MultipartFile bannerFile) throws IOException {
-		System.out.println(courseModel);
-		System.out.println(bannerFile);
-		if (bannerFile != null) {
-			String randomId = UUID.randomUUID().toString();
-			String fileName = bannerFile.getOriginalFilename();
-			String fileKey = randomId + fileName.substring(fileName.lastIndexOf('.'));
-			s3ServiceImpl.uploadFile(Constants.CLOUD_BUCKET_NAME, "banner/" + fileKey, bannerFile);
-		}
-		return ResponseEntity.ok().build();
+	public ResponseEntity addCourseInfo(@CookieValue(name = "jwt", required = false) String jwt,
+	                                    @ModelAttribute CourseModel courseModel, @RequestParam(name = "bannerFile", required = false) MultipartFile bannerFile) throws IOException {
+			if (!jwtService.isTokenExpired(jwt)) {
+				try {
+					String username = jwtService.extractUsername(jwt);
+					courseModel.setCategory(categoryRepo.findById(Integer.valueOf(courseModel.getCategoryId())).get());
+					courseModel.setCreator(userRepo.findUserModelById(username));
+					CourseModel saved = courseRepo.save(courseModel);
+
+
+					if (bannerFile != null) {
+						String randomId = UUID.randomUUID().toString();
+						String fileName = bannerFile.getOriginalFilename();
+						String fileKey = randomId + fileName.substring(fileName.lastIndexOf('.'));
+						s3ServiceImpl.uploadFile(Constants.CLOUD_BUCKET_NAME, "banner/" + fileKey, bannerFile);
+					}
+
+
+					return ResponseEntity.ok(
+							Utils.mapOfResponse(1,"ok",saved)
+					);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+			}
 	}
 
 	@DeleteMapping("/delete")

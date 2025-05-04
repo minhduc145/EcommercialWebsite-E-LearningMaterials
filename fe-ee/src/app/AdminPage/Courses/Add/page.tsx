@@ -35,14 +35,20 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import MyEditor from "@/components/editor"
 
 const MainTab = () => {
+    const [id, setId] = useState("")
     const [bannerFile, setBannerFile] = useState<File>()
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
+    const [price, setPrice] = useState(0)
+    const [isAvailable, setIsAvailable] = useState(true)
+    const [categoryId, setCategoryId] = useState("")
+
     const [tab2Ready, setTab2Ready] = useState(false)
+
 
 
     return (
@@ -57,13 +63,10 @@ const MainTab = () => {
             </TabsList>
             <TabsContent value="information">
                 <Card>
-                    <CardHeader>
-                        <CardTitle></CardTitle>
-                        <CardDescription>Nhập thông tin chi tiết về học liệu của bạn.</CardDescription>
-                    </CardHeader>
                     <CardContent className="space-y-4">
-                        <InfoTab bannerFile={bannerFile} setBannerFile={setBannerFile} name={name} setName={setName} 
-                        description={description} setDescription={setDescription} setTab2Ready={setTab2Ready} />
+                        <InfoTab id={id} bannerFile={bannerFile} setBannerFile={setBannerFile} name={name} setName={setName} price={price} setPrice={setPrice}
+                            categoryId={categoryId} setCategoryId={setCategoryId} isAvailable={isAvailable} setIsAvailable={setIsAvailable}
+                            description={description} setDescription={setDescription} setTab2Ready={setTab2Ready} />
                     </CardContent>
                 </Card>
             </TabsContent>
@@ -81,53 +84,88 @@ const MainTab = () => {
     )
 }
 
-const InfoTab = ({ bannerFile, setBannerFile, name, setName, description, setDescription, setTab2Ready }
-    : { bannerFile: File | undefined, setBannerFile: (i: File) => void, name: string, setName: (i: string) => void, description: string, setDescription: (i: string) => void, setTab2Ready: (i: boolean) => void }) => {
+const InfoTab = (
+    { id, bannerFile, setBannerFile, name, setName, categoryId, setCategoryId, isAvailable, price, setPrice, setIsAvailable, description, setDescription, setTab2Ready }
+        : {
+            id: string,
+            bannerFile: File | undefined, setBannerFile: (i: File) => void, name: string, setName: (i: string) => void, categoryId: string, setCategoryId: (i: string) => void,
+            isAvailable: boolean, setIsAvailable: (i: boolean) => void, price: number, setPrice: (i: number) => void,
+            description: string, setDescription: (i: string) => void, setTab2Ready: (i: boolean) => void
+        }) => {
+    const [categories, setCategories] = useState<CategoryModel[]>([])
+    const [displayPrice, setDisplayPrice] = useState<string>(
+        price?.toLocaleString("vi-VN") ?? "0"
+    );
+
+    const handlePriceChange = (val: string) => {
+        const raw = val.replace(/\D/g, "");
+        const number = parseInt(raw || "0", 10);
+        setPrice(number);
+        const formatted = number.toLocaleString("vi-VN");
+        setDisplayPrice(formatted);
+    };
+
+    useEffect(() => {
+        getCategories().then(res => {
+            setCategories(res.data)
+        })
+    }, [])
+
     const handleInfoSave = () => {
-        setTab2Ready(true)
+        submitCourseInfo({ id, bannerFile, name, description, price, isAvailable, categoryId }).then(res => {
+            if (res) {
+                console.log(res)
+                MyToaster({ variant: "success", message: "Lưu Thông tin học liệu thành công!" })
+                setTab2Ready(true)
+            }
+        })
 
     }
     return (
         <>
             <div className="space-y-1">
                 <div className="grow-1 flex flex-col gap-1">
-                    <Label htmlFor="name">Tên học liệu</Label>
+                    <Label htmlFor="name">Tên học liệu<span className='text-red-600'>*</span></Label>
                     <Input value={name} id="name" placeholder="Nhập tên học liệu" onChange={(e) => setName(e.currentTarget.value)} />
                 </div>
             </div>
 
             <div className="space-y-1 flex gap-10 justify-around">
                 <div className="flex flex-col gap-1  justify-around">
-                    <Label>Trạng thái</Label>
-                    <RadioGroup defaultValue="open" className="flex gap-4">
+                    <Label>Trạng thái<span className='text-red-600'>*</span></Label>
+                    <RadioGroup defaultValue={String(isAvailable)} onValueChange={(value) => setIsAvailable(value === "true")} className="flex gap-4">
                         <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="open" id="open" />
+                            <RadioGroupItem value="true" id="open" />
                             <Label htmlFor="open">Mở</Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="closed" id="closed" />
+                            <RadioGroupItem value="false" id="closed" />
                             <Label htmlFor="closed">Đóng</Label>
                         </div>
                     </RadioGroup>
                 </div>
                 <div className="w-auto flex flex-col gap-1">
-                    <Label htmlFor="type">Loại</Label>
-                    <Select>
+                    <Label htmlFor="type">Loại<span className='text-red-600'>*</span></Label>
+                    <Select value={categoryId} onValueChange={val => setCategoryId(val)}>
                         <SelectTrigger id="type">
                             <SelectValue placeholder="Chọn loại học liệu" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="book">Sách</SelectItem>
-                            <SelectItem value="document">Tài liệu</SelectItem>
-                            <SelectItem value="video">Video</SelectItem>
-                            <SelectItem value="audio">Audio</SelectItem>
-                            <SelectItem value="other">Khác</SelectItem>
+                            {categories && categories.map(cat => (
+                                <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                 </div>
                 <div className="flex flex-col gap-1">
-                    <Label htmlFor="price">Giá</Label>
-                    <Input id="price" placeholder="Nhập giá" type="number" />
+                    <Label htmlFor="price">Giá<span className='text-red-600'>*</span></Label>
+                    <Input
+                        id="price"
+                        type="text"
+                        placeholder="Nhập giá"
+                        value={displayPrice}
+                        onChange={val => handlePriceChange(val.currentTarget.value)}
+                    />
                 </div>
 
             </div>
@@ -148,7 +186,7 @@ const InfoTab = ({ bannerFile, setBannerFile, name, setName, description, setDes
                                     }}
                                 />
                                 <Button variant="outline" className="w-full">
-                                    Tải ảnh bìa lên
+                                    Tải ảnh bìa lên<span className='text-red-600'>*</span>
                                 </Button>
                             </div>
                         </div>
@@ -200,6 +238,9 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
 import { DialogClose } from "@radix-ui/react-dialog"
 import DOMPurify from 'dompurify';
+import { CategoryModel } from "@/models/CategoryModel"
+import { getCategories, submitCourseInfo } from "@/app/api/api-courses"
+import MyToaster from "@/components/ui/toastify-template"
 
 const AIModal = ({ name, handleChange }: { name: string, handleChange: (i: string) => void }) => {
     const [cue, setCue] = useState("");

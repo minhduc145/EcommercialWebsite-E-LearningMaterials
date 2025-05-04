@@ -50,3 +50,42 @@ export async function deleteCourse(idSet: string[] | []) {
 export async function getCategories() {
     return await axios.get("/api/categories")
 }
+
+export async function submitCourseInfo({
+    id,
+    bannerFile,
+    name,
+    description,
+    price,
+    isAvailable,
+    categoryId
+}: {
+    id: string | null;
+    bannerFile: File | undefined;
+    name: string;
+    description: string;
+    price: number;
+    isAvailable: boolean;
+    categoryId: string;
+}) {
+    if (!bannerFile || !name || !categoryId || !price) {
+        alert("Vui lòng nhập đầy đủ thông tin");
+        return;
+    }
+
+    const formData = new FormData();
+    { id && formData.append("id", id); }
+    formData.append("banner", bannerFile);
+    formData.append("title", name);
+    formData.append("description", description);
+    formData.append("price", String(price));
+    formData.append("isAvailable", String(isAvailable));
+    formData.append("categoryId", categoryId);
+
+    return await axios.post("/api/courses/add/info", formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+
+};

@@ -2,6 +2,7 @@ package com.beee.Model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.ReadOnlyProperty;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -20,7 +21,7 @@ public class CourseModel {
 	@Column(name = "id")
 	private Integer id;
 
-	@Column(name = "created_at")
+	@Column(name = "created_at",insertable = false, updatable = false)
 	private Timestamp createdAt;
 
 	@Column(name = "description", columnDefinition = "TEXT")
@@ -41,8 +42,11 @@ public class CourseModel {
 	@Column(name = "title")
 	private String title;
 
-	@Column(name = "subscriber_number")
+	@Column(name = "subscriber_number",insertable = false, updatable = false)
 	private Long subscriberNumber;
+
+	@Transient
+	private String categoryId;
 
 	@ManyToOne
 	@JoinColumn(name = "creator_id", referencedColumnName = "id")
