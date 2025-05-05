@@ -14,8 +14,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -90,31 +92,34 @@ public class CourseController {
 	@PostMapping("/add/info")
 	public ResponseEntity addCourseInfo(@CookieValue(name = "jwt", required = false) String jwt,
 	                                    @ModelAttribute CourseModel courseModel, @RequestParam(name = "bannerFile", required = false) MultipartFile bannerFile) throws IOException {
-			if (!jwtService.isTokenExpired(jwt)) {
-				try {
-					String username = jwtService.extractUsername(jwt);
-					courseModel.setCategory(categoryRepo.findById(Integer.valueOf(courseModel.getCategoryId())).get());
-					courseModel.setCreator(userRepo.findUserModelById(username));
-					CourseModel saved = courseRepo.save(courseModel);
-
-
-					if (bannerFile != null) {
-						String randomId = UUID.randomUUID().toString();
-						String fileName = bannerFile.getOriginalFilename();
-						String fileKey = randomId + fileName.substring(fileName.lastIndexOf('.'));
-						s3ServiceImpl.uploadFile(Constants.CLOUD_BUCKET_NAME, "banner/" + fileKey, bannerFile);
-					}
-
-
-					return ResponseEntity.ok(
-							Utils.mapOfResponse(1,"ok",saved)
-					);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
+		if (bannerFile != null && bannerFile.getSize() >= 1000 * 1024)
+			throw new IllegalArgumentException("Ảnh bìa không vượt quá 1MB");
+		if (!jwtService.isTokenExpired(jwt)) {
+			try {
+				String username = jwtService.extractUsername(jwt);
+				courseModel.setCategory(categoryRepo.findById(Integer.valueOf(courseModel.getCategoryId())).get());
+				courseModel.setCreator(userRepo.findUserModelById(username));
+				CourseModel saved = courseRepo.save(courseModel);
+				if (bannerFile != null) {
+					String fileName = bannerFile.getOriginalFilename();
+					String fileKey = UUID.randomUUID() + fileName.substring(fileName.lastIndexOf('.'));
+					String prefix = "course-data/" + saved.getId();
+					String url = prefix + "/" + fileKey;
+					s3ServiceImpl.uploadFileViaSignedUrl(bannerFile, url);
+					saved.setThumbnailUrl(Constants.CLOUD_URL_PUBLIC +"/"+ url);
+				} else {
+					saved.setThumbnailUrl(Constants.CLOUD_URL_PUBLIC + "/course-banner/default.png");
 				}
-			} else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+				courseRepo.save(saved);
+				return ResponseEntity.ok(
+						Utils.mapOfResponse(Constants.RESULT_SUCCESS, "ok", saved)
+				);
+			} catch (Exception e) {
+				return ResponseEntity.badRequest().body(Utils.mapOfResponse(Constants.RESULT_FAIL, "failed", e.getMessage()));
 			}
+		} else {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
 	}
 
 	@DeleteMapping("/delete")

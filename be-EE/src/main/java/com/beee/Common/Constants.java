@@ -19,4 +19,5 @@ public class Constants {
 	public final static String ROLE_USER = "USER";
 
 	public final static String CLOUD_BUCKET_NAME = "ee-learning-01";
+	public final static String CLOUD_URL_PUBLIC = "https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev";
 }

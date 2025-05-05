@@ -61,21 +61,21 @@ export async function submitCourseInfo({
     categoryId
 }: {
     id: string | null;
-    bannerFile: File | undefined;
+    bannerFile: File | null;
     name: string;
     description: string;
     price: number;
     isAvailable: boolean;
     categoryId: string;
 }) {
-    if (!bannerFile || !name || !categoryId || !price) {
+    if (!name || !categoryId || !price) {
         alert("Vui lòng nhập đầy đủ thông tin");
         return;
     }
 
     const formData = new FormData();
     { id && formData.append("id", id); }
-    formData.append("banner", bannerFile);
+    { bannerFile && formData.append("bannerFile", bannerFile); }
     formData.append("title", name);
     formData.append("description", description);
     formData.append("price", String(price));
@@ -89,3 +89,4 @@ export async function submitCourseInfo({
     });
 
 };
+

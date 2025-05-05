@@ -1,11 +1,13 @@
 package com.beee.ExceptionHandler;
 
 import com.beee.Common.Constants;
+import com.beee.Common.Utils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,4 +23,18 @@ public class GlobalExceptionHandler {
 		});
 		return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
 	}
+	@ExceptionHandler(MaxUploadSizeExceededException.class)
+	public ResponseEntity handleMaxSizeException(MaxUploadSizeExceededException e) {
+		return ResponseEntity
+				.badRequest()
+				.body(Utils.mapOfResponse(Constants.RESULT_FAIL, "failed",e.getMessage()));
+	}
+
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity handleIllegalArgument(IllegalArgumentException e) {
+		return ResponseEntity
+				.badRequest()
+				.body(Utils.mapOfResponse(Constants.RESULT_FAIL, "failed",e.getMessage()));
+	}
+
 }

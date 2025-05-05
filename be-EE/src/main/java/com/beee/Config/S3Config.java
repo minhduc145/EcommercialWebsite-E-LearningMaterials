@@ -41,12 +41,12 @@ public class S3Config {
 		AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKey, secretKey);
 
 		return S3Client.builder()
-				.endpointOverride(URI.create(endpoint)) // Cloudflare R2 endpoint
-				.region(Region.US_EAST_1) // ⚠️ Bắt buộc với R2
+				.endpointOverride(URI.create(endpoint))
+				.region(Region.US_EAST_1)
 				.credentialsProvider(StaticCredentialsProvider.create(awsCreds))
 				.serviceConfiguration(
 						S3Configuration.builder()
-								.pathStyleAccessEnabled(true) // ⚠️ Cũng bắt buộc với R2
+								.pathStyleAccessEnabled(true)
 								.build()
 				)
 				.httpClient(ApacheHttpClient.builder()

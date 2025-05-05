@@ -89,9 +89,7 @@ function ControlledCarousel({ list }: ICourseListProps) {
                   <div className="absolute   rounded rounded-2xl inset-0 bg-[rgba(0,0,0,0.70)] z-10"></div>
                   <div className="absolute inset-0 z-20 flex flex-col justify-center items-start text-white px-8 md:px-16">
                     <h3 className="text-2xl md:text-4xl font-bold drop-shadow-lg">{course.title}</h3>
-                    <div className="mt-2 text-sm md:text-lg text-white max-w-xl line-clamp-4">
-                      <p dangerouslySetInnerHTML={{ __html: course?.description ?? "" }}></p>
-                    </div>
+                    
                     <Button asChild className="mt-20 rounded-full bg-blue-600 hover:bg-blue-700">
                       <Link href={`/Courses/${course.id}`}>Xem chi tiết</Link>
                     </Button>

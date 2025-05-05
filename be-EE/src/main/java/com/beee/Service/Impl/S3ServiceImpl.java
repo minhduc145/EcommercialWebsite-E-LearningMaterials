@@ -39,35 +39,28 @@ public class S3ServiceImpl {
 
 	@Autowired
 	private S3Presigner s3Presigner;
-	public void uploadFileViaSignedUrl(MultipartFile file, String objectKey) {
-		try {
-			// 1. Lấy signed URL từ hàm bạn có sẵn
-			String signedUrl = generatePresignedUploadUrl(objectKey);
 
-			// 2. Mở kết nối HTTP PUT đến signed URL
-			HttpURLConnection connection = (HttpURLConnection) new URL(signedUrl).openConnection();
-			connection.setDoOutput(true);
-			connection.setRequestMethod("PUT");
-			connection.setRequestProperty("Content-Type", file.getContentType());
-
-			// 3. Gửi file qua stream
-			try (OutputStream os = connection.getOutputStream();
-			     InputStream is = file.getInputStream()) {
-				byte[] buffer = new byte[8192];
-				int bytesRead;
-				while ((bytesRead = is.read(buffer)) != -1) {
-					os.write(buffer, 0, bytesRead);
-				}
+	public void uploadFileViaSignedUrl(MultipartFile file, String objectKey) throws IOException {
+		// 1. Lấy signed URL từ hàm bạn có sẵn
+		String signedUrl = generatePresignedUploadUrl(objectKey);
+		// 2. Mở kết nối HTTP PUT đến signed URL
+		HttpURLConnection connection = (HttpURLConnection) new URL(signedUrl).openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestMethod("PUT");
+		connection.setRequestProperty("Content-Type", file.getContentType());
+		// 3. Gửi file qua stream
+		try (OutputStream os = connection.getOutputStream();
+		     InputStream is = file.getInputStream()) {
+			byte[] buffer = new byte[8192];
+			int bytesRead;
+			while ((bytesRead = is.read(buffer)) != -1) {
+				os.write(buffer, 0, bytesRead);
 			}
-
-			// 4. Kiểm tra response
-			int responseCode = connection.getResponseCode();
-			if (responseCode != 200) {
-				throw new RuntimeException("Upload failed with HTTP code: " + responseCode);
-			}
-
-		} catch (IOException e) {
-			throw new RuntimeException("Error during signed URL upload", e);
+		}
+		// 4. Kiểm tra response
+		int responseCode = connection.getResponseCode();
+		if (responseCode != 200) {
+			throw new RuntimeException("Upload failed with HTTP code: " + responseCode);
 		}
 	}
 
@@ -106,28 +99,6 @@ public class S3ServiceImpl {
 			throw new RuntimeException("Upload thất bại", e);
 		}
 	}
-
-	public void uploadFile(MultipartFile file) throws IOException {
-		if (file == null || file.isEmpty()) {
-			throw new IllegalArgumentException("File is null or empty");
-		}
-
-		// Lưu file tạm
-		File tempFile = Files.createTempFile("s3-upload-", file.getOriginalFilename()).toFile();
-		file.transferTo(tempFile);
-
-		try {
-			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-					.bucket(Constants.CLOUD_BUCKET_NAME)
-					.key(file.getOriginalFilename())
-					.build();
-
-			s3Client.putObject(putObjectRequest, RequestBody.fromFile(tempFile));
-		} finally {
-			tempFile.delete(); // Xóa file tạm
-		}
-	}
-
 
 	public String generatePresignedUploadUrl(String objectKey) {
 		PutObjectRequest putRequest = PutObjectRequest.builder()

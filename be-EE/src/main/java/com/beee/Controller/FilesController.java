@@ -2,12 +2,15 @@ package com.beee.Controller;
 
 import com.beee.Common.Constants;
 import com.beee.Service.Impl.S3ServiceImpl;
+import com.beee.Service.RabbitMQProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -17,6 +20,8 @@ public class FilesController {
 	private S3ServiceImpl s3Service;
 	@Autowired
 	private S3ServiceImpl s3ServiceImpl;
+	@Autowired
+	private RabbitMQProducer rabbitMQProducer;
 
 	@PostMapping("/upload")
 	public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
@@ -44,6 +49,15 @@ public class FilesController {
 	public ResponseEntity getSignedUrl(@CookieValue(name = "jwt", required = false) String token, @RequestParam String fileKey) {
 		String signedUrl = s3ServiceImpl.generatePresignedUrl(fileKey);
 		return ResponseEntity.ok(signedUrl);
+	}
+
+	@PostMapping("/process")
+	public ResponseEntity processFile() {
+		Map map = new HashMap();
+		map.put("file",1);
+		rabbitMQProducer.sendToFileProcessQueue(map);
+		rabbitMQProducer.sendToQ1("jhiafhsdf","kdfgshjdf");
+		return ResponseEntity.ok().build();
 	}
 
 }

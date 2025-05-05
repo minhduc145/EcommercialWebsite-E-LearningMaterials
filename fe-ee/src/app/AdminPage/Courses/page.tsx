@@ -20,11 +20,9 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ToastContainer } from "react-toastify"
 import MyToaster from "@/components/ui/toastify-template"
 import { formatDateTime } from "@/lib/utils"
 import Link from "next/link"
-import { IconRefresh } from "@tabler/icons-react"
 
 export default function Page() {
     const [courses, setCourses] = useState<CourseModel[]>([])
@@ -96,7 +94,6 @@ export default function Page() {
 
     return (
         <>
-            <ToastContainer />
             <div>
                 <div className="flex justify-between items-center mb-6">
                     <Link href={"/AdminPage/Courses/Add"}>
@@ -148,7 +145,7 @@ export default function Page() {
                     <i>
                         <b>Danh sách gồm có:</b>&nbsp;{totalElements} bản ghi
                     </i>
-                    <div  className="flex gap-2 items-center">
+                    <div className="flex gap-2 items-center">
                         <div>
                             {selectedRows.length > 0 && (
                                 <div className="flex items-center gap-2">
@@ -159,8 +156,8 @@ export default function Page() {
                                 </div>
                             )}
                         </div>
-                        <Button variant={"secondary"} className="bg-green-500 hover:bg-green-600 text-white" onClick={()=>setReloadKey(!reloadKey)}>
-                            <RefreshCcw className="size-4"/>
+                        <Button variant={"secondary"} className="bg-green-500 hover:bg-green-600 text-white" onClick={() => setReloadKey(!reloadKey)}>
+                            <RefreshCcw className="size-4" />
                         </Button>
 
                     </div>
@@ -211,10 +208,9 @@ export default function Page() {
                                         </TableCell>
                                         <TableCell>
                                             <span
-                                                className={`px-2 py-1 text-xs rounded-full font-medium 
-                                            ${course.isAvailable ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+                                                className={`px-2 py-1 text-xs rounded-full font-medium ${course.status ? "text-amber-600 bg-amber-100 text-[9px]" : course.isAvailable ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
                                             >
-                                                {course.isAvailable ? "Đang mở" : "Tạm đóng"}
+                                                {course.status ? course.status : course.isAvailable ? "Đang mở" : "Tạm đóng"}
                                             </span>
                                         </TableCell>
                                         <TableCell className="text-right">{course.price?.toLocaleString("vi-VN")} ₫</TableCell>

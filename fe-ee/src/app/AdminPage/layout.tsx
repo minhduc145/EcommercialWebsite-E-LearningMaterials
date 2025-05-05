@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils"
 import { UserModel } from "@/models/UserModel"
 import { getAccountInfo, getUserInfo } from "../api/api-account"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { ToastContainer } from "react-toastify"
 
 // Define types for our navigation items
 interface NavItemType {
@@ -207,6 +208,7 @@ export default function DashboardLayout({
 
           </main>
         </div>
+        <ToastContainer/>
       </div>
     )
   return (

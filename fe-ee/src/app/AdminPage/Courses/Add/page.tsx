@@ -1,7 +1,7 @@
 "use client"
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from "@/components/ui/breadcrumb"
-import { ArrowLeft, Loader2, Send } from "lucide-react"
+import { ArrowLeft, FileImageIcon, Folder, Loader2, Send, X } from "lucide-react"
 import Link from "next/link"
 import type React from "react"
 import { ToastContainer } from "react-toastify"
@@ -40,7 +40,7 @@ import MyEditor from "@/components/editor"
 
 const MainTab = () => {
     const [id, setId] = useState("")
-    const [bannerFile, setBannerFile] = useState<File>()
+    const [bannerFile, setBannerFile] = useState<File | null>(null);
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
     const [price, setPrice] = useState(0)
@@ -64,7 +64,7 @@ const MainTab = () => {
             <TabsContent value="information">
                 <Card>
                     <CardContent className="space-y-4">
-                        <InfoTab id={id} bannerFile={bannerFile} setBannerFile={setBannerFile} name={name} setName={setName} price={price} setPrice={setPrice}
+                        <InfoTab id={id} setId={setId} bannerFile={bannerFile} setBannerFile={setBannerFile} name={name} setName={setName} price={price} setPrice={setPrice}
                             categoryId={categoryId} setCategoryId={setCategoryId} isAvailable={isAvailable} setIsAvailable={setIsAvailable}
                             description={description} setDescription={setDescription} setTab2Ready={setTab2Ready} />
                     </CardContent>
@@ -85,10 +85,10 @@ const MainTab = () => {
 }
 
 const InfoTab = (
-    { id, bannerFile, setBannerFile, name, setName, categoryId, setCategoryId, isAvailable, price, setPrice, setIsAvailable, description, setDescription, setTab2Ready }
+    { id,setId, bannerFile, setBannerFile, name, setName, categoryId, setCategoryId, isAvailable, price, setPrice, setIsAvailable, description, setDescription, setTab2Ready }
         : {
-            id: string,
-            bannerFile: File | undefined, setBannerFile: (i: File) => void, name: string, setName: (i: string) => void, categoryId: string, setCategoryId: (i: string) => void,
+            id: string, setId:(i:string)=>void,
+            bannerFile: File | null, setBannerFile: (i: File|null) => void, name: string, setName: (i: string) => void, categoryId: string, setCategoryId: (i: string) => void,
             isAvailable: boolean, setIsAvailable: (i: boolean) => void, price: number, setPrice: (i: number) => void,
             description: string, setDescription: (i: string) => void, setTab2Ready: (i: boolean) => void
         }) => {
@@ -113,10 +113,12 @@ const InfoTab = (
 
     const handleInfoSave = () => {
         submitCourseInfo({ id, bannerFile, name, description, price, isAvailable, categoryId }).then(res => {
-            if (res) {
-                console.log(res)
+            if (res && res.status === 200 && res.data?.details) {
+                const c : CourseModel = res.data.details
                 MyToaster({ variant: "success", message: "Lưu Thông tin học liệu thành công!" })
-                setTab2Ready(true)
+                setId(c.id)
+                console.log(c)
+                {id&&setTab2Ready(true)}
             }
         })
 
@@ -174,25 +176,33 @@ const InfoTab = (
                     <div className="grid grid-cols-1 gap-4">
                         <div className="flex items-center gap-2">
                             <div className="relative flex-1">
-                                <Input
-                                    id="cover-file"
-                                    type="file"
-                                    accept="image/*"
-                                    className="absolute inset-0 cursor-pointer opacity-0"
-                                    onChange={(e) => {
-                                        if (e.target.files && e.target.files.length > 0) {
-                                            setBannerFile(e.target.files[0]);
-                                        }
-                                    }}
-                                />
-                                <Button variant="outline" className="w-full">
-                                    Tải ảnh bìa lên<span className='text-red-600'>*</span>
-                                </Button>
+
+                                <div className="flex gap-3 items-center">
+                                    <Input
+                                        id="cover-file"
+                                        type="file"
+                                        accept="image/*"
+                                        className="cursor-pointer hidden"
+                                        onChange={(e) => {
+                                            if (e.target.files && e.target.files.length > 0) {
+                                                setBannerFile(e.target.files[0]);
+                                            }
+                                        }}
+                                    />
+                                    <Label
+                                        htmlFor="cover-file"
+                                        className="inline-flex items-center gap-2 rounded border border-gray-300 px-4 py-1.5 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-100 hover:cursor-pointer transition"
+                                    >
+                                        <FileImageIcon className="size-4"/> Chọn ảnh bìa
+                                    </Label>
+                                    <div className={bannerFile?"inline-block":"hidden"}><X className="size-4 hover:cursor-pointer text-red-600" onClick={()=>setBannerFile(null)}/></div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="relative mx-auto my-3 w-full max-w-4xl h-56 bg-gray-100 overflow-hidden rounded-md">
+                <div className="relative mx-auto my-3 max-w-4xl h-50 bg-gray-100 overflow-hidden rounded-md">
                     <img
                         className="object-fill w-full h-full"
                         src={bannerFile ? URL.createObjectURL(bannerFile) : "/global_imgs/KH-demo.png"}
@@ -222,6 +232,9 @@ const DataTab = () => {
     return (
         <>
             <FileExplorer />
+            <div className="justify-self-end">
+                <Button className="w-50 bg-green-500 hover:bg-green-600">Lưu</Button>
+            </div>
         </>
     )
 }
@@ -241,6 +254,7 @@ import DOMPurify from 'dompurify';
 import { CategoryModel } from "@/models/CategoryModel"
 import { getCategories, submitCourseInfo } from "@/app/api/api-courses"
 import MyToaster from "@/components/ui/toastify-template"
+import { CourseModel } from "@/models/CourseModel"
 
 const AIModal = ({ name, handleChange }: { name: string, handleChange: (i: string) => void }) => {
     const [cue, setCue] = useState("");
@@ -253,17 +267,17 @@ const AIModal = ({ name, handleChange }: { name: string, handleChange: (i: strin
 
     const handleSubmit = async () => {
         var message = `
-Viết ví dụ cho phần mô tả của một khóa học online "${name?.trim()}" từ những thông tin gợi ý bên dưới (khoảng ${wordCount} từ).
+            Viết ví dụ cho phần mô tả của một khóa học online "${name?.trim()}" từ những thông tin gợi ý bên dưới (khoảng ${wordCount} từ).
 
-Yêu cầu trả về bắt buộc phải đáp ứng các tiêu chí sau: 
-1. Trả về nội dung HTML thuần, không dùng Markdown (dù chỉ 1 ký tự như ** hay -).
-2. Không tự ý thêm ảnh, src, class attributes.
-3. Trình bày rõ ràng theo đoạn, xuống dòng, cách đoạn, bullet, bold, italic hợp lý. 
-4. Không lặp lại yêu cầu, không thêm nội dung mẫu. 
-${allowIcons && "5. Chèn các icon văn bản dạng ký tự Unicode (ví dụ: ✅, 🎯, 📚, 💡...), KHÔNG dùng icon từ thư viện ngoài như FontAwesome hay SVG."}
+            Yêu cầu trả về bắt buộc phải đáp ứng các tiêu chí sau:
+            1. Trả về nội dung HTML thuần, không dùng Markdown (dù chỉ 1 ký tự như ** hay -).
+            2. Không tự ý thêm ảnh, src, class attributes.
+            3. Trình bày rõ ràng theo đoạn, xuống dòng, cách đoạn, bullet, bold, italic hợp lý.
+            4. Không lặp lại yêu cầu, không thêm nội dung mẫu.
+            ${allowIcons && "5. Chèn các icon văn bản dạng ký tự Unicode (ví dụ: ✅, 🎯, 📚, 💡...), KHÔNG dùng icon từ thư viện ngoài như FontAwesome hay SVG."}
 
-Thông tin gợi ý: ${cue}
-        `;
+            Thông tin gợi ý: ${cue}
+            `;
         setIsLoading(true)
         setResponse("")
         const res = await fetch("/api/groq", {
@@ -328,8 +342,8 @@ Thông tin gợi ý: ${cue}
                                     {isLoading ? (
                                         <div className="space-y-2 mt-4">
                                             <Skeleton className="h-4 w-full" />
-                                            <Skeleton className="h-4 w-[90%]" />
                                             <Skeleton className="h-4 w-[95%]" />
+                                            <Skeleton className="h-4 w-[90%]" />
                                             <Skeleton className="h-4 w-[85%]" />
                                             <Skeleton className="h-4 w-[70%]" />
                                         </div>

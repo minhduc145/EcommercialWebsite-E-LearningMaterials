@@ -46,5 +46,12 @@ public class RabbitMQConsumer {
 		System.out.println("Received-2: " + json);
 	}
 
+	//file-process
+	@RabbitListener(queues = RabbitMQConfig.FILE_PROCESS_QUEUE, concurrency = "3")
+	public void convertToWebSocketFileProcessQueue(Map map) {
+		System.out.println(map);
+		System.out.println("Received-3: " + map);
+	}
+
 
 }

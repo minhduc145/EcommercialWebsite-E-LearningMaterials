@@ -51,4 +51,13 @@ public class RabbitMQProducer {
 		);
 		System.out.println("Sent-2: " + json);
 	}
+
+	public void sendToFileProcessQueue(Map map) {
+		rabbitTemplate.convertAndSend(
+				RabbitMQConfig.EXCHANGE,
+				RabbitMQConfig.ROUTING_KEY3,
+				map
+		);
+		System.out.println("Sent-3: " + map);
+	}
 }
