@@ -3,6 +3,7 @@ package com.beee.Controller;
 import com.beee.Common.Constants;
 import com.beee.Service.Impl.S3ServiceImpl;
 import com.beee.Service.RabbitMQProducer;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -139,18 +140,15 @@ public class FilesController {
 
 	@PostMapping("/convert-mp4")
 	public void convertVideoFromR2ToHLS(@RequestParam String fileKey) throws IOException, InterruptedException {
-		// 1. Stream video từ R2
 		GetObjectRequest getRequest = GetObjectRequest.builder()
 				.bucket(Constants.CLOUD_BUCKET_NAME)
 				.key(fileKey)
 				.build();
 		ResponseInputStream<GetObjectResponse> videoInputStream = s3Client.getObject(getRequest);
 
-		// 2. Tạo thư mục tạm
 		Path hlsOutputDir = Files.createTempDirectory("hls_output_");
 		Path m3u8Path = hlsOutputDir.resolve("index.m3u8");
 
-		// 3. Gọi ffmpeg để convert từ stdin
 		ProcessBuilder pb = new ProcessBuilder(
 				"ffmpeg",
 				"-hwaccel", "qsv",             // Sử dụng tăng tốc phần cứng Intel Quick Sync
@@ -177,7 +175,7 @@ public class FilesController {
 				e.printStackTrace();
 			}
 		}).start();
-		// 4. Pipe dữ liệu video từ stream vào ffmpeg
+
 		try (OutputStream ffmpegInput = process.getOutputStream()) {
 			byte[] buffer = new byte[8192];
 			int len;
@@ -186,13 +184,11 @@ public class FilesController {
 			}
 		}
 
-		// 5. Chờ ffmpeg chạy xong
 		int exitCode = process.waitFor();
 		if (exitCode != 0) {
 			throw new RuntimeException("FFmpeg exited with code " + exitCode);
 		}
 
-		// 6. Upload từng file trong thư mục HLS dùng signed URL
 		try (Stream<Path> fileStream = Files.walk(hlsOutputDir)) {
 			fileStream
 					.filter(Files::isRegularFile)
@@ -210,14 +206,7 @@ public class FilesController {
 					});
 		}
 
-		// 7. Xoá thư mục tạm
-		Files.walk(hlsOutputDir)
-				.sorted(Comparator.reverseOrder())
-				.forEach(p -> {
-					try {
-						Files.delete(p);
-					} catch (IOException ignored) {}
-				});
+		FileUtils.deleteDirectory(hlsOutputDir.toFile());
 	}
 
 

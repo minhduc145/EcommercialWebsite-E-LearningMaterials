@@ -43,14 +43,11 @@ public class S3ServiceImpl {
 	private S3Presigner s3Presigner;
 
 	public void uploadFileViaSignedUrl(MultipartFile file, String objectKey) throws IOException {
-		// 1. Lấy signed URL từ hàm bạn có sẵn
-		String signedUrl = generatePresignedUploadUrl(objectKey);
-		// 2. Mở kết nối HTTP PUT đến signed URL
+		String signedUrl = this.generatePresignedUploadUrl(objectKey);
 		HttpURLConnection connection = (HttpURLConnection) new URL(signedUrl).openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestMethod("PUT");
 		connection.setRequestProperty("Content-Type", file.getContentType());
-		// 3. Gửi file qua stream
 		try (OutputStream os = connection.getOutputStream();
 		     InputStream is = file.getInputStream()) {
 			byte[] buffer = new byte[8192];
@@ -59,7 +56,6 @@ public class S3ServiceImpl {
 				os.write(buffer, 0, bytesRead);
 			}
 		}
-		// 4. Kiểm tra response
 		int responseCode = connection.getResponseCode();
 		if (responseCode != 200) {
 			throw new RuntimeException("Upload failed with HTTP code: " + responseCode);
@@ -90,7 +86,7 @@ public class S3ServiceImpl {
 
 
 	public String generatePresignedUploadUrl(String objectKey) {
-		return generatePresignedUploadUrl(objectKey, 10);
+		return generatePresignedUploadUrl(objectKey, 1);
 	}
 
 	public String generatePresignedUploadUrl(String objectKey, long min) {
@@ -119,11 +115,10 @@ public class S3ServiceImpl {
 	}
 
 	public void deleteObject(String key) {
-		DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+		s3Client.deleteObject(DeleteObjectRequest.builder()
 				.bucket(Constants.CLOUD_BUCKET_NAME)
 				.key(key)
-				.build();
-		DeleteObjectResponse response = s3Client.deleteObject(deleteRequest);
+				.build());
 		System.out.println("Deleted: " + key);
 	}
 
@@ -137,7 +132,6 @@ public class S3ServiceImpl {
 						.bucket(Constants.CLOUD_BUCKET_NAME)
 						.prefix(prefix)
 						.maxKeys(1000);
-
 				if (continuationToken != null) {
 					listRequestBuilder.continuationToken(continuationToken);
 				}
@@ -145,10 +139,7 @@ public class S3ServiceImpl {
 				for (var object : listResponse.contents()) {
 					var key = object.key();
 					deleteFutures.add(CompletableFuture.runAsync(() -> {
-						s3Client.deleteObject(DeleteObjectRequest.builder()
-								.bucket(Constants.CLOUD_BUCKET_NAME)
-								.key(key)
-								.build());
+						deleteObject(key);
 					}, executor));
 				}
 				continuationToken = listResponse.nextContinuationToken();
