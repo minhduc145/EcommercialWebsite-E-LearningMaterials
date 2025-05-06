@@ -9,10 +9,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
@@ -29,7 +26,12 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 @Service
@@ -64,50 +66,41 @@ public class S3ServiceImpl {
 		}
 	}
 
-	// Phương thức để upload file lên Cloudflare R2 hoặc S3
-	public void uploadFile(String bucketName, String key, MultipartFile multipartFile) throws IOException {
-		PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-				.bucket(bucketName)
-				.key(key)
-				.build();
+	public void uploadStreamViaSignedUrl(InputStream inputStream, String contentType, String objectKey) throws IOException {
+		String signedUrl = generatePresignedUploadUrl(objectKey);
 
-		// Chuyển MultipartFile thành tệp tạm để upload
-		Path tempFile = Files.createTempFile("upload", multipartFile.getOriginalFilename());
-		Files.copy(multipartFile.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
-		try {
-			s3Client.putObject(putObjectRequest, tempFile);
-		} finally {
-			Files.delete(tempFile);
+		HttpURLConnection connection = (HttpURLConnection) new URL(signedUrl).openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestMethod("PUT");
+		connection.setRequestProperty("Content-Type", contentType);
+
+		try (OutputStream os = connection.getOutputStream()) {
+			byte[] buffer = new byte[8192];
+			int bytesRead;
+			while ((bytesRead = inputStream.read(buffer)) != -1) {
+				os.write(buffer, 0, bytesRead);
+			}
+		}
+
+		int responseCode = connection.getResponseCode();
+		if (responseCode != 200) {
+			throw new RuntimeException("Upload failed with HTTP code: " + responseCode);
 		}
 	}
 
-
-	public void uploadFile(MultipartFile file, String newFileName) {
-		try {
-			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-					.bucket(Constants.CLOUD_BUCKET_NAME)
-					.key(newFileName)
-					.contentType(file.getContentType()) // OK
-					.build();
-
-			// Truyền content length chính xác ở RequestBody (rất quan trọng)
-			RequestBody requestBody = RequestBody.fromInputStream(file.getInputStream(), file.getSize());
-
-			s3Client.putObject(putObjectRequest, requestBody);
-
-		} catch (IOException e) {
-			throw new RuntimeException("Upload thất bại", e);
-		}
-	}
 
 	public String generatePresignedUploadUrl(String objectKey) {
+		return generatePresignedUploadUrl(objectKey, 10);
+	}
+
+	public String generatePresignedUploadUrl(String objectKey, long min) {
 		PutObjectRequest putRequest = PutObjectRequest.builder()
 				.bucket(Constants.CLOUD_BUCKET_NAME)
 				.key(objectKey)
 				.build();
 
 		return s3Presigner.presignPutObject(builder -> builder
-				.signatureDuration(Duration.ofMinutes(10))
+				.signatureDuration(Duration.ofMinutes(min))
 				.putObjectRequest(putRequest)
 		).url().toString();
 	}
@@ -134,58 +127,35 @@ public class S3ServiceImpl {
 		System.out.println("Deleted: " + key);
 	}
 
-	public String convertMp4StreamToHlsAndUploadReturnM3u8Url(String mp4Url, String s3BasePath, S3Client s3Client, S3Presigner s3Presigner) throws IOException, InterruptedException {
-		Path tempDir = Files.createTempDirectory("hls_output");
+	public void deleteFolderInParallel(String prefix) {
+		ExecutorService executor = Executors.newFixedThreadPool(8);
+		List<CompletableFuture<Void>> deleteFutures = new ArrayList<>();
+		String continuationToken = null;
+		try {
+			do {
+				var listRequestBuilder = ListObjectsV2Request.builder()
+						.bucket(Constants.CLOUD_BUCKET_NAME)
+						.prefix(prefix)
+						.maxKeys(1000);
 
-		ProcessBuilder builder = new ProcessBuilder(
-				"ffmpeg",
-				"-i", "-",
-				"-c:v", "copy",
-				"-c:a", "aac", "-strict", "experimental",
-				"-f", "hls",
-				"-hls_time", "10",
-				"-hls_playlist_type", "vod",
-				tempDir.resolve("index.m3u8").toString()
-		);
-
-		builder.redirectErrorStream(true);
-		Process process = builder.start();
-
-		URI uri = URI.create(mp4Url);
-		URL url = uri.toURL();
-		try (InputStream mp4Stream = url.openStream();
-		     OutputStream ffmpegInput = process.getOutputStream()) {
-			mp4Stream.transferTo(ffmpegInput);
-		}
-
-		int exitCode = process.waitFor();
-		if (exitCode != 0) {
-			throw new RuntimeException("Failed to convert mp4 to HLS, exit code: " + exitCode);
-		}
-
-		try (Stream<Path> files = Files.walk(tempDir)) {
-			files.filter(Files::isRegularFile).forEach(filePath -> {
-				String filename = filePath.getFileName().toString();
-				String s3Key = s3BasePath + "/" + filename;
-
-				try {
-					s3Client.putObject(PutObjectRequest.builder()
-									.bucket(Constants.CLOUD_BUCKET_NAME)
-									.key(s3Key)
-									.contentType(Files.probeContentType(filePath))
-									.build(),
-							filePath
-					);
-					System.out.println("Uploaded to S3: " + s3Key);
-				} catch (IOException e) {
-					throw new RuntimeException("Failed to upload file " + filename, e);
+				if (continuationToken != null) {
+					listRequestBuilder.continuationToken(continuationToken);
 				}
-			});
+				var listResponse = s3Client.listObjectsV2(listRequestBuilder.build());
+				for (var object : listResponse.contents()) {
+					var key = object.key();
+					deleteFutures.add(CompletableFuture.runAsync(() -> {
+						s3Client.deleteObject(DeleteObjectRequest.builder()
+								.bucket(Constants.CLOUD_BUCKET_NAME)
+								.key(key)
+								.build());
+					}, executor));
+				}
+				continuationToken = listResponse.nextContinuationToken();
+			} while (continuationToken != null);
+			CompletableFuture.allOf(deleteFutures.toArray(new CompletableFuture[0])).join();
+		} finally {
+			executor.shutdown();
 		}
-
-		FileUtils.deleteDirectory(new File(""));
-
-		// Trả URL public cho file index.m3u8
-		return generatePresignedUrl(s3BasePath + "/index.m3u8");
 	}
 }

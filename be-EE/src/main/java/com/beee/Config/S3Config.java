@@ -42,7 +42,7 @@ public class S3Config {
 
 		return S3Client.builder()
 				.endpointOverride(URI.create(endpoint))
-				.region(Region.US_EAST_1)
+				.region(Region.of("auto"))
 				.credentialsProvider(StaticCredentialsProvider.create(awsCreds))
 				.serviceConfiguration(
 						S3Configuration.builder()

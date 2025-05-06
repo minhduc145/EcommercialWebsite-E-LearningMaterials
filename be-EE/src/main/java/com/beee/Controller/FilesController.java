@@ -21,8 +21,12 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 
 @RestController
 @RequestMapping("/api/files")
@@ -74,11 +78,11 @@ public class FilesController {
 	}
 
 	@PostMapping("/unzip-and-upload-stream")
-	public ResponseEntity<?> unzipAndUploadStream(@RequestParam String zipFileKey) {
+	public ResponseEntity<?> unzipAndUploadStream(@RequestParam String fileKey) {
 		try {
 			GetObjectRequest getRequest = GetObjectRequest.builder()
 					.bucket(Constants.CLOUD_BUCKET_NAME)
-					.key(zipFileKey)
+					.key(fileKey)
 					.build();
 
 			ExecutorService executor = Executors.newFixedThreadPool(4); // tối đa 4 file upload song song
@@ -105,12 +109,14 @@ public class FilesController {
 
 					// Submit upload task song song
 					CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-						PutObjectRequest putRequest = PutObjectRequest.builder()
-								.bucket(Constants.CLOUD_BUCKET_NAME)
-								.key("unzipped/" + entryName)
-								.contentLength((long) entryBytes.length)
-								.build();
-						s3Client.putObject(putRequest, RequestBody.fromBytes(entryBytes));
+						try (InputStream is = new ByteArrayInputStream(entryBytes)) {
+							String objectKey = "unzipped/" + entryName;
+							String contentType = Files.probeContentType(Paths.get(entryName));
+							if (contentType == null) contentType = "application/octet-stream";
+							s3ServiceImpl.uploadStreamViaSignedUrl(is, contentType, objectKey);
+						} catch (Exception e) {
+							throw new RuntimeException("Upload failed for: " + entryName, e);
+						}
 					}, executor);
 
 					uploadFutures.add(future);
@@ -130,164 +136,95 @@ public class FilesController {
 		}
 	}
 
-	public void convertMp4ToHls(Path inputMp4, Path outputDir) throws IOException, InterruptedException {
-		Files.createDirectories(outputDir);
-
-		List<String> command = List.of(
-				"ffmpeg",
-				"-i", inputMp4.toString(),
-				"-codec:", "copy",
-				"-start_number", "0",
-				"-hls_time", "10",
-				"-hls_list_size", "0",
-				"-f", "hls",
-				outputDir.resolve("output.m3u8").toString()
-		);
-
-		ProcessBuilder pb = new ProcessBuilder(command);
-		pb.redirectErrorStream(true);
-		Process process = pb.start();
-
-		// In log ffmpeg (tuỳ chọn)
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				System.out.println(line);
-			}
-		}
-
-		int exitCode = process.waitFor();
-		if (exitCode != 0) throw new RuntimeException("ffmpeg failed with code " + exitCode);
-	}
-
-	public void streamMp4ToHls(String inputFileKey, OutputStream outputStream) throws IOException, InterruptedException {
-		// Lấy stream từ Cloudflare R2
-		GetObjectRequest getRequest = GetObjectRequest.builder()
-				.bucket(Constants.CLOUD_BUCKET_NAME)
-				.key(inputFileKey)
-				.build();
-
-		ResponseInputStream<GetObjectResponse> s3InputStream = s3Client.getObject(getRequest);
-
-		// Tạo lệnh ffmpeg để stream video từ InputStream vào m3u8
-		List<String> command = List.of(
-				"ffmpeg",
-				"-i", "pipe:0",       // Nhận đầu vào từ stdin (sử dụng "pipe:0")
-				"-codec:", "copy",
-				"-start_number", "0",
-				"-hls_time", "10",
-				"-hls_list_size", "0",
-				"-f", "hls",
-				"pipe:1"              // Gửi kết quả HLS ra stdout (output stream)
-		);
-
-		ProcessBuilder pb = new ProcessBuilder(command);
-		pb.redirectErrorStream(true);
-		Process process = pb.start();
-
-		// Gửi dữ liệu từ s3InputStream vào stdin của ffmpeg
-		new Thread(() -> {
-			try (OutputStream ffmpegInputStream = process.getOutputStream()) {
-				byte[] buffer = new byte[8192];
-				int len;
-				while ((len = s3InputStream.read(buffer)) != -1) {
-					ffmpegInputStream.write(buffer, 0, len);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}).start();
-
-		// Đọc dữ liệu từ stdout của ffmpeg (playlist m3u8 và ts segments)
-		try (InputStream ffmpegOutputStream = process.getInputStream()) {
-			byte[] buffer = new byte[8192];
-			int len;
-			while ((len = ffmpegOutputStream.read(buffer)) != -1) {
-				outputStream.write(buffer, 0, len);
-			}
-		}
-
-		int exitCode = process.waitFor();
-		if (exitCode != 0) {
-			throw new RuntimeException("ffmpeg failed with exit code " + exitCode);
-		}
-	}
-
-	public void convertAndUploadToR2(String inputFileKey, String outputDirPath) throws IOException, InterruptedException {
-		// Lấy video MP4 từ Cloudflare R2
-		GetObjectRequest getRequest = GetObjectRequest.builder()
-				.bucket(Constants.CLOUD_BUCKET_NAME)
-				.key(inputFileKey)
-				.build();
-
-		ResponseInputStream<GetObjectResponse> s3InputStream = s3Client.getObject(getRequest);
-
-		// Chạy ffmpeg để chuyển đổi video MP4 thành HLS (M3U8 và TS)
-		List<String> command = List.of(
-				"ffmpeg",
-				"-i", "pipe:0",   // Nhận dữ liệu từ stdin
-				"-c:v", "copy",    // Đảm bảo mã hóa video (với codec copy)
-				"-start_number", "0",
-				"-hls_time", "10",  // Thời gian mỗi segment TS
-				"-hls_list_size", "0",  // Không giới hạn số lượng file trong playlist
-				"-f", "hls",
-				"pipe:1"            // Gửi kết quả ra stdout
-		);
-
-		ProcessBuilder pb = new ProcessBuilder(command);
-		pb.redirectErrorStream(true);
-		Process process = pb.start();
-
-		// Gửi dữ liệu từ R2 vào ffmpeg
-		new Thread(() -> {
-			try (OutputStream ffmpegInputStream = process.getOutputStream()) {
-				byte[] buffer = new byte[8192];
-				int len;
-				while ((len = s3InputStream.read(buffer)) != -1) {
-					ffmpegInputStream.write(buffer, 0, len);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}).start();
-
-		// Đọc dữ liệu từ stdout của ffmpeg và upload lại lên Cloudflare R2
-		try (InputStream ffmpegOutputStream = process.getInputStream()) {
-			byte[] buffer = new byte[8192];  // Có thể thay đổi kích thước buffer nếu cần
-			int len;
-			while ((len = ffmpegOutputStream.read(buffer)) != -1) {
-				// Gửi từng phần dữ liệu ra R2 (M3U8 hoặc TS)
-				uploadToR2(buffer, len);
-			}
-		}
-
-		int exitCode = process.waitFor();
-		if (exitCode != 0) {
-			throw new RuntimeException("ffmpeg failed with exit code " + exitCode);
-		}
-	}
-
-
-	// Upload dữ liệu từ ffmpeg lên R2
-	private void uploadToR2(byte[] buffer, int length) throws IOException {
-		// Xác định key cho các file (M3U8 hoặc TS)
-		String key = "hls/" + System.currentTimeMillis() + ".ts";  // Ví dụ: lưu theo timestamp
-
-		PutObjectRequest putRequest = PutObjectRequest.builder()
-				.bucket(Constants.CLOUD_BUCKET_NAME)
-				.key(key)
-				.contentLength((long) length)
-				.build();
-
-		try (InputStream inputStream = new ByteArrayInputStream(buffer, 0, length)) {
-			s3Client.putObject(putRequest, RequestBody.fromInputStream(inputStream, length));
-			System.out.println("Uploaded: " + key);
-		}
-	}
 
 	@PostMapping("/convert-mp4")
-	public ResponseEntity convertVideo(@RequestParam String filekey, @RequestParam String outDir) throws IOException, InterruptedException {
-		convertAndUploadToR2(filekey, outDir);
+	public void convertVideoFromR2ToHLS(@RequestParam String fileKey) throws IOException, InterruptedException {
+		// 1. Stream video từ R2
+		GetObjectRequest getRequest = GetObjectRequest.builder()
+				.bucket(Constants.CLOUD_BUCKET_NAME)
+				.key(fileKey)
+				.build();
+		ResponseInputStream<GetObjectResponse> videoInputStream = s3Client.getObject(getRequest);
+
+		// 2. Tạo thư mục tạm
+		Path hlsOutputDir = Files.createTempDirectory("hls_output_");
+		Path m3u8Path = hlsOutputDir.resolve("index.m3u8");
+
+		// 3. Gọi ffmpeg để convert từ stdin
+		ProcessBuilder pb = new ProcessBuilder(
+				"ffmpeg",
+				"-hwaccel", "qsv",             // Sử dụng tăng tốc phần cứng Intel Quick Sync
+				"-i", "pipe:0",                // Input từ stdin
+				"-c:v", "h264_qsv",           // Encoder GPU của Intel
+				"-preset", "veryfast",        // Ưu tiên tốc độ encode (có thể dùng faster/veryfast/superfast/ultrafast)
+				"-global_quality", "23",       // Chất lượng (thấp hơn = nhanh hơn, thường 18-28)
+				"-look_ahead", "0",           // Tắt look-ahead để tăng tốc
+				"-c:a", "aac",                 // Audio vẫn dùng CPU
+				"-f", "hls",                   // Format output là HLS
+				"-hls_time", "20",             // Mỗi segment dài 20 giây
+				"-hls_playlist_type", "vod",
+				m3u8Path.toString()
+		);
+		pb.redirectErrorStream(true);
+		Process process = pb.start();
+		new Thread(() -> {
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+				String line;
+				while ((line = reader.readLine()) != null) {
+					System.out.println("[FFMPEG] " + line);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}).start();
+		// 4. Pipe dữ liệu video từ stream vào ffmpeg
+		try (OutputStream ffmpegInput = process.getOutputStream()) {
+			byte[] buffer = new byte[8192];
+			int len;
+			while ((len = videoInputStream.read(buffer)) != -1) {
+				ffmpegInput.write(buffer, 0, len);
+			}
+		}
+
+		// 5. Chờ ffmpeg chạy xong
+		int exitCode = process.waitFor();
+		if (exitCode != 0) {
+			throw new RuntimeException("FFmpeg exited with code " + exitCode);
+		}
+
+		// 6. Upload từng file trong thư mục HLS dùng signed URL
+		try (Stream<Path> fileStream = Files.walk(hlsOutputDir)) {
+			fileStream
+					.filter(Files::isRegularFile)
+					.forEach(path -> {
+						String fileName = path.getFileName().toString();
+						String uploadKey = "hls/" + fileName;
+
+						try (InputStream is = Files.newInputStream(path)) {
+							String contentType = Files.probeContentType(path);
+							if (contentType == null) contentType = "application/octet-stream";
+							s3ServiceImpl.uploadStreamViaSignedUrl(is, contentType, uploadKey);
+						} catch (Exception e) {
+							throw new RuntimeException("Upload failed for file: " + fileName, e);
+						}
+					});
+		}
+
+		// 7. Xoá thư mục tạm
+		Files.walk(hlsOutputDir)
+				.sorted(Comparator.reverseOrder())
+				.forEach(p -> {
+					try {
+						Files.delete(p);
+					} catch (IOException ignored) {}
+				});
+	}
+
+
+
+	@DeleteMapping("/deletePrefix")
+	public ResponseEntity deletePrefix(@RequestParam String prefix) throws IOException, InterruptedException {
+		s3ServiceImpl.deleteFolderInParallel(prefix);
 		return ResponseEntity.ok().build();
 	}
 
