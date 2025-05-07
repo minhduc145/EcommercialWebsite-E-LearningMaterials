@@ -5,6 +5,7 @@ import com.beee.Common.Utils;
 import com.beee.Model.CategoryModel;
 import com.beee.Model.CourseModel;
 import com.beee.Repository.*;
+import com.beee.Service.FileService;
 import com.beee.Service.Impl.S3ServiceImpl;
 import com.beee.WebSecurityService.JwtService;
 import jdk.jshell.execution.Util;
@@ -41,6 +42,8 @@ public class CourseController {
 	private AccountRepo accountRepo;
 	@Autowired
 	private UserRepo userRepo;
+	@Autowired
+	private FileService fileService;
 
 	@GetMapping("/getAll")
 	public ResponseEntity getAllCourses() {
@@ -92,8 +95,12 @@ public class CourseController {
 	@PostMapping("/add/info")
 	public ResponseEntity addCourseInfo(@CookieValue(name = "jwt", required = false) String jwt,
 	                                    @ModelAttribute CourseModel courseModel, @RequestParam(name = "bannerFile", required = false) MultipartFile bannerFile) throws IOException {
-		if (bannerFile != null && bannerFile.getSize() >= 1000 * 1024)
-			throw new IllegalArgumentException("Ảnh bìa không vượt quá 1MB");
+		if (bannerFile != null) {
+			if (!bannerFile.getContentType().startsWith("image/"))
+				throw new IllegalArgumentException("Chỉ được tải tập tin ảnh lên cho ảnh bìa");
+			if (bannerFile.getSize() >= 1000 * 1024)
+				throw new IllegalArgumentException("Ảnh bìa không vượt quá 1MB");
+		}
 		if (!jwtService.isTokenExpired(jwt)) {
 			try {
 				String username = jwtService.extractUsername(jwt);
@@ -106,7 +113,7 @@ public class CourseController {
 					String prefix = "course-data/" + saved.getId();
 					String url = prefix + "/" + fileKey;
 					s3ServiceImpl.uploadFileViaSignedUrl(bannerFile, url);
-					saved.setThumbnailUrl(Constants.CLOUD_URL_PUBLIC +"/"+ url);
+					saved.setThumbnailUrl(Constants.CLOUD_URL_PUBLIC + "/" + url);
 				} else {
 					saved.setThumbnailUrl(Constants.CLOUD_URL_PUBLIC + "/course-banner/default.png");
 				}

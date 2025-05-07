@@ -1,6 +1,7 @@
 package com.beee.Service.Impl;
 
 import com.beee.Common.Constants;
+import com.beee.Service.S3Service;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -35,7 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 @Service
-public class S3ServiceImpl {
+public class S3ServiceImpl implements S3Service {
 	@Autowired
 	private S3Client s3Client;
 
@@ -43,33 +44,17 @@ public class S3ServiceImpl {
 	private S3Presigner s3Presigner;
 
 	public void uploadFileViaSignedUrl(MultipartFile file, String objectKey) throws IOException {
-		String signedUrl = this.generatePresignedUploadUrl(objectKey);
-		HttpURLConnection connection = (HttpURLConnection) new URL(signedUrl).openConnection();
-		connection.setDoOutput(true);
-		connection.setRequestMethod("PUT");
-		connection.setRequestProperty("Content-Type", file.getContentType());
-		try (OutputStream os = connection.getOutputStream();
-		     InputStream is = file.getInputStream()) {
-			byte[] buffer = new byte[8192];
-			int bytesRead;
-			while ((bytesRead = is.read(buffer)) != -1) {
-				os.write(buffer, 0, bytesRead);
-			}
-		}
-		int responseCode = connection.getResponseCode();
-		if (responseCode != 200) {
-			throw new RuntimeException("Upload failed with HTTP code: " + responseCode);
+		try (InputStream is = file.getInputStream()) {
+			uploadStreamViaSignedUrl(is, file.getContentType(), objectKey);
 		}
 	}
 
 	public void uploadStreamViaSignedUrl(InputStream inputStream, String contentType, String objectKey) throws IOException {
 		String signedUrl = generatePresignedUploadUrl(objectKey);
-
 		HttpURLConnection connection = (HttpURLConnection) new URL(signedUrl).openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestMethod("PUT");
 		connection.setRequestProperty("Content-Type", contentType);
-
 		try (OutputStream os = connection.getOutputStream()) {
 			byte[] buffer = new byte[8192];
 			int bytesRead;
@@ -77,7 +62,6 @@ public class S3ServiceImpl {
 				os.write(buffer, 0, bytesRead);
 			}
 		}
-
 		int responseCode = connection.getResponseCode();
 		if (responseCode != 200) {
 			throw new RuntimeException("Upload failed with HTTP code: " + responseCode);

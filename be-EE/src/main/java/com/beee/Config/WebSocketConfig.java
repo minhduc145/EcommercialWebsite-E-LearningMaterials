@@ -1,4 +1,4 @@
-package com.beee.Config.WebSocket;
+package com.beee.Config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

@@ -85,10 +85,10 @@ const MainTab = () => {
 }
 
 const InfoTab = (
-    { id,setId, bannerFile, setBannerFile, name, setName, categoryId, setCategoryId, isAvailable, price, setPrice, setIsAvailable, description, setDescription, setTab2Ready }
+    { id, setId, bannerFile, setBannerFile, name, setName, categoryId, setCategoryId, isAvailable, price, setPrice, setIsAvailable, description, setDescription, setTab2Ready }
         : {
-            id: string, setId:(i:string)=>void,
-            bannerFile: File | null, setBannerFile: (i: File|null) => void, name: string, setName: (i: string) => void, categoryId: string, setCategoryId: (i: string) => void,
+            id: string, setId: (i: string) => void,
+            bannerFile: File | null, setBannerFile: (i: File | null) => void, name: string, setName: (i: string) => void, categoryId: string, setCategoryId: (i: string) => void,
             isAvailable: boolean, setIsAvailable: (i: boolean) => void, price: number, setPrice: (i: number) => void,
             description: string, setDescription: (i: string) => void, setTab2Ready: (i: boolean) => void
         }) => {
@@ -114,12 +114,16 @@ const InfoTab = (
     const handleInfoSave = () => {
         submitCourseInfo({ id, bannerFile, name, description, price, isAvailable, categoryId }).then(res => {
             if (res && res.status === 200 && res.data?.details) {
-                const c : CourseModel = res.data.details
+                const c: CourseModel = res.data.details
                 MyToaster({ variant: "success", message: "Lưu Thông tin học liệu thành công!" })
                 setId(c.id)
                 console.log(c)
-                {id&&setTab2Ready(true)}
+                { id && setTab2Ready(true) }
             }
+        }).catch(error => {
+            const msg: string = error.response.data ? error.response.data.details : error.message;
+            MyToaster({ variant: "error", message: msg ?? "Không xác định" })
+            console.log(msg)
         })
 
     }
@@ -193,9 +197,9 @@ const InfoTab = (
                                         htmlFor="cover-file"
                                         className="inline-flex items-center gap-2 rounded border border-gray-300 px-4 py-1.5 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-100 hover:cursor-pointer transition"
                                     >
-                                        <FileImageIcon className="size-4"/> Chọn ảnh bìa
+                                        <FileImageIcon className="size-4" /> Chọn ảnh bìa
                                     </Label>
-                                    <div className={bannerFile?"inline-block":"hidden"}><X className="size-4 hover:cursor-pointer text-red-600" onClick={()=>setBannerFile(null)}/></div>
+                                    <div className={bannerFile ? "inline-block" : "hidden"}><X className="size-4 hover:cursor-pointer text-red-600" onClick={() => setBannerFile(null)} /></div>
                                 </div>
 
                             </div>

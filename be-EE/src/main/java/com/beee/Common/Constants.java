@@ -1,5 +1,7 @@
 package com.beee.Common;
 
+import java.util.Set;
+
 public class Constants {
 	public static final Integer PAGEABLE_PAGE_SIZE = 5;
 
@@ -20,4 +22,27 @@ public class Constants {
 
 	public final static String CLOUD_BUCKET_NAME = "ee-learning-01";
 	public final static String CLOUD_URL_PUBLIC = "https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev";
+	public final static Set<String> DOCUMENT_TYPES = Set.of(
+			"application/msword",                  // .doc
+			"application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+			"application/pdf",                     // .pdf
+			"text/plain",                          // .txt
+			"application/xml",                     // .xml
+			"application/vnd.ms-excel",            // .xls
+			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" // .xlsx
+	);
+
+	public final static Set<String> MEDIA_TYPES = Set.of(
+			"image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml",
+			"video/mp4", "video/x-msvideo", "video/quicktime", "video/x-matroska",
+			"audio/mpeg", "audio/wav", "audio/ogg", "audio/webm"
+	);
+
+	public final static Set<String> MEDIA_TYPES_IMG = Set.of(
+			"image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"
+	);
+
+	public final static Set<String> SCORM_TYPES = Set.of("application/zip", "application/x-zip-compressed");
+
+
 }

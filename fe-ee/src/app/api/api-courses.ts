@@ -64,11 +64,11 @@ export async function submitCourseInfo({
     bannerFile: File | null;
     name: string;
     description: string;
-    price: number;
+    price: number | 0;
     isAvailable: boolean;
     categoryId: string;
 }) {
-    if (!name || !categoryId || !price) {
+    if (!name || !categoryId ) {
         alert("Vui lòng nhập đầy đủ thông tin");
         return;
     }
@@ -78,7 +78,7 @@ export async function submitCourseInfo({
     { bannerFile && formData.append("bannerFile", bannerFile); }
     formData.append("title", name);
     formData.append("description", description);
-    formData.append("price", String(price));
+    formData.append("price", String(price??0));
     formData.append("isAvailable", String(isAvailable));
     formData.append("categoryId", categoryId);
 
