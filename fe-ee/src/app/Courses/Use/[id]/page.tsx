@@ -96,15 +96,15 @@ export default function CourseLayout() {
                     <div className={cn("overflow-auto h-[calc(100vh-64px)]", sidebarMinimized && "hidden")}>
                         <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
                             <Accordion type="multiple" className="w-full">
-                                <AccordionItem value="bai-giang-e-learning" className="border-b border-border/50">
-                                    <AccordionTrigger className="px-4 py-2">
+                                <AccordionItem value="bai-giang-e-learning" className="border-b border-border/50 p-3">
+                                    <AccordionTrigger className="px-4 ">
                                         <span className="font-medium">Bài giảng E-Learning Scorm</span>
                                     </AccordionTrigger>
                                     <AccordionContent>
                                         <Link href={`https://www.google.com`}>
-                                            <div className="px-4 py-2 border-b border-border/50 bg-muted/50">
+                                            <div className="px-4 py-2 border border-amber-50 bg-[#005fd0]/20">
                                                 <div className="flex items-center">
-                                                    <Badge variant="secondary" className="mr-2">
+                                                    <Badge variant="secondary" className="mr-2  bg-blue-600 text-white">
                                                         <FileText className="h-3 w-3 mr-1" />
                                                         Bài giảng
                                                     </Badge>
@@ -117,10 +117,10 @@ export default function CourseLayout() {
                                         </Link>
 
                                         <Link href={`https://www.google.com`}>
-                                            <div className="px-4 py-2 border-b border-border/50 bg-muted/50">
+                                            <div className="px-4 py-2 border-b border-border/50">
                                                 <div className="flex items-center">
-                                                    <Badge variant="secondary" className="mr-2">
-                                                        <FileVideo className="h-3 w-3 mr-1" />
+                                                    <Badge variant="secondary" className="mr-2  bg-blue-600 text-white">
+                                                        <FileVideo className="h-3 w-3 mr-1 " />
                                                         Bài giảng
                                                     </Badge>
 
@@ -133,8 +133,8 @@ export default function CourseLayout() {
                                     </AccordionContent>
                                 </AccordionItem>
 
-                                <AccordionItem value="ke-hoach-bai-day" className="border-b border-border/50">
-                                    <AccordionTrigger className="px-4 py-2">
+                                <AccordionItem value="ke-hoach-bai-day" className="border-b border-border/50 p-3">
+                                    <AccordionTrigger className="px-4">
                                         <span className="font-medium">Kế hoạch bài dạy</span>
                                     </AccordionTrigger>
                                     <AccordionContent className="pl-6">
@@ -146,8 +146,8 @@ export default function CourseLayout() {
                                 </AccordionItem>
 
 
-                                <AccordionItem value="video-thuyet-minh" className="border-b border-border/50">
-                                    <AccordionTrigger className="px-4 py-2">
+                                <AccordionItem value="video-thuyet-minh" className="border-b border-border/50 p-3">
+                                    <AccordionTrigger className="px-4">
                                         <span className="font-medium">Video Thuyết minh, hướng dẫn sử dụng bài giảng</span>
                                     </AccordionTrigger>
                                     <AccordionContent className="pl-6">

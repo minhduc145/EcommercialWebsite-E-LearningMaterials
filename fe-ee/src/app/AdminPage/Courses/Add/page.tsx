@@ -76,7 +76,7 @@ const MainTab = () => {
                         <CardTitle>Tài liệu</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                        <DataTab />
+                        <DataTab id={id} />
                     </CardContent>
                 </Card>
             </TabsContent>
@@ -112,19 +112,20 @@ const InfoTab = (
     }, [])
 
     const handleInfoSave = () => {
-        submitCourseInfo({ id, bannerFile, name, description, price, isAvailable, categoryId }).then(res => {
-            if (res && res.status === 200 && res.data?.details) {
-                const c: CourseModel = res.data.details
-                MyToaster({ variant: "success", message: "Lưu Thông tin học liệu thành công!" })
-                setId(c.id)
-                console.log(c)
-                { id && setTab2Ready(true) }
-            }
-        }).catch(error => {
-            const msg: string = error.response.data ? error.response.data.details : error.message;
-            MyToaster({ variant: "error", message: msg ?? "Không xác định" })
-            console.log(msg)
-        })
+        setTab2Ready(true)
+        // submitCourseInfo({ id, bannerFile, name, description, price, isAvailable, categoryId }).then(res => {
+        //     if (res && res.status === 200 && res.data?.details) {
+        //         const c: CourseModel = res.data.details
+        //         MyToaster({ variant: "success", message: "Lưu Thông tin học liệu thành công!" })
+        //         setId(c.id)
+        //         console.log(c)
+        //         { id && setTab2Ready(true) }
+        //     }
+        // }).catch(error => {
+        //     const msg: string = error.response.data ? error.response.data.details : error.message;
+        //     MyToaster({ variant: "error", message: msg ?? "Không xác định" })
+        //     console.log(msg)
+        // })
 
     }
     return (
@@ -232,15 +233,12 @@ const InfoTab = (
 }
 import { FileExplorer } from "@/components/file-manager"
 
-const DataTab = () => {
-    return (
-        <>
-            <FileExplorer />
-            <div className="justify-self-end">
-                <Button className="w-50 bg-green-500 hover:bg-green-600">Lưu</Button>
-            </div>
-        </>
-    )
+const DataTab = ({ id }: { id: string }) => {
+        return (
+            <>
+                <FileExplorer />
+            </>
+        )
 }
 
 import {

@@ -5,4 +5,6 @@ export interface CourseFileModel {
     type: string;       
     extension: string; 
     authorId: string;
+    url:string|"";
+    // containerId:string|null;
   }

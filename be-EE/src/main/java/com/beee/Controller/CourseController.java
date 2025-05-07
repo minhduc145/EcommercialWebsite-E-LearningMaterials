@@ -27,10 +27,8 @@ import java.util.*;
 public class CourseController {
 	@Autowired
 	private CourseRepo courseRepo;
-
 	@Autowired
 	private ReviewRepo reviewRepo;
-
 	@Autowired
 	private CourseDataRepo courseDataRepo;
 	@Autowired
@@ -39,11 +37,8 @@ public class CourseController {
 	private CategoryRepo categoryRepo;
 	@Autowired
 	private JwtService jwtService;
-	private AccountRepo accountRepo;
 	@Autowired
 	private UserRepo userRepo;
-	@Autowired
-	private FileService fileService;
 
 	@GetMapping("/getAll")
 	public ResponseEntity getAllCourses() {

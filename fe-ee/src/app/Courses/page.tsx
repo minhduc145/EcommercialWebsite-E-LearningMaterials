@@ -28,7 +28,7 @@ export default function Courses() {
 
   return (
     <div className=' min-h-dvh'>
-      <div className="banner m-0 p-0 inset-x-0 top-0 w-full h-96 bg-blue-900 rounded-bl-3xl rounded-br-3xl bg-left">
+      <div className="banner m-0 p-0 inset-x-0 top-0 w-full h-96 bg-[#001d74] rounded-bl-3xl rounded-br-3xl bg-left">
         <div className="grid w-full h-80 grid-cols-1 inset-x-0 lg:grid-cols-2">
           <div className='m-auto text-white'>
             <p>Chào mừng bạn đến với</p>

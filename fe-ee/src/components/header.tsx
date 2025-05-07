@@ -36,7 +36,6 @@ import { Client, IMessage } from "@stomp/stompjs";
 import MyToaster from "./ui/toastify-template";
 import { ToastContainer } from "react-toastify";
 import { getUserInfo } from "@/app/api/api-account";
-import { getFromCache, putToCache } from "@/lib/utils";
 
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "http://localhost:8080";
@@ -69,7 +68,7 @@ export default function Header(props: IHeaderProps) {
     null
   );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const bgColor = props.color === "blue" ? "bg-blue-900" : "border-b  supports-[backdrop-filter]:bg-background/60";
+  const bgColor = props.color === "blue" ? "bg-[#001d74]" : "border-b  supports-[backdrop-filter]:bg-background/60";
   const txtColor = props.color === "blue" ? "text-white" : "text-gray-900";
 
   useEffect(() => {

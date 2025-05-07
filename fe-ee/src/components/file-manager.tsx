@@ -2,8 +2,18 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { File, FileText, Folder, FolderPlus, FilePlus, MoreHorizontal, FileArchive, FileVideoIcon } from "lucide-react"
+import { useState, useRef } from "react"
+import {
+  File,
+  FileText,
+  Folder,
+  FolderPlus,
+  FilePlus,
+  MoreHorizontal,
+  FileArchive,
+  FileVideoIcon,
+  X,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -28,6 +38,7 @@ const initialFolders: CourseContainerModel[] = [
         createdAt: "15:25 10/03/2024",
         extension: "zip",
         authorId: "tthong.hp.qti",
+        url: "abc",
       },
       {
         id: "f2",
@@ -36,6 +47,7 @@ const initialFolders: CourseContainerModel[] = [
         createdAt: "15:23 10/03/2024",
         extension: "zip",
         authorId: "tthong.hp.qti",
+        url: "abc",
       },
     ],
   },
@@ -51,6 +63,7 @@ const initialFolders: CourseContainerModel[] = [
         createdAt: "15:25 10/03/2024",
         extension: "zip",
         authorId: "tthong.hp.qti",
+        url: "abc",
       },
       {
         id: "f2",
@@ -59,6 +72,7 @@ const initialFolders: CourseContainerModel[] = [
         createdAt: "15:23 10/03/2024",
         extension: "zip",
         authorId: "tthong.hp.qti",
+        url: "abc",
       },
     ],
   },
@@ -74,6 +88,7 @@ const initialFolders: CourseContainerModel[] = [
         createdAt: "15:25 10/03/2024",
         extension: "zip",
         authorId: "tthong.hp.qti",
+        url: "abc",
       },
       {
         id: "f2",
@@ -82,25 +97,27 @@ const initialFolders: CourseContainerModel[] = [
         createdAt: "15:23 10/03/2024",
         extension: "zip",
         authorId: "tthong.hp.qti",
+        url: "abc",
       },
     ],
   },
 ]
 
-const FileType = [] =[
+const FileType = ([] = [
   {
     id: "scorm",
-    name:"SCORM"
+    name: "SCORM",
   },
   {
     id: "media",
-    name:"Đa phương tiện"
+    name: "Đa phương tiện",
   },
   {
     id: "document",
-    name:"Tài liệu"
-  }
-]
+    name: "Tài liệu",
+  },
+])
+
 // Helper function to get file icon based on type
 const getFileIcon = (type: string) => {
   switch (type) {
@@ -115,6 +132,15 @@ const getFileIcon = (type: string) => {
   }
 }
 
+// Interface for uploading file
+interface UploadingFile {
+  id: string
+  name: string
+  type: string
+  progress: number
+  folderId: string
+}
+
 export function FileExplorer() {
   // State management
   const [folders, setFolders] = useState<CourseContainerModel[]>(initialFolders)
@@ -124,12 +150,16 @@ export function FileExplorer() {
   const [newFolderName, setNewFolderName] = useState("")
   const [newFileName, setNewFileName] = useState("")
   const [newFileType, setNewFileType] = useState("scorm")
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Modal state
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false)
   const [isFileModalOpen, setIsFileModalOpen] = useState(false)
   const [editingFolder, setEditingFolder] = useState<CourseContainerModel | null>(null)
   const [editingFile, setEditingFile] = useState<CourseFileModel | null>(null)
+
+  // Upload state
+  const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([])
 
   // Folder operations
   const openFolderModal = (folder: CourseContainerModel | null = null, e?: React.MouseEvent) => {
@@ -204,31 +234,89 @@ export function FileExplorer() {
       })
       setFolders(updatedFolders)
       setSelectedFolder(updatedFolders.find((f) => f.id === selectedFolder.id)!)
+      setIsFileModalOpen(false)
+      setEditingFile(null)
+      setNewFileName("")
     } else {
-      // Add new file
-      const newFile = {
-        id: Date.now().toString(),
+      // Close the modal first
+      setIsFileModalOpen(false)
+
+      // Create a new uploading file
+      const uploadId = `upload_${Date.now()}`
+      const newUploadingFile: UploadingFile = {
+        id: uploadId,
         name: newFileName,
         type: newFileType,
-        createdAt: new Date().toLocaleString(),
-        extension: "zip",
-        authorId: "current.user",
+        progress: 0,
+        folderId: selectedFolder.id,
       }
 
-      const updatedFolders = folders.map((folder) => {
-        if (folder.id === selectedFolder.id) {
-          return { ...folder, files: [...folder.files, newFile] }
-        }
-        return folder
-      })
+      // Add to uploading files
+      setUploadingFiles((prev) => [...prev, newUploadingFile])
 
-      setFolders(updatedFolders)
-      setSelectedFolder(updatedFolders.find((f) => f.id === selectedFolder.id)!)
+      // Simulate upload progress
+      const interval = setInterval(() => {
+        setUploadingFiles((prev) => {
+          // Find the file we're updating
+          const fileToUpdate = prev.find((f) => f.id === uploadId)
+
+          // If file doesn't exist anymore (was canceled), clear the interval
+          if (!fileToUpdate) {
+            clearInterval(interval)
+            return prev
+          }
+
+          // Calculate new progress
+          const newProgress = fileToUpdate.progress + 5
+
+          // If upload is complete
+          if (newProgress >= 100) {
+            clearInterval(interval)
+
+            // Add the file to the folder
+            const newFile: CourseFileModel = {
+              id: Date.now().toString(),
+              name: fileToUpdate.name,
+              type: fileToUpdate.type,
+              createdAt: new Date().toLocaleString(),
+              extension: "zip",
+              authorId: "current.user",
+              url: "",
+            }
+
+            // Update folders with the new file
+            setFolders((folders) =>
+              folders.map((folder) => {
+                if (folder.id === fileToUpdate.folderId) {
+                  return { ...folder, files: [...folder.files, newFile] }
+                }
+                return folder
+              }),
+            )
+
+            // If this is the selected folder, update it
+            if (selectedFolder.id === fileToUpdate.folderId) {
+              setSelectedFolder((prev) => ({
+                ...prev,
+                files: [...prev.files, newFile],
+              }))
+            }
+
+            // Remove this file from uploading files
+            return prev.filter((f) => f.id !== uploadId)
+          }
+
+          // Update progress for this file
+          return prev.map((file) => (file.id === uploadId ? { ...file, progress: newProgress } : file))
+        })
+      }, 200)
+
+      // Reset form
+      setNewFileName("")
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
     }
-
-    setIsFileModalOpen(false)
-    setEditingFile(null)
-    setNewFileName("")
   }
 
   const deleteFile = (fileId: string) => {
@@ -246,8 +334,12 @@ export function FileExplorer() {
     setSelectedFolder(updatedFolders.find((f) => f.id === selectedFolder.id)!)
   }
 
+  const cancelUpload = (uploadId: string) => {
+    setUploadingFiles((prev) => prev.filter((file) => file.id !== uploadId))
+  }
+
   return (
-    <div className="flex border rounded-md h-[600px]">
+    <div className="flex border rounded-md h-[600px] relative">
       {/* Folders panel */}
       <div className="w-1/3 border-r flex flex-col">
         <div className="p-3 border-b flex justify-between items-center">
@@ -273,7 +365,7 @@ export function FileExplorer() {
                 <span className="ml-auto text-xs text-gray-500 mr-2">{folder.files.length}</span>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 ml-1" onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 ml-1" onClick={(e) => e.stopPropagation()}>
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </PopoverTrigger>
@@ -411,14 +503,16 @@ export function FileExplorer() {
             {!editingFile && (
               <div>
                 <Label htmlFor="file-input">Tải lên tệp</Label>
-                <Input
-                  id="file-input"
-                  className="mt-2"
-                  type="file"
-                  onChange={(e) => {
-                    setNewFileName(e.target.files?.[0]?.name ?? "")
-                  }}
-                />
+                <div className="mt-2">
+                  <Input
+                    id="file-input"
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={(e) => {
+                      setNewFileName(e.target.files?.[0]?.name ?? "")
+                    }}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -430,15 +524,40 @@ export function FileExplorer() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Floating Upload Status Dialog */}
+      {uploadingFiles.length > 0 && (
+        <div className="absolute right-0 bottom-0 mt-4 mr-4 bg-white shadow-lg rounded-lg border p-4 w-64 z-50">
+          <div className="flex justify-between items-center mb-3">
+            <h4 className="font-medium text-sm">Đang tải lên</h4>
+            <span className="text-xs text-muted-foreground">{uploadingFiles.length} tệp</span>
+          </div>
+
+          <div className="space-y-3 max-h-60 overflow-y-auto">
+            {uploadingFiles.map((file) => (
+              <div key={file.id} className="space-y-2">
+                <div className="flex items-center gap-3">
+                  {getFileIcon(file.type)}
+                  <div className="text-sm truncate flex-1">{file.name}</div>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => cancelUpload(file.id)}>
+                    <X className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="h-1 flex-1 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary transition-all duration-300"
+                      style={{ width: `${file.progress}%` }}
+                    ></div>
+                  </div>
+                  <span className="text-xs font-medium">{file.progress}%</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
-}
-
-const handleUpload = ({ container }: { container: CourseContainerModel[] }) => {
-
-
-
-
-
-
 }
