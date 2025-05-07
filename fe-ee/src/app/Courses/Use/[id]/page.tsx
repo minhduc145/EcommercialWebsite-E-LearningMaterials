@@ -30,9 +30,9 @@ export default function CourseLayout() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [onMobile, setOnMobile] = useState(false)
 
-    useEffect(()=>{
+    useEffect(() => {
 
-    },[])
+    }, [])
 
 
     const toggleSidebar = () => {
@@ -73,7 +73,7 @@ export default function CourseLayout() {
             <div className="flex flex-col md:flex-row min-h-max bg-background">
                 <div className="md:hidden flex items-center justify-between p-4 border-b border-border">
                     <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-                    {sidebarMinimized ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+                        {sidebarMinimized ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
                     </Button>
                     <h1 className="text-lg font-semibold">Thông tin khóa học</h1>
                     <div className="w-9"></div> {/* Spacer for alignment */}
@@ -164,12 +164,13 @@ export default function CourseLayout() {
 
                 <div className={cn("flex-1 overflow-auto transition-all duration-300", mobileMenuOpen && "md:ml-0")}>
                     <div className="px-0 md:px-6">
-
+                        {/* <img src="https://www.shutterstock.com/image-vector/colorful-abstract-banner-template-dummy-260nw-1489086422.jpg" alt="" className="mx-auto" /> */}
                         {/* {`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent('https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev/note-02042025.txt')} */}
                         <iframe
-                            src={`https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev/WebServices_notes_by_Sekhar_Sir_JavabynataraJ.pdf`}
-                            // src={`https://m3u8player.org/player.html?url=https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8`}
-                            title="YouTube video player" frameBorder="0"
+                            // src="https://gosoccerboy5.github.io/view-images/#https://hailangsgdquangtri.lms.vnedu.vn/app/assets/img/not-thing-to-show.png?v=20250428085600"
+                            // src={`https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev/WebServices_notes_by_Sekhar_Sir_JavabynataraJ.pdf`}
+                            src={`https://m3u8player.org/player.html?url=https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8`}
+                            frameBorder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             referrerPolicy="strict-origin-when-cross-origin" allowFullScreen
                             style={{
