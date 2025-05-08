@@ -1,8 +1,9 @@
 
+import { url_backend_default } from "@/lib/public-var";
 import axios from "axios";
 
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = "http://localhost:8080";
+axios.defaults.baseURL = url_backend_default;
 
 export async function isAdmin() {
     return await axios.post("/api/accounts/isAdmin");

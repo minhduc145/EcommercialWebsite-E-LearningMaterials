@@ -12,10 +12,10 @@ import * as yup from "yup";
 import axios from "axios";
 import { useSearchParams } from "next/navigation"
 import { useEffect } from "react"
-import { link_google_login } from "@/lib/public-var"
+import { link_google_login, url_backend_default } from "@/lib/public-var"
 import MyToaster from "@/components/ui/toastify-template"
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = "http://localhost:8080";
+axios.defaults.baseURL = url_backend_default;
 const schema = yup.object({
 	id: yup.string().required("Vui lòng nhập username"),
 	password: yup.string().min(3, "Mật khẩu ít nhất 3 ký tự").required("Vui lòng nhập mật khẩu"),

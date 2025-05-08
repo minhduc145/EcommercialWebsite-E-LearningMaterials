@@ -18,7 +18,7 @@ import { Client, IMessage } from "@stomp/stompjs";
 
 import axios from "axios";
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = "http://localhost:8080";
+axios.defaults.baseURL = url_backend_default;
 
 interface ICourseProp {
     course: CourseModel,
@@ -46,7 +46,7 @@ export default function courseDetails() {
     }, [])
 
     useEffect(() => {
-        const paymentSocket = new SockJS('http://localhost:8080/ws/payment');
+        const paymentSocket = new SockJS(url_backend_default+'/ws/payment');
         const paymentClient = new Client({
             webSocketFactory: () => paymentSocket,
             reconnectDelay: 5000,
@@ -289,7 +289,7 @@ import {
 } from "@/components/ui/card"
 import { Separator } from '@radix-ui/react-dropdown-menu'
 import VNPayButton from '@/components/VNPAY-open-window'
-import { formatCurrency } from '../../../lib/public-var';
+import { formatCurrency, url_backend_default } from '../../../lib/public-var';
 import { useEffect, useState } from 'react'
 import CourseFileAccordion from './components/course-file-accordion'
 import { getAverageStarReview, getCourse, getCourseData, getCourseReview } from '@/app/api/api-courses'

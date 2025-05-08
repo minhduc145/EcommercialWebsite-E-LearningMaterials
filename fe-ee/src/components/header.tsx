@@ -36,9 +36,10 @@ import { Client, IMessage } from "@stomp/stompjs";
 import MyToaster from "./ui/toastify-template";
 import { ToastContainer } from "react-toastify";
 import { getUserInfo } from "@/app/api/api-account";
+import { url_backend_default } from "@/lib/public-var";
 
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = "http://localhost:8080";
+axios.defaults.baseURL = url_backend_default;
 
 const navigation = [
   { name: "Trang chủ", href: "/" },
@@ -86,7 +87,7 @@ export default function Header(props: IHeaderProps) {
 
   useEffect(() => {
     const newMessageSocket = new SockJS(
-      "http://localhost:8080/ws/notification"
+      url_backend_default+"/ws/notification"
     );
     const newMessageClient = new Client({
       webSocketFactory: () => newMessageSocket,

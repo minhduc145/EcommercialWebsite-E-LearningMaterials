@@ -4,7 +4,7 @@ const publicVar: {
   
   export default publicVar;
   
-  export const url_backend_default = "http://localhost:8080/"
+  export const url_backend_default = "http://localhost:8080"
 
   export const link_google_login = "http://localhost:8080/oauth2/authorization/google";
 

@@ -5,8 +5,9 @@ import dynamic from 'next/dynamic';
 const AppFooter = dynamic(() => import('@/components/footer'), { ssr: false });
 const Header = dynamic(() => import('@/components/header'), { ssr: false });
 import axios from "axios";
+import { url_backend_default } from '@/lib/public-var';
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = "http://localhost:8080";
+axios.defaults.baseURL = url_backend_default;
 
 export default function Home() {
 	return (
