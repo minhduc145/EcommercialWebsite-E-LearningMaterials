@@ -218,7 +218,7 @@ const InfoTab = (
 
             <div className="space-y-1 flex-col gap-2">
                 <div>
-                    <Label htmlFor="cover">Mô tả</Label>
+                    <Label htmlFor="cover">Mô tả<span className='text-red-600'>*</span></Label>
                 </div>
                 <div><AIModal name={name} handleChange={setDescription} /></div>
                 <div className="max-w-full">
@@ -234,6 +234,7 @@ const InfoTab = (
 import { FileExplorer } from "@/components/file-manager"
 
 const DataTab = ({ id }: { id: string }) => {
+    if (id || true)
         return (
             <>
                 <FileExplorer />
@@ -255,8 +256,6 @@ import { DialogClose } from "@radix-ui/react-dialog"
 import DOMPurify from 'dompurify';
 import { CategoryModel } from "@/models/CategoryModel"
 import { getCategories, submitCourseInfo } from "@/app/api/api-courses"
-import MyToaster from "@/components/ui/toastify-template"
-import { CourseModel } from "@/models/CourseModel"
 
 const AIModal = ({ name, handleChange }: { name: string, handleChange: (i: string) => void }) => {
     const [cue, setCue] = useState("");

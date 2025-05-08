@@ -1,5 +1,5 @@
 'use client'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -35,10 +35,15 @@ export default function courseDetails() {
     const id = useParams().id
     const [course, setCourse] = useState<CourseModel>()
     const [averageStar, setAverageStar] = useState<number>(0)
+    const router = useRouter();
 
     useEffect(() => {
         getCourse(String(id)).then((response) => {
             setCourse(response?.data)
+        }).catch(res=>{
+            if(res.status === 404){
+                router.push("/NotFound")
+            }
         })
         getAverageStarReview(String(id)).then((response) => {
             setAverageStar(response?.data)

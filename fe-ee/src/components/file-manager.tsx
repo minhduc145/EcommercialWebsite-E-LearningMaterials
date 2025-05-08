@@ -3,17 +3,7 @@
 import type React from "react"
 
 import { useState, useRef } from "react"
-import {
-  File,
-  FileText,
-  Folder,
-  FolderPlus,
-  FilePlus,
-  MoreHorizontal,
-  FileArchive,
-  FileVideoIcon,
-  X,
-} from "lucide-react"
+import { Folder, FolderPlus, FilePlus, MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -23,85 +13,103 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn, formatDateTime } from "@/lib/utils"
 import type { CourseContainerModel } from "@/models/CourseContainerModel"
 import type { CourseFileModel } from "@/models/CourseFileModel"
+import JSZip from "jszip"
+
+
+import { FileText, FileVideoIcon, FileArchive, File } from "lucide-react"
+
+// Helper function to get file icon based on type
+export const getFileIcon = (type: string): React.ReactNode => {
+  switch (type) {
+    case "document":
+      return <FileText className="h-5 w-5 text-red-500" />
+    case "media":
+      return <FileVideoIcon className="h-5 w-5 text-purple-500" />
+    case "scorm":
+      return <FileArchive className="h-5 w-5 text-blue-500" />
+    default:
+      return <File className="h-5 w-5 text-gray-500" />
+  }
+}
 
 // Move initial data outside the component
-const initialFolders: CourseContainerModel[] = [
-  {
-    id: "1",
-    name: "Bài giảng E-Learning",
-    createdAt: "15:25 10/03/2024",
-    files: [
-      {
-        id: "f1",
-        name: "Bài giảng Unit 7: Television - Lesson 2",
-        type: "scorm",
-        createdAt: "15:25 10/03/2024",
-        extension: "zip",
-        authorId: "tthong.hp.qti",
-        url: "abc",
-      },
-      {
-        id: "f2",
-        name: "Bài giảng Unit 7: Television - Lesson 2",
-        type: "scorm",
-        createdAt: "15:23 10/03/2024",
-        extension: "zip",
-        authorId: "tthong.hp.qti",
-        url: "abc",
-      },
-    ],
-  },
-  {
-    id: "2",
-    name: "Bài giảng E-Learning",
-    createdAt: "15:25 10/03/2024",
-    files: [
-      {
-        id: "f1",
-        name: "Bài giảng Unit 7: Television - Lesson 2",
-        type: "scorm",
-        createdAt: "15:25 10/03/2024",
-        extension: "zip",
-        authorId: "tthong.hp.qti",
-        url: "abc",
-      },
-      {
-        id: "f2",
-        name: "Bài giảng Unit 7: Television - Lesson 2",
-        type: "media",
-        createdAt: "15:23 10/03/2024",
-        extension: "zip",
-        authorId: "tthong.hp.qti",
-        url: "abc",
-      },
-    ],
-  },
-  {
-    id: "3",
-    name: "Bài giảng E-Learning",
-    createdAt: "15:25 10/03/2024",
-    files: [
-      {
-        id: "f1",
-        name: "Bài giảng Unit 7: Television - Lesson 2",
-        type: "scorm",
-        createdAt: "15:25 10/03/2024",
-        extension: "zip",
-        authorId: "tthong.hp.qti",
-        url: "abc",
-      },
-      {
-        id: "f2",
-        name: "Bài giảng Unit 7: Television - Lesson 2",
-        type: "document",
-        createdAt: "15:23 10/03/2024",
-        extension: "zip",
-        authorId: "tthong.hp.qti",
-        url: "abc",
-      },
-    ],
-  },
-]
+// const initialFolders: CourseContainerModel[] = [
+//   {
+//     id: "1",
+//     name: "Bài giảng E-Learning",
+//     createdAt: "15:25 10/03/2024",
+//     files: [
+//       {
+//         id: "f1",
+//         name: "Bài giảng Unit 7: Television - Lesson 2",
+//         type: "scorm",
+//         createdAt: "15:25 10/03/2024",
+//         extension: "zip",
+//         authorId: "tthong.hp.qti",
+//         url: "abc",
+//       },
+//       {
+//         id: "f2",
+//         name: "Bài giảng Unit 7: Television - Lesson 2",
+//         type: "scorm",
+//         createdAt: "15:23 10/03/2024",
+//         extension: "zip",
+//         authorId: "tthong.hp.qti",
+//         url: "abc",
+//       },
+//     ],
+//   },
+//   {
+//     id: "2",
+//     name: "Bài giảng E-Learning",
+//     createdAt: "15:25 10/03/2024",
+//     files: [
+//       {
+//         id: "f1",
+//         name: "Bài giảng Unit 7: Television - Lesson 2",
+//         type: "scorm",
+//         createdAt: "15:25 10/03/2024",
+//         extension: "zip",
+//         authorId: "tthong.hp.qti",
+//         url: "abc",
+//       },
+//       {
+//         id: "f2",
+//         name: "Bài giảng Unit 7: Television - Lesson 2",
+//         type: "media",
+//         createdAt: "15:23 10/03/2024",
+//         extension: "zip",
+//         authorId: "tthong.hp.qti",
+//         url: "abc",
+//       },
+//     ],
+//   },
+//   {
+//     id: "3",
+//     name: "Bài giảng E-Learning",
+//     createdAt: "15:25 10/03/2024",
+//     files: [
+//       {
+//         id: "f1",
+//         name: "Bài giảng Unit 7: Television - Lesson 2",
+//         type: "scorm",
+//         createdAt: "15:25 10/03/2024",
+//         extension: "zip",
+//         authorId: "tthong.hp.qti",
+//         url: "abc",
+//       },
+//       {
+//         id: "f2",
+//         name: "Bài giảng Unit 7: Television - Lesson 2",
+//         type: "document",
+//         createdAt: "15:23 10/03/2024",
+//         extension: "zip",
+//         authorId: "tthong.hp.qti",
+//         url: "abc",
+//       },
+//     ],
+//   },
+// ]
 
 const FileType = ([] = [
   {
@@ -118,33 +126,30 @@ const FileType = ([] = [
   },
 ])
 
-// Helper function to get file icon based on type
-const getFileIcon = (type: string) => {
-  switch (type) {
-    case "document":
-      return <FileText className="h-5 w-5 text-red-500" />
-    case "media":
-      return <FileVideoIcon className="h-5 w-5 text-purple-500" />
-    case "scorm":
-      return <FileArchive className="h-5 w-5 text-blue-500" />
-    default:
-      return <File className="h-5 w-5 text-gray-500" />
-  }
-}
-
-// Interface for uploading file
-interface UploadingFile {
-  id: string
-  name: string
-  type: string
-  progress: number
-  folderId: string
-}
-
 export function FileExplorer() {
+  const [isScorm, setIsScorm] = useState<boolean | null>(null)
+  const [checking, setChecking] = useState(false)
+
+  const handleFileChange = async (file: any) => {
+    if (!file) return
+    setChecking(true)
+    const zip = new JSZip()
+    try {
+      const zipData = await zip.loadAsync(file, { createFolders: false })
+      const fileNames = Object.keys(zipData.files).map((name) => name.toLowerCase())
+      const hasManifest = fileNames.includes("imsmanifest.xml") || fileNames.includes("./imsmanifest.xml")
+      setIsScorm(hasManifest)
+      console.log(hasManifest)
+    } catch (err) {
+      console.error("Lỗi khi đọc file zip:", err)
+      setIsScorm(false)
+    } finally {
+      setChecking(false)
+    }
+  }
   // State management
-  const [folders, setFolders] = useState<CourseContainerModel[]>(initialFolders)
-  const [selectedFolder, setSelectedFolder] = useState<CourseContainerModel>(initialFolders[0])
+  const [folders, setFolders] = useState<CourseContainerModel[]>([])
+  const [selectedFolder, setSelectedFolder] = useState<CourseContainerModel>()
 
   // Form state
   const [newFolderName, setNewFolderName] = useState("")
@@ -180,7 +185,7 @@ export function FileExplorer() {
       setFolders(updatedFolders)
 
       // Update selected folder if it was edited
-      if (selectedFolder.id === editingFolder.id) {
+      if (selectedFolder?.id === editingFolder.id) {
         setSelectedFolder({ ...selectedFolder, name: newFolderName })
       }
     } else {
@@ -204,9 +209,13 @@ export function FileExplorer() {
     const updatedFolders = folders.filter((folder) => folder.id !== folderId)
     setFolders(updatedFolders)
 
-    // If deleted folder was selected, select first available folder
-    if (selectedFolder.id === folderId && updatedFolders.length > 0) {
-      setSelectedFolder(updatedFolders[0])
+    // If deleted folder was selected, select first available folder or set to null if no folders remain
+    if (selectedFolder?.id === folderId) {
+      if (updatedFolders.length > 0) {
+        setSelectedFolder(updatedFolders[0])
+      } else {
+        setSelectedFolder(null as unknown as CourseContainerModel)
+      }
     }
   }
 
@@ -219,7 +228,8 @@ export function FileExplorer() {
   }
 
   const saveFile = () => {
-    if (!newFileName.trim()) return
+    console.log(folders)
+    if (!newFileName.trim() || !selectedFolder) return
 
     if (editingFile) {
       // Update existing file
@@ -278,7 +288,7 @@ export function FileExplorer() {
               id: Date.now().toString(),
               name: fileToUpdate.name,
               type: fileToUpdate.type,
-              createdAt: new Date().toLocaleString(),
+              createdAt: new Date().toISOString(),
               extension: "zip",
               authorId: "current.user",
               url: "",
@@ -296,7 +306,7 @@ export function FileExplorer() {
 
             // If this is the selected folder, update it
             if (selectedFolder.id === fileToUpdate.folderId) {
-              setSelectedFolder((prev) => ({
+              setSelectedFolder((prev) => (prev && {
                 ...prev,
                 files: [...prev.files, newFile],
               }))
@@ -320,6 +330,8 @@ export function FileExplorer() {
   }
 
   const deleteFile = (fileId: string) => {
+    if (!selectedFolder) return
+
     const updatedFolders = folders.map((folder) => {
       if (folder.id === selectedFolder.id) {
         return {
@@ -344,9 +356,7 @@ export function FileExplorer() {
       <div className="w-1/3 border-r flex flex-col">
         <div className="p-3 border-b flex justify-between items-center">
           <h3 className="font-medium">Các thư mục</h3>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openFolderModal()}>
-            <FolderPlus className="h-4 w-4" />
-          </Button>
+          <FolderPlus className="h-4 w-4 hover:cursor-pointer" onClick={() => openFolderModal()} />
         </div>
 
         <ScrollArea className="flex-1 max-h-[90%]">
@@ -356,7 +366,7 @@ export function FileExplorer() {
                 key={folder.id}
                 className={cn(
                   "flex items-center py-2 px-3 rounded-md cursor-pointer hover:bg-gray-100",
-                  selectedFolder.id === folder.id && "bg-gray-100 font-medium",
+                  selectedFolder?.id === folder.id && "bg-gray-100 font-medium",
                 )}
                 onClick={() => setSelectedFolder(folder)}
               >
@@ -399,14 +409,37 @@ export function FileExplorer() {
       {/* Files panel */}
       <div className="w-2/3 flex flex-col">
         <div className="p-3 border-b flex justify-between items-center">
-          <h3 className="font-medium">{selectedFolder.name}</h3>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openFileModal()}>
-            <FilePlus className="h-4 w-4" />
-          </Button>
+          <h3 className="font-medium">{selectedFolder?.name ?? "Không có thư mục được chọn"}</h3>
+          {selectedFolder && (
+            <Popover>
+              <PopoverTrigger>
+                <FilePlus className="h-4 w-4" />
+              </PopoverTrigger>
+              <PopoverContent side="bottom" align="end" className="flex flex-col w-auto px-2 py-1">
+                <Button variant="ghost" className="text-sm px-2 py-1 justify-start" onClick={() => openFileModal()}>
+                  📺 Thêm file Đa phương tiện
+                </Button>
+                <Button variant="ghost" className="text-sm px-2 py-1 justify-start" onClick={() => openFileModal()}>
+                  💾 Thêm file SCORM
+                </Button>
+                <Button variant="ghost" className="text-sm px-2 py-1 justify-start" onClick={() => openFileModal()}>
+                  📄 Thêm file Tài liệu
+                </Button>
+                <Button variant="ghost" className="text-sm px-2 py-1 justify-start" onClick={() => openFileModal()}>
+                  🔗 Thêm Đường dẫn
+                </Button>
+                <Button variant="ghost" className="text-sm px-2 py-1 justify-start" onClick={() => openFileModal()}>
+                  📜 Thêm nhúng
+                </Button>
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
 
         <ScrollArea className="flex-1 max-h-[90%]">
-          {selectedFolder.files.length > 0 ? (
+          {!selectedFolder ? (
+            <div className="flex items-center justify-center h-full text-gray-500">Vui lòng tạo một thư mục trước</div>
+          ) : selectedFolder.files.length > 0 ? (
             <div className="p-4 space-y-2">
               {selectedFolder.files.map((file) => (
                 <div key={file.id} className="flex items-center p-2 rounded-md hover:bg-gray-50">
@@ -509,7 +542,7 @@ export function FileExplorer() {
                     type="file"
                     ref={fileInputRef}
                     onChange={(e) => {
-                      setNewFileName(e.target.files?.[0]?.name ?? "")
+                      e && handleFileChange(e.target.files?.[0])
                     }}
                   />
                 </div>
@@ -525,39 +558,63 @@ export function FileExplorer() {
         </DialogContent>
       </Dialog>
 
-      {/* Floating Upload Status Dialog */}
-      {uploadingFiles.length > 0 && (
-        <div className="absolute right-0 bottom-0 mt-4 mr-4 bg-white shadow-lg rounded-lg border p-4 w-64 z-50">
-          <div className="flex justify-between items-center mb-3">
-            <h4 className="font-medium text-sm">Đang tải lên</h4>
-            <span className="text-xs text-muted-foreground">{uploadingFiles.length} tệp</span>
-          </div>
+      {/* Use the extracted UploadStatusDialog component */}
+      <UploadStatusDialog uploadingFiles={uploadingFiles} onCancelUpload={cancelUpload} />
+    </div>
+  )
+}
 
-          <div className="space-y-3 max-h-60 overflow-y-auto">
-            {uploadingFiles.map((file) => (
-              <div key={file.id} className="space-y-2">
-                <div className="flex items-center gap-3">
-                  {getFileIcon(file.type)}
-                  <div className="text-sm truncate flex-1">{file.name}</div>
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => cancelUpload(file.id)}>
-                    <X className="h-4 w-4 text-red-500" />
-                  </Button>
-                </div>
 
-                <div className="flex items-center gap-2">
-                  <div className="h-1 flex-1 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary transition-all duration-300"
-                      style={{ width: `${file.progress}%` }}
-                    ></div>
-                  </div>
-                  <span className="text-xs font-medium">{file.progress}%</span>
-                </div>
+
+import { X } from "lucide-react"
+
+// Interface for uploading file
+export interface UploadingFile {
+  id: string
+  name: string
+  type: string
+  progress: number
+  folderId: string
+}
+
+interface UploadStatusDialogProps {
+  uploadingFiles: UploadingFile[]
+  onCancelUpload: (uploadId: string) => void
+}
+
+export function UploadStatusDialog({ uploadingFiles, onCancelUpload }: UploadStatusDialogProps) {
+  if (uploadingFiles.length === 0) return null
+
+  return (
+    <div className="fixed right-4 bottom-25 bg-white shadow-lg rounded-lg border p-4 w-64 z-50">
+      <div className="flex justify-between items-center mb-3">
+        <h4 className="font-medium text-sm">Đang tải lên</h4>
+        <span className="text-xs text-muted-foreground">{uploadingFiles.length} tệp</span>
+      </div>
+
+      <div className="space-y-3 max-h-60 overflow-y-auto">
+        {uploadingFiles.map((file) => (
+          <div key={file.id} className="space-y-2">
+            <div className="flex items-center gap-3">
+              {getFileIcon(file.type)}
+              <div className="text-sm truncate flex-1">{file.name}</div>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onCancelUpload(file.id)}>
+                <X className="h-4 w-4 text-red-500" />
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="h-1 flex-1 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all duration-300"
+                  style={{ width: `${file.progress}%` }}
+                ></div>
               </div>
-            ))}
+              <span className="text-xs font-medium">{file.progress}%</span>
+            </div>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   )
 }

@@ -69,8 +69,8 @@ export async function submitCourseInfo({
     isAvailable: boolean;
     categoryId: string;
 }) {
-    if (!name || !categoryId ) {
-        alert("Vui lòng nhập đầy đủ thông tin");
+    if (!name || !categoryId ||!description ) {
+        alert("Vui lòng nhập đầy đủ thông tin bắt buộc");
         return;
     }
 

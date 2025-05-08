@@ -7,6 +7,7 @@ import com.beee.Model.CourseModel;
 import com.beee.Repository.*;
 import com.beee.Service.FileService;
 import com.beee.Service.Impl.S3ServiceImpl;
+import com.beee.Service.S3Service;
 import com.beee.WebSecurityService.JwtService;
 import jdk.jshell.execution.Util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class CourseController {
 	@Autowired
 	private CourseDataRepo courseDataRepo;
 	@Autowired
-	private S3ServiceImpl s3ServiceImpl;
+	private S3Service s3Service;
 	@Autowired
 	private CategoryRepo categoryRepo;
 	@Autowired
@@ -56,7 +57,9 @@ public class CourseController {
 
 	@GetMapping("/get/{id}")
 	public ResponseEntity getCourseById(@PathVariable int id) {
-		return ResponseEntity.ok(courseRepo.findById(id).get());
+		CourseModel courseModel = courseRepo.findCourseModelById(id);
+		if (courseModel != null) return ResponseEntity.ok(courseModel);
+		else return ResponseEntity.notFound().build();
 	}
 
 	@GetMapping("/getReview/{id}")
@@ -107,7 +110,7 @@ public class CourseController {
 					String fileKey = UUID.randomUUID() + fileName.substring(fileName.lastIndexOf('.'));
 					String prefix = "course-data/" + saved.getId();
 					String url = prefix + "/" + fileKey;
-					s3ServiceImpl.uploadFileViaSignedUrl(bannerFile, url);
+					s3Service.uploadFileViaSignedUrl(bannerFile, url);
 					saved.setThumbnailUrl(Constants.CLOUD_URL_PUBLIC + "/" + url);
 				} else {
 					saved.setThumbnailUrl(Constants.CLOUD_URL_PUBLIC + "/course-banner/default.png");
@@ -135,6 +138,4 @@ public class CourseController {
 		}
 		return ResponseEntity.ok(1);
 	}
-
-
 }
