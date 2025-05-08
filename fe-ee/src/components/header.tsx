@@ -37,6 +37,8 @@ import MyToaster from "./ui/toastify-template";
 import { ToastContainer } from "react-toastify";
 import { getUserInfo } from "@/app/api/api-account";
 import { url_backend_default } from "@/lib/public-var";
+import useSWR, { mutate } from "swr"
+import { useUserInfo } from "@/lib/user-info";
 
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = url_backend_default;
@@ -65,24 +67,19 @@ interface IHeaderProps {
 }
 
 export default function Header(props: IHeaderProps) {
-  const [userLoginCookie, setUserLoginCookie] = useState<UserModel | null>(
-    null
-  );
+  const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
+
+
+  const [userLoginCookie, setUserLoginCookie] = useState<UserModel | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const bgColor = props.color === "blue" ? "bg-[#001d74]" : "border-b  supports-[backdrop-filter]:bg-background/60";
   const txtColor = props.color === "blue" ? "text-white" : "text-gray-900";
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("currentUser");
-    if (storedUser) {
-      setUserLoginCookie(JSON.parse(storedUser));
-    } else {
-      getUserInfo().then(response => {
-        setUserLoginCookie(response.data);
-        localStorage.setItem("currentUser", JSON.stringify(response.data));
-      }).catch(() => console.log("null"));
+    if (user) {
+      setUserLoginCookie(user)
     }
-  }, []);
+  }, [user])
 
 
   useEffect(() => {
@@ -178,7 +175,7 @@ export default function Header(props: IHeaderProps) {
                         Đăng nhập
                       </Link>
                     ) : (
-                      <UserDropDown userModel={userLoginCookie} />
+                      <UserDropDown userModel={userLoginCookie} logout={logout} />
                     )}
                   </div>
                 </div>
@@ -258,7 +255,7 @@ export default function Header(props: IHeaderProps) {
               <span>Đăng nhập</span>&nbsp;<span aria-hidden="true">&rarr;</span>
             </Link>
           ) : (
-            <UserDropDown userModel={userLoginCookie} />
+            <UserDropDown userModel={userLoginCookie} logout={logout}/>
           )}
         </div>
       </nav>
@@ -271,6 +268,7 @@ export default function Header(props: IHeaderProps) {
 
 interface IUserDropDownProps {
   userModel: UserModel;
+  logout: ()=>void
 }
 
 export function UserDropDown(props: IUserDropDownProps) {
@@ -306,7 +304,7 @@ export function UserDropDown(props: IUserDropDownProps) {
               <DropdownMenuItem>Dành cho ADMIN</DropdownMenuItem>
             </a>
           </>}
-          <Link href="/User/Logout">
+          <Link href="/User/Logout" onClick={props.logout}>
             <DropdownMenuItem>Đăng xuất</DropdownMenuItem>
           </Link>
         </DropdownMenuContent>

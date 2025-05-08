@@ -349,7 +349,7 @@ const AIModal = ({ name, handleChange }: { name: string, handleChange: (i: strin
                                             <Skeleton className="h-4 w-[70%]" />
                                         </div>
                                     ) : response && (
-                                        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(response) }}></div>
+                                        <div className="reset" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(response) }}></div>
                                     )}
                                 </CardContent>
                             </Card>

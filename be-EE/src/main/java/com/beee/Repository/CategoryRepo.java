@@ -3,10 +3,13 @@ package com.beee.Repository;
 import com.beee.Model.CategoryModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@Transactional
+@Repository
 public interface CategoryRepo extends JpaRepository<CategoryModel, Integer> {
 	@Query(value = "SELECT \n" +
 			"    categories.id,\n" +

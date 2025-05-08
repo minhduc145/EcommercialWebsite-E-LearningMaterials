@@ -2,7 +2,10 @@ package com.beee.Controller;
 
 import com.beee.Common.Constants;
 import com.beee.Common.Utils;
+import com.beee.DTO.CourseDataRequestDTO;
 import com.beee.Model.CategoryModel;
+import com.beee.Model.CourseContainerModel;
+import com.beee.Model.CourseFileModel;
 import com.beee.Model.CourseModel;
 import com.beee.Repository.*;
 import com.beee.Service.FileService;
@@ -15,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -31,8 +36,6 @@ public class CourseController {
 	@Autowired
 	private ReviewRepo reviewRepo;
 	@Autowired
-	private CourseDataRepo courseDataRepo;
-	@Autowired
 	private S3Service s3Service;
 	@Autowired
 	private CategoryRepo categoryRepo;
@@ -40,6 +43,8 @@ public class CourseController {
 	private JwtService jwtService;
 	@Autowired
 	private UserRepo userRepo;
+	@Autowired
+	private CourseContainerRepo courseContainerRepo;
 
 	@GetMapping("/getAll")
 	public ResponseEntity getAllCourses() {
@@ -86,7 +91,7 @@ public class CourseController {
 	@GetMapping("/getCourseData/{id}")
 	public ResponseEntity getCourseData(@PathVariable Integer id) {
 		if (id != null)
-			return ResponseEntity.ok(courseDataRepo.findAllByCourse_Id(id));
+			return ResponseEntity.ok(courseContainerRepo.findAllByCourse_Id(id));
 		else return ResponseEntity.ok(new ArrayList<String>());
 	}
 
@@ -137,5 +142,21 @@ public class CourseController {
 			e.printStackTrace();
 		}
 		return ResponseEntity.ok(1);
+	}
+
+	@PostMapping("/add/data")
+	public ResponseEntity addCourseData(@RequestBody(required = false) CourseDataRequestDTO courseDataRequestDTO) {
+		System.out.println(courseDataRequestDTO);
+		List<CourseContainerModel> processedCourses = courseDataRequestDTO.getObject().stream()
+				.peek(courseContainerModel -> {
+					new CourseModel();
+					courseContainerModel.setCourse(CourseModel.builder().id(courseDataRequestDTO.getCourseId()).build());
+					for(CourseFileModel cf : courseContainerModel.getFiles()) {
+						cf.setContainer(courseContainerModel);
+					}
+				})
+				.collect(Collectors.toList());
+		courseContainerRepo.saveAll(processedCourses);
+		return ResponseEntity.ok().build();
 	}
 }

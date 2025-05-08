@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef } from "react"
 import { Folder, FolderPlus, FilePlus, MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -14,8 +13,6 @@ import { cn, formatDateTime } from "@/lib/utils"
 import type { CourseContainerModel } from "@/models/CourseContainerModel"
 import type { CourseFileModel } from "@/models/CourseFileModel"
 import JSZip from "jszip"
-
-
 import { FileText, FileVideoIcon, FileArchive, File } from "lucide-react"
 
 // Helper function to get file icon based on type
@@ -31,86 +28,11 @@ export const getFileIcon = (type: string): React.ReactNode => {
       return <File className="h-5 w-5 text-gray-500" />
   }
 }
-
-// Move initial data outside the component
-// const initialFolders: CourseContainerModel[] = [
-//   {
-//     id: "1",
-//     name: "Bài giảng E-Learning",
-//     createdAt: "15:25 10/03/2024",
-//     files: [
-//       {
-//         id: "f1",
-//         name: "Bài giảng Unit 7: Television - Lesson 2",
-//         type: "scorm",
-//         createdAt: "15:25 10/03/2024",
-//         extension: "zip",
-//         authorId: "tthong.hp.qti",
-//         url: "abc",
-//       },
-//       {
-//         id: "f2",
-//         name: "Bài giảng Unit 7: Television - Lesson 2",
-//         type: "scorm",
-//         createdAt: "15:23 10/03/2024",
-//         extension: "zip",
-//         authorId: "tthong.hp.qti",
-//         url: "abc",
-//       },
-//     ],
-//   },
-//   {
-//     id: "2",
-//     name: "Bài giảng E-Learning",
-//     createdAt: "15:25 10/03/2024",
-//     files: [
-//       {
-//         id: "f1",
-//         name: "Bài giảng Unit 7: Television - Lesson 2",
-//         type: "scorm",
-//         createdAt: "15:25 10/03/2024",
-//         extension: "zip",
-//         authorId: "tthong.hp.qti",
-//         url: "abc",
-//       },
-//       {
-//         id: "f2",
-//         name: "Bài giảng Unit 7: Television - Lesson 2",
-//         type: "media",
-//         createdAt: "15:23 10/03/2024",
-//         extension: "zip",
-//         authorId: "tthong.hp.qti",
-//         url: "abc",
-//       },
-//     ],
-//   },
-//   {
-//     id: "3",
-//     name: "Bài giảng E-Learning",
-//     createdAt: "15:25 10/03/2024",
-//     files: [
-//       {
-//         id: "f1",
-//         name: "Bài giảng Unit 7: Television - Lesson 2",
-//         type: "scorm",
-//         createdAt: "15:25 10/03/2024",
-//         extension: "zip",
-//         authorId: "tthong.hp.qti",
-//         url: "abc",
-//       },
-//       {
-//         id: "f2",
-//         name: "Bài giảng Unit 7: Television - Lesson 2",
-//         type: "document",
-//         createdAt: "15:23 10/03/2024",
-//         extension: "zip",
-//         authorId: "tthong.hp.qti",
-//         url: "abc",
-//       },
-//     ],
-//   },
-// ]
-
+interface PostObject {
+  courseId: string | undefined,
+  object: CourseContainerModel[] | undefined
+}
+const courseId = "47";
 const FileType = ([] = [
   {
     id: "scorm",
@@ -129,7 +51,21 @@ const FileType = ([] = [
 export function FileExplorer() {
   const [isScorm, setIsScorm] = useState<boolean | null>(null)
   const [checking, setChecking] = useState(false)
+  const [resetKey, setResetKey] = useState(false)
 
+
+  const saveAllChange = () => {
+    const postObject: PostObject = {
+      courseId: courseId,
+      object: folders
+    }
+    axios.post("/api/courses/add/data", postObject, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+  
   const handleFileChange = async (file: any) => {
     if (!file) return
     setChecking(true)
@@ -193,7 +129,7 @@ export function FileExplorer() {
       const newFolder = {
         id: Date.now().toString(),
         name: newFolderName,
-        createdAt: new Date().toLocaleString(),
+        createdAt: new Date().toISOString(),
         files: [],
       }
       setFolders([...folders, newFolder])
@@ -351,6 +287,7 @@ export function FileExplorer() {
   }
 
   return (
+    <>
     <div className="flex border rounded-md h-[600px] relative">
       {/* Folders panel */}
       <div className="w-1/3 border-r flex flex-col">
@@ -560,13 +497,18 @@ export function FileExplorer() {
 
       {/* Use the extracted UploadStatusDialog component */}
       <UploadStatusDialog uploadingFiles={uploadingFiles} onCancelUpload={cancelUpload} />
+
     </div>
+    <Button onClick={saveAllChange}>check</Button>
+
+    </>
   )
 }
 
 
 
 import { X } from "lucide-react"
+import axios from "axios"
 
 // Interface for uploading file
 export interface UploadingFile {

@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.annotation.ReadOnlyProperty;
 
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -20,6 +22,9 @@ import java.util.UUID;
 public class CourseFileModel {
 	@Id
 	@Column(name = "id")
+	@GeneratedValue(generator = "uuid2")
+	@GenericGenerator(name = "uuid2", strategy = "uuid2")
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	private UUID id;
 
 	@Column(name = "name")
@@ -28,7 +33,7 @@ public class CourseFileModel {
 	@Column(name = "created_at")
 	private Timestamp createdAt;
 
-	@Column(name = "type", length = 10)
+	@Column(name = "type")
 	private String type;
 
 	@Column(name = "extension")

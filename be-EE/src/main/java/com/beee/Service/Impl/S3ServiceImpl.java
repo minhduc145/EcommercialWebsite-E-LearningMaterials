@@ -68,7 +68,6 @@ public class S3ServiceImpl implements S3Service {
 		}
 	}
 
-
 	public String generatePresignedUploadUrl(String objectKey) {
 		return generatePresignedUploadUrl(objectKey, 1);
 	}

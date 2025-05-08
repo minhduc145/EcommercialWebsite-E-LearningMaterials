@@ -1,7 +1,11 @@
 package com.beee.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.annotation.ReadOnlyProperty;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -15,6 +19,9 @@ import java.util.UUID;
 public class CourseContainerModel {
 	@Id
 	@Column(name = "id")
+	@GeneratedValue(generator = "uuid2")
+	@GenericGenerator(name = "uuid2", strategy = "uuid2")
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	private UUID id;
 
 	@Column(name = "name")
@@ -23,6 +30,11 @@ public class CourseContainerModel {
 	@Column(name = "created_at")
 	private Timestamp createdAt;
 
-	@OneToMany(mappedBy = "container", orphanRemoval = true, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "container", cascade = CascadeType.ALL, orphanRemoval = true)
 	List<CourseFileModel> files;
+
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "course_id", referencedColumnName = "id")
+	CourseModel course;
 }

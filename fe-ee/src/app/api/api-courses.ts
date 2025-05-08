@@ -91,3 +91,30 @@ export async function submitCourseInfo({
 
 };
 
+
+export function uploadToR2SignedUrl(
+  file: File,
+  signedUrl: string,
+  onProgress?: (percent: number) => void
+) {
+  const controller = new AbortController();
+
+  const promise = axios.put(signedUrl, file, {
+    headers: {
+      "Content-Type": file.type,
+    },
+    signal: controller.signal,
+    onUploadProgress: (progressEvent) => {
+      if (progressEvent.total) {
+        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        onProgress?.(percent);
+      }
+    },
+  });
+
+  return {
+    promise,
+    abort: () => controller.abort(),
+  };
+}
+

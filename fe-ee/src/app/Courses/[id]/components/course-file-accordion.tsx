@@ -2,14 +2,11 @@
 
 import { Combine, File, FileText, SquarePlay } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { CourseDataModel } from "@/models/CourseDataModel"
-
-// Types
+import { CourseContainerModel } from "@/models/CourseContainerModel"
 interface IFileTypeProp {
   type: string
 }
 
-// File Icon Component
 function FileIcon({ type }: IFileTypeProp) {
   switch (type) {
     case "video":
@@ -34,15 +31,13 @@ function FileIcon({ type }: IFileTypeProp) {
 }
 
 interface IDataProp {
-  course_data: CourseDataModel[]
+  course_data: CourseContainerModel[]
 }
 
-// File Accordion Component
 function FileAccordion({ course_data }: IDataProp) {
   return (
-    <Accordion type="single" collapsible className="w-full space-y-4">
-      {course_data?.map((data) => {
-        const folder = data.container
+    <Accordion type="multiple" className="w-full space-y-4">
+      {course_data?.map((folder) => {
         return (
           < AccordionItem key={folder.id} value={folder.id} className="border rounded-md overflow-hidden" >
             <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-gray-50">
@@ -75,7 +70,6 @@ function FileAccordion({ course_data }: IDataProp) {
   )
 }
 
-// Main Page Component
 export default function CourseFileAccordion({ course_data }: IDataProp) {
   return (
     <div className="bg-white">
