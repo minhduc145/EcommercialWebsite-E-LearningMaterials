@@ -201,6 +201,7 @@ const InfoTab = (
                                         <FileImageIcon className="size-4" /> Chọn ảnh bìa
                                     </Label>
                                     <div className={bannerFile ? "inline-block" : "hidden"}><X className="size-4 hover:cursor-pointer text-red-600" onClick={() => setBannerFile(null)} /></div>
+                                    <i className="font-light">(bỏ qua để dùng ảnh mặc định)</i>
                                 </div>
 
                             </div>
@@ -231,7 +232,7 @@ const InfoTab = (
         </>
     )
 }
-import { FileExplorer } from "@/components/file-manager"
+import { FileExplorer } from "@/app/AdminPage/Courses/components/file-manager"
 
 const DataTab = ({ id }: { id: string }) => {
     if (id || true)

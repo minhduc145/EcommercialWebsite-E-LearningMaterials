@@ -1,4 +1,5 @@
 import { url_backend_default } from "@/lib/public-var";
+import { CourseContainerModel } from "@/models/CourseContainerModel";
 import axios from "axios";
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = url_backend_default;
@@ -69,7 +70,7 @@ export async function submitCourseInfo({
     isAvailable: boolean;
     categoryId: string;
 }) {
-    if (!name || !categoryId ||!description ) {
+    if (!name || !categoryId || !description) {
         alert("Vui lòng nhập đầy đủ thông tin bắt buộc");
         return;
     }
@@ -79,7 +80,7 @@ export async function submitCourseInfo({
     { bannerFile && formData.append("bannerFile", bannerFile); }
     formData.append("title", name);
     formData.append("description", description);
-    formData.append("price", String(price??0));
+    formData.append("price", String(price ?? 0));
     formData.append("isAvailable", String(isAvailable));
     formData.append("categoryId", categoryId);
 
@@ -91,30 +92,39 @@ export async function submitCourseInfo({
 
 };
 
+export async function addContainer(id: string, container: CourseContainerModel) {
+    const postObject = {
+        courseId: id,
+        container : container
+    }
+    return await axios.post("/api/courses/add/data/folder", postObject, {
+        headers: { "Content-Type": "application/json", },
+    })
+}
 
 export function uploadToR2SignedUrl(
-  file: File,
-  signedUrl: string,
-  onProgress?: (percent: number) => void
+    file: File,
+    signedUrl: string,
+    onProgress?: (percent: number) => void
 ) {
-  const controller = new AbortController();
+    const controller = new AbortController();
 
-  const promise = axios.put(signedUrl, file, {
-    headers: {
-      "Content-Type": file.type,
-    },
-    signal: controller.signal,
-    onUploadProgress: (progressEvent) => {
-      if (progressEvent.total) {
-        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        onProgress?.(percent);
-      }
-    },
-  });
+    const promise = axios.put(signedUrl, file, {
+        headers: {
+            "Content-Type": file.type,
+        },
+        signal: controller.signal,
+        onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+                const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                onProgress?.(percent);
+            }
+        },
+    });
 
-  return {
-    promise,
-    abort: () => controller.abort(),
-  };
+    return {
+        promise,
+        abort: () => controller.abort(),
+    };
 }
 

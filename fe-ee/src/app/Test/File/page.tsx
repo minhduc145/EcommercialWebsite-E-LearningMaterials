@@ -1,4 +1,4 @@
-import { FileExplorer } from "@/components/file-manager";
+import { FileExplorer } from "@/app/AdminPage/Courses/components/file-manager";
 
 export default function File(){
     return(

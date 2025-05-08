@@ -11,4 +11,6 @@ import java.util.UUID;
 @Repository
 public interface CourseContainerRepo extends JpaRepository<CourseContainerModel, UUID> {
 	List<CourseContainerModel> findAllByCourse_Id(Integer courseId);
+
+	List<CourseContainerModel> findAllByCourse_IdOrderByCreatedAtAsc(Integer id);
 }

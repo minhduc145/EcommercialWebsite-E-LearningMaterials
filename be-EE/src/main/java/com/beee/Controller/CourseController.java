@@ -2,6 +2,7 @@ package com.beee.Controller;
 
 import com.beee.Common.Constants;
 import com.beee.Common.Utils;
+import com.beee.DTO.CourseContainerRequestDTO;
 import com.beee.DTO.CourseDataRequestDTO;
 import com.beee.Model.CategoryModel;
 import com.beee.Model.CourseContainerModel;
@@ -91,7 +92,7 @@ public class CourseController {
 	@GetMapping("/getCourseData/{id}")
 	public ResponseEntity getCourseData(@PathVariable Integer id) {
 		if (id != null)
-			return ResponseEntity.ok(courseContainerRepo.findAllByCourse_Id(id));
+			return ResponseEntity.ok(courseContainerRepo.findAllByCourse_IdOrderByCreatedAtAsc(id));
 		else return ResponseEntity.ok(new ArrayList<String>());
 	}
 
@@ -151,12 +152,19 @@ public class CourseController {
 				.peek(courseContainerModel -> {
 					new CourseModel();
 					courseContainerModel.setCourse(CourseModel.builder().id(courseDataRequestDTO.getCourseId()).build());
-					for(CourseFileModel cf : courseContainerModel.getFiles()) {
+					for (CourseFileModel cf : courseContainerModel.getFiles()) {
 						cf.setContainer(courseContainerModel);
 					}
 				})
 				.collect(Collectors.toList());
 		courseContainerRepo.saveAll(processedCourses);
+		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/add/data/folder")
+	public ResponseEntity addCourseDataFolder(@RequestBody(required = false) CourseContainerRequestDTO courseContainerRequestDTO) {
+		courseContainerRequestDTO.getContainer().setCourse(new CourseModel().builder().id(courseContainerRequestDTO.getCourseId()).build());
+		courseContainerRepo.save(courseContainerRequestDTO.getContainer());
 		return ResponseEntity.ok().build();
 	}
 }
