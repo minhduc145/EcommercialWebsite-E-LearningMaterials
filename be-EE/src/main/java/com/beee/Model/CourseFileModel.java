@@ -36,7 +36,6 @@ public class CourseFileModel {
 	@Column(name = "extension")
 	private String extension;
 
-	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Column(name = "url", columnDefinition = "TEXT")
 	private String url;
 

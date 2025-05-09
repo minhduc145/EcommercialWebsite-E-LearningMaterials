@@ -32,4 +32,10 @@ public class RedirectController {
 		}
 		return "redirect:" + Constants.URL_FE_LOGIN_DEFAULT;
 	}
+
+	@GetMapping("/xem-pdf")
+	public String xemPdf() {
+		return "course-runner"; // Trả về file view-pdf.html
+	}
+
 }

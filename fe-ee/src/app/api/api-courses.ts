@@ -41,6 +41,9 @@ export async function getAverageStarReview(id: string | null) {
 export async function getCourseData(id: string | null) {
     return await axios.get("/api/courses/getCourseData/" + id)
 }
+export async function getCourseDataWithUrl(id: string | null) {
+    return await axios.get("/api/courses/getCourseDataWithUrl/" + id)
+}
 
 export async function deleteCourse(idSet: string[] | []) {
     const params = new URLSearchParams();
@@ -105,6 +108,12 @@ export async function addContainer(id: string, container: CourseContainerModel) 
 
 export async function deleteContainer(id: string) {
     return await axios.post("/api/courses/delete/data/container", id, {
+        headers: { "Content-Type": "application/json", },
+    })
+}
+
+export async function deleteFile(id: string) {
+    return await axios.post("/api/courses/delete/data/file", id, {
         headers: { "Content-Type": "application/json", },
     })
 }

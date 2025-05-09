@@ -115,7 +115,7 @@ export default function Header(props: IHeaderProps) {
   }, []);
 
   return (
-    <header className={`z-50 sticky top-0 w-full ${bgColor}`}>
+    <header className={`z-50 px-5 md:px-20 sticky top-0 w-full ${bgColor}`}>
       <nav
         aria-label="Global"
         className="flex items-center justify-between lg:px-5 p-2"

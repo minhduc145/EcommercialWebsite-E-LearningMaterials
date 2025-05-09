@@ -96,6 +96,22 @@ public class CourseController {
 	@GetMapping("/getCourseData/{id}")
 	public ResponseEntity getCourseData(@PathVariable Integer id) {
 		if (id != null)
+			return ResponseEntity.ok(courseContainerRepo.findAllByCourse_IdOrderByCreatedAtAsc(id)
+					.stream().map(data ->
+							{
+								List<CourseFileModel> files = data.getFiles();
+								files.forEach(file -> {
+									file.setUrl(null);
+								});
+								return data;
+							}
+					).collect(Collectors.toList()));
+		else return ResponseEntity.ok(new ArrayList<String>());
+	}
+
+	@GetMapping("/getCourseDataWithUrl/{id}")
+	public ResponseEntity getCourseDataWithUrl(@PathVariable Integer id) {
+		if (id != null)
 			return ResponseEntity.ok(courseContainerRepo.findAllByCourse_IdOrderByCreatedAtAsc(id));
 		else return ResponseEntity.ok(new ArrayList<String>());
 	}

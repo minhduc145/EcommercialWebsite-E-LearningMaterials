@@ -22,10 +22,14 @@ public class WebSecurityConfig {
 	@Autowired
 	private UserLoginService userLoginService;
 
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http, InMemoryClientRegistrationRepository clientRegistrationRepository) throws Exception {
 		http
 				.csrf((csrf) -> csrf.disable())
+				.headers(headers -> headers
+						.frameOptions(frameOptions -> frameOptions.disable())
+				)
 				.authorizeHttpRequests((requests) -> requests
 						.anyRequest().permitAll()
 				)
