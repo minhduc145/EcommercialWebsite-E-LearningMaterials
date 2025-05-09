@@ -23,30 +23,30 @@ export default function MainTabs({ course }: MainTabsProps) {
   }, [course.id])
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
+    <div className="w-full max-w-4xl mx-auto p-4  rounded-md">
       <Tabs defaultValue="mo-ta" className="w-full">
         <TabsList className="grid w-full items-center justify-center mx-auto grid-cols-3 rounded-lg p-1 bg-slate-100">
           <TabsTrigger
             value="mo-ta"
-            className="rounded-md data-[state=active]:bg-violet-600 data-[state=active]:text-white transition-all"
+            className="rounded-md data-[state=active]:bg-orange-400 data-[state=active]:text-white transition-all"
           >
             Mô tả
           </TabsTrigger>
           <TabsTrigger
             value="tai-lieu"
-            className="rounded-md data-[state=active]:bg-violet-600 data-[state=active]:text-white transition-all"
+            className="rounded-md data-[state=active]:bg-orange-400 data-[state=active]:text-white transition-all"
           >
             Tài liệu
           </TabsTrigger>
           <TabsTrigger
             value="danh-gia"
-            className="rounded-md data-[state=active]:bg-violet-600 data-[state=active]:text-white transition-all"
+            className="rounded-md data-[state=active]:bg-orange-400 data-[state=active]:text-white transition-all"
           >
             Đánh giá
           </TabsTrigger>
         </TabsList>
 
-        <div className="mt-3 border rounded-lg p-6">
+        <div className="mt-3 border shadow-xl rounded-lg p-6">
           <TabsContent value="mo-ta" className="space-y-4 flex flex-col-reverse">
             <br />
             <div

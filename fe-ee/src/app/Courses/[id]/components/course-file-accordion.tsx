@@ -3,28 +3,8 @@
 import { Code, Combine, File, FileArchive, FileAudio2Icon, FileText, FileVideoIcon, Link, SquarePlay } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CourseContainerModel } from "@/models/CourseContainerModel"
-interface IFileTypeProp {
-  type: string
-}
+import { GetFileIcon } from "@/lib/utils"
 
-function FileIcon({ type }: IFileTypeProp) {
- switch (type) {
-    case "document":
-      return <FileText className="h-5 w-5 text-red-500" />
-    case "media":
-      return <FileAudio2Icon className="h-5 w-5 text-purple-500" />
-    case "media-hls":
-      return <FileVideoIcon className="h-5 w-5 text-purple-500" />
-    case "scorm":
-      return <FileArchive className="h-5 w-5 text-blue-500" />
-    case "link":
-      return <Link className="h-5 w-5 text-green-500" />
-    case "iframe":
-      return <Code className="h-5 w-5 text-orange-500" />
-    default:
-      return <File className="h-5 w-5 text-gray-500" />
-  }
-}
 
 interface IDataProp {
   course_data: CourseContainerModel[]
@@ -57,7 +37,7 @@ function FileAccordion({ course_data }: IDataProp) {
                       className="flex items-center gap-5 px-10 py-3 hover:bg-gray-50 cursor-pointer"
                     >
                       <div className="flex-shrink-0">
-                        <FileIcon type={file.type} />
+                        <GetFileIcon type={file.type} />
                       </div>
                       <div className="font-medium">{file.name}</div>
                     </div>

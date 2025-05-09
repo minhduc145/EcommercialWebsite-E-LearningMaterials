@@ -2,50 +2,28 @@
 
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
-import { Folder, FolderPlus, FilePlus, MoreHorizontal, Link, Code } from "lucide-react"
+import { Folder, FolderPlus, FilePlus, MoreHorizontal, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn, formatDateTime, getFileExtension } from "@/lib/utils"
+import { cn, formatDateTime, getFileExtension, GetFileIcon } from "@/lib/utils"
 import type { CourseContainerModel } from "@/models/CourseContainerModel"
 import type { CourseFileModel } from "@/models/CourseFileModel"
 import JSZip from "jszip"
-import { FileText, FileVideoIcon, FileArchive, File, X } from "lucide-react"
 import { v4 as uuidv4 } from "uuid"
 import {
   addContainer,
   addFile,
   deleteContainer,
   deleteFile,
-  getCourseData,
   getCourseDataWithUrl,
   getSignedUrl,
   uploadFileToSignedUrl,
 } from "@/app/api/api-courses"
 
-export const getFileIcon = (type: string): React.ReactNode => {
-  switch (type) {
-    case "document":
-      return <FileText className="h-5 w-5 text-red-500" />
-    case "media":
-      return <FileVideoIcon className="h-5 w-5 text-purple-500" />
-    case "hls":
-      return <FileVideoIcon className="h-5 w-5 text-purple-500" />
-    case "scorm":
-      return <FileArchive className="h-5 w-5 text-blue-500" />
-    case "link":
-      return <Link className="h-5 w-5 text-green-500" />
-    case "iframe":
-      return <Code className="h-5 w-5 text-orange-500" />
-    default:
-      return <File className="h-5 w-5 text-gray-500" />
-  }
-}
-
-// Interface for uploading file
 export interface UploadingFile {
   id: string
   name: string
@@ -55,20 +33,6 @@ export interface UploadingFile {
 }
 
 const courseId = "1"
-const FileType = [
-  {
-    id: "scorm",
-    name: "SCORM",
-  },
-  {
-    id: "media",
-    name: "Đa phương tiện",
-  },
-  {
-    id: "document",
-    name: "Tài liệu",
-  },
-]
 
 const myUploadMap = new Map<string, AbortController>()
 
@@ -128,7 +92,6 @@ export function FileExplorer() {
     setIsDocumentModalOpen(true)
   }
 
-  // Update the openLinkModal function to set the linkUrl when editing
   const openLinkModal = (file: CourseFileModel | null = null) => {
     setEditingFile(file)
     setNewFileName(file?.name || "")
@@ -136,7 +99,6 @@ export function FileExplorer() {
     setIsLinkModalOpen(true)
   }
 
-  // Update the openIframeModal function to set the iframeCode when editing
   const openIframeModal = (file: CourseFileModel | null = null) => {
     setEditingFile(file)
     setNewFileName(file?.name || "")
@@ -186,7 +148,9 @@ export function FileExplorer() {
 
   const handleDeleteFolder = (folderId: string, e: React.MouseEvent) => {
     e.stopPropagation()
-    deleteContainer(folderId).then(() => setResetKey(!resetKey))
+    deleteContainer(folderId).then(() => {
+      setResetKey(!resetKey);
+    })
     if (selectedIndex >= 0 && folders[selectedIndex]?.id === folderId) {
       if (folders.length > 0) {
         setSelectedIndex(0)
@@ -215,7 +179,6 @@ export function FileExplorer() {
     if (!file) return
     const fileId = uuidv4()
 
-    // Close the appropriate modal
     setIsMediaModalOpen(false)
     setIsScormModalOpen(false)
     setIsDocumentModalOpen(false)
@@ -223,7 +186,7 @@ export function FileExplorer() {
     const newFile: CourseFileModel = {
       id: fileId,
       name: newFileName,
-      type: fileType,
+      type: file.type,
       createdAt: new Date().toISOString(),
       extension: getFileExtension(file.name),
       authorId: "current.user",
@@ -239,11 +202,12 @@ export function FileExplorer() {
     }
 
     setUploadingFiles((prev) => [...prev, newUploadingFile])
-    const fileKey = `${folderId}/${fileId}.${getFileExtension(file.name)}`
+    const fileKey = `${folderId}/${fileId}/${fileId}.${getFileExtension(file.name)}`
     const res = await getSignedUrl(fileKey)
     const signedUrl = res?.data
 
     if (signedUrl) {
+      newFile.url = fileKey
       const controller = new AbortController()
       myUploadMap.set(fileId, controller)
       uploadFileToSignedUrl(
@@ -251,18 +215,18 @@ export function FileExplorer() {
         signedUrl,
         (percent) => {
           setUploadingFiles((prev) => prev.map((f) => (f.id === fileId ? { ...f, progress: percent } : f)))
+          if (percent >= 100) {
+            setTimeout(() => {
+              setUploadingFiles((prev) => prev.filter((f) => f.id !== fileId))
+            }, 1000)
+            addFile(folderId, newFile).then(() => setResetKey(!resetKey))
+          }
         },
         controller.signal,
-      ).then(() => {
-        setTimeout(() => {
-          setUploadingFiles((prev) => prev.filter((f) => f.id !== fileId))
-        }, 1000)
-        addFile(folderId, newFile).then(() => setResetKey(!resetKey))
-      })
+      )
     }
   }
 
-  // Update the handleSaveLink function to handle editing
   const handleSaveLink = async () => {
     if (selectedIndex < 0 || !newFileName.trim() || !linkUrl.trim()) return
     const folderId = folders[selectedIndex]?.id
@@ -336,7 +300,10 @@ export function FileExplorer() {
 
   const handleDeleteFile = (fileId: string) => {
     if (selectedIndex < 0) return
+    const file = folders[selectedIndex].files.find(f => f.id === fileId)
+    if (!file) return
     deleteFile(fileId).then(() => setResetKey(!resetKey))
+
   }
 
   const cancelUpload = (uploadId: string) => {
@@ -410,7 +377,7 @@ export function FileExplorer() {
                 <PopoverTrigger>
                   <FilePlus className="h-4 w-4 hover:cursor-pointer" />
                 </PopoverTrigger>
-                <PopoverContent side="bottom" align="end" className="flex flex-col w-auto px-2 py-1">
+                <PopoverContent side="bottom" align="end" className="flex flex-col gap-2 w-auto px-2 py-1">
                   <Button variant="ghost" className="text-sm px-2 py-1 justify-start" onClick={() => openMediaModal()}>
                     📺 Thêm file Đa phương tiện
                   </Button>
@@ -442,7 +409,7 @@ export function FileExplorer() {
               <div className="p-4 space-y-2">
                 {folders[selectedIndex]?.files.map((file) => (
                   <div key={file.id} className="flex items-center p-2 rounded-md hover:bg-gray-50">
-                    {getFileIcon(file.type)}
+                    <GetFileIcon type={file.type} />
                     <div className="ml-3 flex-1">
                       <div className="font-medium">{file.name}</div>
                       <div className="text-xs text-gray-500">
@@ -765,7 +732,11 @@ export function UploadStatusDialog({ uploadingFiles, onCancelUpload }: UploadSta
         {uploadingFiles.map((file) => (
           <div key={file.id} className="space-y-2">
             <div className="flex items-center gap-3">
-              {getFileIcon(file.type)}
+              <div className="w-5 h-5"> 
+                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 64 64">
+                  <path fill="#37d0ee" d="M48,55H17c-2.209,0-4-1.791-4-4V11c0-2.209,1.791-4,4-4h21.311c1.06,0,2.077,0.421,2.827,1.17 l9.689,9.68C51.578,18.601,52,19.619,52,20.68V51C52,53.209,50.209,55,48,55z"></path><ellipse cx="32" cy="61" opacity=".3" rx="20.125" ry="3"></ellipse><path fill="#fff" d="M13,11v18c2.762,0,5-2.238,5-5V12.652c0-0.42,0.264-0.795,0.66-0.934 C20.605,11.033,22,9.18,22,7h-5C14.791,7,13,8.791,13,11z" opacity=".3"></path><path d="M52,51V28c-2.762,0-5,2.238-5,5v16c0,0.552-0.448,1-1,1h-9c-2.762,0-5,2.238-5,5h16 C50.209,55,52,53.209,52,51z" opacity=".15"></path><line x1="16.5" x2="16.5" y1="12.5" y2="19.5" fill="none" stroke="#fff" strokeLinecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="3"></line><path fill="#008aa9" d="M50.827,17.851l-9.689-9.68C40.806,7.839,40.417,7.584,40,7.389V15c0,2.209,1.791,4,4,4h7.616 C51.42,18.579,51.162,18.185,50.827,17.851z"></path>
+                </svg>
+              </div>
               <div className="text-sm truncate flex-1">{file.name}</div>
               <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onCancelUpload(file.id)}>
                 <X className="h-4 w-4 text-red-500" />

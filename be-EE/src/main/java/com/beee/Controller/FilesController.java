@@ -1,26 +1,17 @@
 package com.beee.Controller;
 
-import com.beee.Common.Constants;
 import com.beee.Service.FileService;
-import com.beee.Service.Impl.S3ServiceImpl;
 import com.beee.Service.RabbitMQProducer;
 import com.beee.Service.S3Service;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
-import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -30,15 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 
 @RestController
 @RequestMapping("/api/files")
@@ -82,7 +64,7 @@ public class FilesController {
 
 	@GetMapping("/uploadSigned")
 	public ResponseEntity getSignedUrlForUpload(@CookieValue(name = "jwt", required = false) String token, @RequestParam(required = false) String fileKey) {
-		String signedUrl = s3Service.generatePresignedUploadUrl(fileKey, 10);
+		String signedUrl = s3Service.generatePresignedUploadUrl(fileKey, 30);
 		return ResponseEntity.ok(signedUrl);
 	}
 
@@ -98,7 +80,7 @@ public class FilesController {
 	@PostMapping("/unzip-and-upload-stream")
 	public ResponseEntity<?> unzipAndUploadStream(@RequestParam String fileKey) {
 		try {
-			fileService.unzipAndUploadStream(fileKey);
+			fileService.unzipAndUploadStream(fileKey,null);
 			return ResponseEntity.ok().build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -110,7 +92,7 @@ public class FilesController {
 	@PostMapping("/convert-mp4")
 	public ResponseEntity convertVideoFromR2ToHLS(@RequestParam String fileKey) throws IOException, InterruptedException {
 		try {
-			fileService.convertVideoFromR2ToHLS(fileKey);
+			fileService.convertVideoFromR2ToHLS(fileKey, null);
 			return ResponseEntity.ok().build();
 		} catch (RuntimeException e) {
 			return ResponseEntity.status(500).body(e.getMessage());

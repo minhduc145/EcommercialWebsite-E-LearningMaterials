@@ -8,6 +8,9 @@ public class Constants {
 	public final static Integer RESULT_SUCCESS = 1;
 	public final static Integer RESULT_FAIL = 0;
 
+	public final static String FILE_STATUS_PROCESSING = "Đang xử lý file";
+	public final static String FILE_STATUS_DONE = null;
+
 	public final static String URL_FE_LOGIN_SUCCESS = "http://localhost:3000/User/Login?success";
 	public final static String URL_FE_LOGIN_FAIL = "http://localhost:3000/User/Login?fail";
 	public final static String URL_FE_LOGIN_DEFAULT = "http://localhost:3000/User/Login";
@@ -31,17 +34,6 @@ public class Constants {
 			"application/vnd.ms-excel",            // .xls
 			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" // .xlsx
 	);
-
-	public final static Set<String> MEDIA_TYPES = Set.of(
-			"image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml",
-			"video/mp4", "video/x-msvideo", "video/quicktime", "video/x-matroska",
-			"audio/mpeg", "audio/wav", "audio/ogg", "audio/webm"
-	);
-
-	public final static Set<String> MEDIA_TYPES_IMG = Set.of(
-			"image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"
-	);
-
 	public final static Set<String> SCORM_TYPES = Set.of("application/zip", "application/x-zip-compressed");
 
 

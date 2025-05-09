@@ -46,7 +46,7 @@ export default function VNPayButton(props: IProps) {
     };
 
     return (
-        <Button variant="default" className='w-full text-white bg-lime-600 ' onClick={handlePayment} disabled={loading}>
+        <Button variant="default" className='w-full text-white bg-green-500 ' onClick={handlePayment} disabled={loading}>
             {loading ? "Đang xử lý..." : "Thanh toán qua"}
             <img
                 src="https://cdn.brandfetch.io/idV02t6WJs/theme/dark/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B"

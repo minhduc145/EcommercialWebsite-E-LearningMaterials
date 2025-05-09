@@ -14,15 +14,23 @@ public class Utils {
 		return responseBody;
 	}
 
-	public final static String detectFileCategory(MultipartFile file) {
-		String contentType = file.getContentType();
-		if (contentType == null) return "unknown";
-		if (Constants.DOCUMENT_TYPES.contains(contentType)) return "document";
-		if (Constants.MEDIA_TYPES.contains(contentType)) return "media";
-		if (Constants.SCORM_TYPES.contains(contentType)) return "scorm";
+	public final static String detectFileCategory(String contentType) {
+		if (Constants.DOCUMENT_TYPES.contains(contentType)||contentType.contains("document")) return "document";
+		if (contentType.contains("audio"))
+			return "media-audio";
+		if (contentType.contains("image"))
+			return "media-image";
+		if (contentType.contains("video"))
+			return "media-video";
+		if (contentType.contains("hls"))
+			return "media-hls";
+		if (contentType.contains("link"))
+			return "link";
+		if (contentType.contains("iframe"))
+			return "iframe";
+		if (Constants.SCORM_TYPES.contains(contentType)||contentType.contains("scorm")) return "scorm";
 		return "unknown";
 	}
-
 
 
 }

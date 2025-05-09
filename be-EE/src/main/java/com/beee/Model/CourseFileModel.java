@@ -36,6 +36,9 @@ public class CourseFileModel {
 	@Column(name = "extension")
 	private String extension;
 
+	@Column(name = "status")
+	private String status;
+
 	@Column(name = "url", columnDefinition = "TEXT")
 	private String url;
 

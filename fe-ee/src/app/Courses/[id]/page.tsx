@@ -116,7 +116,7 @@ const id = params.id;
                 <div className="lg:w-80 p-5 lg:p-0 lg:absolute lg:-my-20 z-10 lg:sticky">
                   <SubscriptionCard course={course} />
                 </div>
-                <MainTabs course={course} />
+                <MainTabs course={course}/>
               </div>
             </div>
           </main>

@@ -92,7 +92,7 @@ export default function ChatBox() {
                     </div>
                 </div>
             }
-            <Button className="bg-orange-400 text-white p-5 rounded-full shadow-lg hover:bg-orange-200 transition-all" onClick={() => setOpenBox(!openBox)}>
+            <Button className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-5 rounded-full shadow-lg transition-all" onClick={() => setOpenBox(!openBox)}>
                 <MessageCircle className="w-6 h-6" />
             </Button>
         </div>

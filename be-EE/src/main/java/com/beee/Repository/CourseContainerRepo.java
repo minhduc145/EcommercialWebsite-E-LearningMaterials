@@ -13,4 +13,5 @@ public interface CourseContainerRepo extends JpaRepository<CourseContainerModel,
 	List<CourseContainerModel> findAllByCourse_Id(Integer courseId);
 
 	List<CourseContainerModel> findAllByCourse_IdOrderByCreatedAtAsc(Integer id);
+
 }

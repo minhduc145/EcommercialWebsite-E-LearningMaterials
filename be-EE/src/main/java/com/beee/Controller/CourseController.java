@@ -50,6 +50,8 @@ public class CourseController {
 	private CourseContainerRepo courseContainerRepo;
 	@Autowired
 	private CourseFileRepo courseFileRepo;
+	@Autowired
+	private FileService fileService;
 
 	@GetMapping("/getAll")
 	public ResponseEntity getAllCourses() {
@@ -193,22 +195,28 @@ public class CourseController {
 
 	@PostMapping("/add/data/file")
 	public ResponseEntity addCourseDataFile(@RequestBody(required = false) CourseFileReqDTO courseFileReqDTO) {
-		System.out.println(courseFileReqDTO);
 		CourseFileModel file = courseFileReqDTO.getFile();
 		file.setContainer(CourseContainerModel.builder().id(courseFileReqDTO.getContainerId()).build());
-		courseFileRepo.save(file);
+		file.setType(Utils.detectFileCategory(file.getType()));
+		CourseFileModel saved = courseFileRepo.save(file);
+		fileService.addFileToProcessQueue(saved, courseFileReqDTO.getContainerId().toString());
 		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping("/delete/data/container")
 	public ResponseEntity deleteCourseDataFolder(@RequestBody(required = false) UUID id) {
+		s3Service.deleteFolderInParallel(id.toString());
 		courseContainerRepo.deleteById(id);
 		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping("/delete/data/file")
 	public ResponseEntity deleteCourseDataFile(@RequestBody(required = false) UUID id) {
-		courseFileRepo.deleteById(id);
+		CourseFileModel file = courseFileRepo.findById(id).orElse(null);
+		if (file != null) {
+			s3Service.deleteFolderInParallel(file.getContainer().getId() + "/" + file.getId());
+			courseFileRepo.deleteById(id);
+		}
 		return ResponseEntity.ok().build();
 	}
 }
