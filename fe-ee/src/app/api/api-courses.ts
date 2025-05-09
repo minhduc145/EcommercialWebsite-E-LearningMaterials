@@ -1,5 +1,6 @@
 import { url_backend_default } from "@/lib/public-var";
 import { CourseContainerModel } from "@/models/CourseContainerModel";
+import { CourseFileModel } from "@/models/CourseFileModel";
 import axios from "axios";
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = url_backend_default;
@@ -95,36 +96,74 @@ export async function submitCourseInfo({
 export async function addContainer(id: string, container: CourseContainerModel) {
     const postObject = {
         courseId: id,
-        container : container
+        container: container
     }
-    return await axios.post("/api/courses/add/data/folder", postObject, {
+    return await axios.post("/api/courses/add/data/container", postObject, {
         headers: { "Content-Type": "application/json", },
     })
 }
 
-export function uploadToR2SignedUrl(
+export async function deleteContainer(id: string) {
+    return await axios.post("/api/courses/delete/data/container", id, {
+        headers: { "Content-Type": "application/json", },
+    })
+}
+
+export async function addAllContainer(id: string, containers: CourseContainerModel[]) {
+    const postObject = {
+        courseId: id,
+        object: containers
+    }
+    return await axios.post("/api/courses/add/data", postObject, {
+        headers: { "Content-Type": "application/json", },
+    })
+}
+
+export async function getSignedUrl(fileKey: string) {
+    return await axios.get("/api/files/uploadSigned", {
+        params: { fileKey },
+    });
+}
+
+
+export async function addFile(id:string, file: CourseFileModel) {
+    const postObject = {
+        containerId: id,
+        file: file
+    }
+    return await axios.post("/api/courses/add/data/file", postObject, {
+        headers: { "Content-Type": "application/json", },
+    })
+}
+
+export async function uploadFileToSignedUrl(
     file: File,
     signedUrl: string,
-    onProgress?: (percent: number) => void
+    onProgress?: (percent: number) => void,
+    signal?: AbortSignal
 ) {
-    const controller = new AbortController();
-
-    const promise = axios.put(signedUrl, file, {
-        headers: {
-            "Content-Type": file.type,
-        },
-        signal: controller.signal,
-        onUploadProgress: (progressEvent) => {
-            if (progressEvent.total) {
-                const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                onProgress?.(percent);
-            }
-        },
-    });
-
-    return {
-        promise,
-        abort: () => controller.abort(),
-    };
+    try {
+        await axios.put(signedUrl, file, {
+            headers: {
+                "Content-Type": file.type || "application/octet-stream",
+            },
+            onUploadProgress: (progressEvent) => {
+                if (progressEvent.total) {
+                    const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    onProgress?.(percent);
+                }
+            },
+            withCredentials: false,
+            signal
+        });
+        console.log("✅ Upload completed");
+    } catch (error: any) {
+        if (axios.isCancel(error) || error?.name === 'CanceledError') {
+            console.warn("aborted");
+        } else {
+            console.error("failed", error);
+            throw error;
+        }
+    }
 }
 

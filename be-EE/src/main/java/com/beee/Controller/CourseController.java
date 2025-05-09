@@ -4,6 +4,7 @@ import com.beee.Common.Constants;
 import com.beee.Common.Utils;
 import com.beee.DTO.CourseContainerRequestDTO;
 import com.beee.DTO.CourseDataRequestDTO;
+import com.beee.DTO.CourseFileReqDTO;
 import com.beee.Model.CategoryModel;
 import com.beee.Model.CourseContainerModel;
 import com.beee.Model.CourseFileModel;
@@ -13,6 +14,7 @@ import com.beee.Service.FileService;
 import com.beee.Service.Impl.S3ServiceImpl;
 import com.beee.Service.S3Service;
 import com.beee.WebSecurityService.JwtService;
+import jakarta.persistence.Version;
 import jdk.jshell.execution.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -46,6 +48,8 @@ public class CourseController {
 	private UserRepo userRepo;
 	@Autowired
 	private CourseContainerRepo courseContainerRepo;
+	@Autowired
+	private CourseFileRepo courseFileRepo;
 
 	@GetMapping("/getAll")
 	public ResponseEntity getAllCourses() {
@@ -147,24 +151,48 @@ public class CourseController {
 
 	@PostMapping("/add/data")
 	public ResponseEntity addCourseData(@RequestBody(required = false) CourseDataRequestDTO courseDataRequestDTO) {
-		System.out.println(courseDataRequestDTO);
 		List<CourseContainerModel> processedCourses = courseDataRequestDTO.getObject().stream()
-				.peek(courseContainerModel -> {
-					new CourseModel();
+				.map(courseContainerModel -> {
 					courseContainerModel.setCourse(CourseModel.builder().id(courseDataRequestDTO.getCourseId()).build());
 					for (CourseFileModel cf : courseContainerModel.getFiles()) {
 						cf.setContainer(courseContainerModel);
 					}
+					return courseContainerModel;
 				})
 				.collect(Collectors.toList());
 		courseContainerRepo.saveAll(processedCourses);
 		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping("/add/data/folder")
-	public ResponseEntity addCourseDataFolder(@RequestBody(required = false) CourseContainerRequestDTO courseContainerRequestDTO) {
-		courseContainerRequestDTO.getContainer().setCourse(new CourseModel().builder().id(courseContainerRequestDTO.getCourseId()).build());
+	@PostMapping("/add/data/container")
+	public ResponseEntity addCourseDataContainer(@RequestBody(required = false) CourseContainerRequestDTO courseContainerRequestDTO) {
+		CourseContainerModel container = courseContainerRequestDTO.getContainer();
+		container.setCourse(new CourseModel().builder().id(courseContainerRequestDTO.getCourseId()).build());
+		for (CourseFileModel cf : container.getFiles()) {
+			cf.setContainer(container);
+		}
 		courseContainerRepo.save(courseContainerRequestDTO.getContainer());
+		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/add/data/file")
+	public ResponseEntity addCourseDataFile(@RequestBody(required = false) CourseFileReqDTO courseFileReqDTO) {
+		System.out.println(courseFileReqDTO);
+		CourseFileModel file = courseFileReqDTO.getFile();
+		file.setContainer(CourseContainerModel.builder().id(courseFileReqDTO.getContainerId()).build());
+		courseFileRepo.save(file);
+		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/delete/data/container")
+	public ResponseEntity deleteCourseDataFolder(@RequestBody(required = false) UUID id) {
+		courseContainerRepo.deleteById(id);
+		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/delete/data/file")
+	public ResponseEntity deleteCourseDataFile(@RequestBody(required = false) UUID id) {
+		courseFileRepo.deleteById(id);
 		return ResponseEntity.ok().build();
 	}
 }

@@ -22,9 +22,6 @@ import java.util.UUID;
 public class CourseFileModel {
 	@Id
 	@Column(name = "id")
-	@GeneratedValue(generator = "uuid2")
-	@GenericGenerator(name = "uuid2", strategy = "uuid2")
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	private UUID id;
 
 	@Column(name = "name")

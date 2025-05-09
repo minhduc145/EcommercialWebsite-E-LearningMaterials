@@ -15,6 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Entity
+@Builder
 @Table(name = "containers")
 public class CourseContainerModel {
 	@Id
@@ -30,6 +31,7 @@ public class CourseContainerModel {
 	private Timestamp createdAt;
 
 	@OneToMany(mappedBy = "container", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OrderBy("createdAt ASC")
 	List<CourseFileModel> files;
 
 	@JsonIgnore

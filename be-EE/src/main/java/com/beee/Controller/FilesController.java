@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
 import software.amazon.awssdk.core.ResponseInputStream;
-import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
@@ -66,8 +65,13 @@ public class FilesController {
 	}
 
 	@GetMapping("/getSigned")
-	public ResponseEntity getSignedUrl(@CookieValue(name = "jwt", required = false) String token, @RequestParam String fileKey) {
+	public ResponseEntity getSignedUrl(@CookieValue(name = "jwt", required = false) String token, @RequestParam(required = false) String fileKey) {
 		String signedUrl = s3Service.generatePresignedUrl(fileKey);
+		return ResponseEntity.ok(signedUrl);
+	}
+	@GetMapping("/uploadSigned")
+	public ResponseEntity getSignedUrlForUpload(@CookieValue(name = "jwt", required = false) String token, @RequestParam(required = false) String fileKey) {
+		String signedUrl = s3Service.generatePresignedUploadUrl(fileKey,10);
 		return ResponseEntity.ok(signedUrl);
 	}
 

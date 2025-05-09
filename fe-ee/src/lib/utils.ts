@@ -36,3 +36,7 @@ export async function deleteFromCache(request: string | Request) {
   const cache = await caches.open(CACHE_NAME);
   await cache.delete(request);
 }
+
+export function getFileExtension(filename: string|undefined): string {
+ return filename&&  filename.split('.').pop()?.toLowerCase() || '';
+}
