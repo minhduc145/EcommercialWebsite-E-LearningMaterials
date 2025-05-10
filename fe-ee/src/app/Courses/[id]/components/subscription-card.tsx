@@ -9,6 +9,7 @@ import { getUserInfo } from "@/app/api/api-account"
 import type { CourseModel } from "@/models/CourseModel"
 import type { UserModel } from "@/models/UserModel"
 import { useUserInfo } from "@/lib/user-info"
+import { isSubscribedByUser } from "@/app/api/api-courses"
 
 interface SubscriptionCardProps {
   course: CourseModel
@@ -16,13 +17,22 @@ interface SubscriptionCardProps {
 
 export default function SubscriptionCard({ course }: SubscriptionCardProps) {
   const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
+  const [isSubscribed, setIsSubscribed] = useState<boolean | false>(false)
 
-  const isCreator: boolean = user?.id === course.creator.id
+
+  useEffect(() => {
+    isSubscribedByUser(course.id).then(res => {
+      if (res.data == true)
+        setIsSubscribed(res.data)
+    }).catch(() => {
+    })
+  }, [])
+
 
   return (
     <Card>
       <CardHeader className="">
-        {isCreator ? (
+        {isSubscribed ? (
           <div>
             <Link href={`/Courses/Use/${course.id}`}>
               <Button className="w-full bg-blue-600">Sử dụng học liệu</Button>
@@ -46,7 +56,7 @@ export default function SubscriptionCard({ course }: SubscriptionCardProps) {
             </div>
             <div>
               <h3 className="text-lg font-medium">Ngày đăng ký</h3>
-              {isCreator ? <p className="font-medium">09/04/2024</p> : <i>Chưa đăng ký</i>}
+              {isSubscribed ? <p className="font-medium">09/04/2024</p> : <i>Chưa đăng ký</i>}
             </div>
           </div>
         </div>

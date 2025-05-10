@@ -10,12 +10,14 @@ import com.beee.Model.CourseContainerModel;
 import com.beee.Model.CourseFileModel;
 import com.beee.Model.CourseModel;
 import com.beee.Repository.*;
+import com.beee.Service.CourseService;
 import com.beee.Service.FileService;
 import com.beee.Service.Impl.S3ServiceImpl;
 import com.beee.Service.S3Service;
 import com.beee.WebSecurityService.JwtService;
 import jakarta.persistence.Version;
 import jdk.jshell.execution.Util;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -52,6 +54,12 @@ public class CourseController {
 	private CourseFileRepo courseFileRepo;
 	@Autowired
 	private FileService fileService;
+	@Autowired
+	private SubscriptionRepo subscriptionRepo;
+	@Autowired
+	private AccountRepo accountRepo;
+	@Autowired
+	private CourseService courseService;
 
 	@GetMapping("/getAll")
 	public ResponseEntity getAllCourses() {
@@ -81,7 +89,7 @@ public class CourseController {
 		PageRequest pr = PageRequest.of(pageIndex, Constants.PAGEABLE_PAGE_SIZE);
 		Map<String, Object> map = new HashMap<>();
 		map.put("reviewPageable", reviewRepo.findCourseReviewModelsByCourse_IdOrderByCreatedAtDesc(id, pr));
-		map.put("starRateMeta", reviewRepo.countEachStarRateByCourseId(id));
+		map.put("starRateMeta", courseService.getStarRateCount(id));
 		return ResponseEntity.ok(map);
 	}
 
@@ -218,5 +226,18 @@ public class CourseController {
 			courseFileRepo.deleteById(id);
 		}
 		return ResponseEntity.ok().build();
+	}
+
+	@GetMapping("/isSubscribedByUser")
+	public ResponseEntity isSubscribedByUser(@CookieValue(name = "jwt") String userToken, @RequestParam String courseId) {
+		boolean i = false;
+		if (!jwtService.isTokenExpired(userToken)) {
+			String username = jwtService.extractUsername(userToken);
+			i = subscriptionRepo.existsByUser_IdAndCourse_Id(username, Integer.parseInt(courseId))
+					|| courseRepo.existsByCreator_Id(username)
+					|| accountRepo.existsByIdAndRole(username, Constants.ROLE_ADMIN);
+			return ResponseEntity.ok().body(i);
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 }

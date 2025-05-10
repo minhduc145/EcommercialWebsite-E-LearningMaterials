@@ -42,10 +42,10 @@ export default function CommentLayout({ id }: CommentLayoutProps) {
         </div>
 
         <div className="flex flex-col gap-5">
-          {starRateMeta.map((star) => {
-            const percentage = star[1] / reviewLength
+          {starRateMeta.map((star, index) => {
+            const percentage = star[1] !== 0 ? star[1] / reviewLength : 0
             return (
-              <div key={star[0]} className="flex gap-3 items-center">
+              <div key={index} className="flex gap-3 items-center">
                 <div className="flex gap-1 items-center">
                   <div>{star[0]}</div>
                   <Star className="fill-yellow-400 text-yellow-400 h-5 w-5" />

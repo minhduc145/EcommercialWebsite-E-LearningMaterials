@@ -17,4 +17,6 @@ public interface CourseRepo extends JpaRepository<CourseModel, Integer> {
 	Integer findCourseIdByContainerId(@Param("id") UUID containerId);
 
 	CourseModel findCourseModelById(Integer id);
+
+	boolean existsByCreator_Id(String creatorId);
 }

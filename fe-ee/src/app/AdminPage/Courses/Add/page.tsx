@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from "@/components/ui/breadcrumb"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
-import {  Dialog,  DialogClose,  DialogContent,  DialogFooter,  DialogHeader,  DialogTitle,  DialogTrigger,} from "@/components/ui/dialog"
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog"
 import { ArrowLeft, FileImageIcon, Loader2, Send, X } from "lucide-react"
 import { ToastContainer } from "react-toastify"
 import DOMPurify from "dompurify"
@@ -119,7 +119,7 @@ const InfoTab = (
                 const c: CourseModel = res.data.details
                 MyToaster({ variant: "success", message: "Lưu Thông tin học liệu thành công!" })
                 setId(c.id)
-                { id && setTab2Ready(true) }
+                c.id && setTab2Ready(true)
             }
         }).catch(error => {
             const msg: string = error.response.data ? error.response.data.details : error.message;

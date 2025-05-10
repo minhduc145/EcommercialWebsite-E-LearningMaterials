@@ -135,7 +135,7 @@ export async function getSignedUrl(fileKey: string) {
 }
 
 
-export async function addFile(id:string, file: CourseFileModel) {
+export async function addFile(id: string, file: CourseFileModel) {
     const postObject = {
         containerId: id,
         file: file
@@ -175,4 +175,11 @@ export async function uploadFileToSignedUrl(
         }
     }
 }
+
+export async function isSubscribedByUser(courseId: string|undefined) {
+    return await axios.get("/api/courses/isSubscribedByUser", {
+        params: { courseId },
+    });
+}
+
 

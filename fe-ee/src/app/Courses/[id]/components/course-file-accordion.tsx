@@ -1,6 +1,6 @@
 "use client"
 
-import { Code, Combine, File, FileArchive, FileAudio2Icon, FileText, FileVideoIcon, Link, SquarePlay } from "lucide-react"
+import { File } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CourseContainerModel } from "@/models/CourseContainerModel"
 import { GetFileIcon } from "@/lib/utils"
@@ -39,7 +39,7 @@ function FileAccordion({ course_data }: IDataProp) {
                       <div className="flex-shrink-0">
                         <GetFileIcon type={file.type} />
                       </div>
-                      <div className="font-medium">{file.name}</div>
+                      <div className="">{file.name}</div>
                     </div>
                   ))
                 ) : (

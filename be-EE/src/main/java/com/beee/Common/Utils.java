@@ -1,11 +1,21 @@
 package com.beee.Common;
 
-import org.springframework.web.multipart.MultipartFile;
+
+import com.beee.Repository.ReviewRepo;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+@Component
 public class Utils {
+	private final ReviewRepo reviewRepo;
+
+	public Utils(ReviewRepo reviewRepo) {
+		this.reviewRepo = reviewRepo;
+	}
+
 	public final static Map mapOfResponse(Integer status, String message, Object details) {
 		Map<String, Object> responseBody = new HashMap<>();
 		responseBody.put("result", status);
@@ -15,7 +25,7 @@ public class Utils {
 	}
 
 	public final static String detectFileCategory(String contentType) {
-		if (Constants.DOCUMENT_TYPES.contains(contentType)||contentType.contains("document")) return "document";
+		if (Constants.DOCUMENT_TYPES.contains(contentType) || contentType.contains("document")) return "document";
 		if (contentType.contains("audio"))
 			return "media-audio";
 		if (contentType.contains("image"))
@@ -28,9 +38,7 @@ public class Utils {
 			return "link";
 		if (contentType.contains("iframe"))
 			return "iframe";
-		if (Constants.SCORM_TYPES.contains(contentType)||contentType.contains("scorm")) return "scorm";
+		if (Constants.SCORM_TYPES.contains(contentType) || contentType.contains("scorm")) return "scorm";
 		return "unknown";
 	}
-
-
 }
