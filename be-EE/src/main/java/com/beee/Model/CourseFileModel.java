@@ -42,7 +42,7 @@ public class CourseFileModel {
 	@Column(name = "url", columnDefinition = "TEXT")
 	private String url;
 
-	@JsonIgnore
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@ToString.Exclude
 	@ManyToOne
 	@JoinColumn(name = "container_id", referencedColumnName = "id")

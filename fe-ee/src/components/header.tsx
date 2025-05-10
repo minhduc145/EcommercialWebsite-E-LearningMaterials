@@ -4,7 +4,9 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Logo from "@/app/logo.svg";
+import Logo_Light from "@/app/logo.png";
+import Logo_Dark from "@/app/logo-1.png";
+
 import type { UserModel } from "@/models/UserModel";
 
 import { Menu } from "lucide-react";
@@ -35,9 +37,7 @@ import SockJS from "sockjs-client";
 import { Client, IMessage } from "@stomp/stompjs";
 import MyToaster from "./ui/toastify-template";
 import { ToastContainer } from "react-toastify";
-import { getUserInfo } from "@/app/api/api-account";
 import { url_backend_default } from "@/lib/public-var";
-import useSWR, { mutate } from "swr"
 import { useUserInfo } from "@/lib/user-info";
 
 axios.defaults.withCredentials = true;
@@ -73,6 +73,7 @@ export default function Header(props: IHeaderProps) {
   const [userLoginCookie, setUserLoginCookie] = useState<UserModel | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const bgColor = props.color === "blue" ? "bg-[#001d74]" : "border-b  supports-[backdrop-filter]:bg-background/60";
+
   const txtColor = props.color === "blue" ? "text-white" : "text-gray-900";
 
   useEffect(() => {
@@ -84,7 +85,7 @@ export default function Header(props: IHeaderProps) {
 
   useEffect(() => {
     const newMessageSocket = new SockJS(
-      url_backend_default+"/ws/notification"
+      url_backend_default + "/ws/notification"
     );
     const newMessageClient = new Client({
       webSocketFactory: () => newMessageSocket,
@@ -121,8 +122,8 @@ export default function Header(props: IHeaderProps) {
         className="flex items-center justify-between lg:px-5 p-2"
       >
         <div className="flex lg:flex-1">
-          <a href="#" className="-m-1 p-1">
-            <Image src={Logo} alt="Logo" width={50} height={50} />
+          <a href="#" className="w-[50px] h-[50px]">
+            <Image src={props.color === "blue" ? Logo_Dark : Logo_Light} alt="Logo" />
           </a>
         </div>
 
@@ -141,8 +142,8 @@ export default function Header(props: IHeaderProps) {
             <SheetContent side="right" className="w-full sm:max-w-sm">
               <SheetTitle className="hidden">hi</SheetTitle>
               <div className="flex p-5 items-center justify-between">
-                <a href="#" className="-m-1.5 p-1.5">
-                  <Image alt="" src={Logo} className="h-8 w-auto" />
+                <a href="#" className="w-[50px] h-[50px]">
+                  <Image src={props.color === "blue" ? Logo_Dark : Logo_Light} alt="Logo" />
                 </a>
                 <Button
                   variant="ghost"
@@ -255,7 +256,7 @@ export default function Header(props: IHeaderProps) {
               <span>Đăng nhập</span>&nbsp;<span aria-hidden="true">&rarr;</span>
             </Link>
           ) : (
-            <UserDropDown userModel={userLoginCookie} logout={logout}/>
+            <UserDropDown userModel={userLoginCookie} logout={logout} />
           )}
         </div>
       </nav>
@@ -268,7 +269,7 @@ export default function Header(props: IHeaderProps) {
 
 interface IUserDropDownProps {
   userModel: UserModel;
-  logout: ()=>void
+  logout: () => void
 }
 
 export function UserDropDown(props: IUserDropDownProps) {

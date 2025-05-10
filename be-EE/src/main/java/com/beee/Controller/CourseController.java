@@ -199,13 +199,13 @@ public class CourseController {
 		file.setContainer(CourseContainerModel.builder().id(courseFileReqDTO.getContainerId()).build());
 		file.setType(Utils.detectFileCategory(file.getType()));
 		CourseFileModel saved = courseFileRepo.save(file);
-		fileService.addFileToProcessQueue(saved, courseFileReqDTO.getContainerId().toString());
+		fileService.processFileInQueue(saved, courseFileReqDTO.getContainerId().toString());
 		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping("/delete/data/container")
 	public ResponseEntity deleteCourseDataFolder(@RequestBody(required = false) UUID id) {
-		s3Service.deleteFolderInParallel(id.toString());
+		fileService.deleteFileInQueue(id.toString());
 		courseContainerRepo.deleteById(id);
 		return ResponseEntity.ok().build();
 	}
@@ -214,7 +214,7 @@ public class CourseController {
 	public ResponseEntity deleteCourseDataFile(@RequestBody(required = false) UUID id) {
 		CourseFileModel file = courseFileRepo.findById(id).orElse(null);
 		if (file != null) {
-			s3Service.deleteFolderInParallel(file.getContainer().getId() + "/" + file.getId());
+			fileService.deleteFileInQueue(file.getContainer().getId() + "/" + file.getId());
 			courseFileRepo.deleteById(id);
 		}
 		return ResponseEntity.ok().build();

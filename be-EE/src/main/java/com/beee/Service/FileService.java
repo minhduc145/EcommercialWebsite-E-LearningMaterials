@@ -9,11 +9,13 @@ import java.util.UUID;
 
 @Service
 public interface FileService {
-	public void convertVideoFromR2ToHLS(String fileKey, String outDir);
+	public void convertVideoFromR2ToHLS(String fileKey, String outDir) throws IOException, InterruptedException;
 
-	public void unzipAndUploadStream(String fileKey, String outDir);
+	public String unzipAndGetHrefSCORM(String fileKey, String outDir) throws Exception;
 
 	public boolean isImage(MultipartFile file);
 
-	public void addFileToProcessQueue(CourseFileModel courseFileModel, String containerId);
+	public void processFileInQueue(CourseFileModel courseFileModel, String containerId);
+
+	public void deleteFileInQueue(String prefix);
 }

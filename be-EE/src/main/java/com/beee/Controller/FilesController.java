@@ -77,16 +77,16 @@ public class FilesController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping("/unzip-and-upload-stream")
-	public ResponseEntity<?> unzipAndUploadStream(@RequestParam String fileKey) {
-		try {
-			fileService.unzipAndUploadStream(fileKey,null);
-			return ResponseEntity.ok().build();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(500).body("Lỗi: " + e.getMessage());
-		}
-	}
+//	@PostMapping("/unzip-and-upload-stream")
+//	public ResponseEntity<?> unzipAndUploadStream(@RequestParam String fileKey) {
+//		try {
+//			fileService.unzipAndUploadStream(fileKey,null);
+//			return ResponseEntity.ok().build();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return ResponseEntity.status(500).body("Lỗi: " + e.getMessage());
+//		}
+//	}
 
 
 	@PostMapping("/convert-mp4")

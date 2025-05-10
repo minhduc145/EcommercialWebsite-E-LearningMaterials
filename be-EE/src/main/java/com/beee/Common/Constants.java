@@ -8,8 +8,17 @@ public class Constants {
 	public final static Integer RESULT_SUCCESS = 1;
 	public final static Integer RESULT_FAIL = 0;
 
+	public final static String QUEUE_FILE_COMMAND_PROCESS = "process";
+	public final static String QUEUE_FILE_COMMAND_DELETE = "delete";
+
+
 	public final static String FILE_STATUS_PROCESSING = "Đang xử lý file";
 	public final static String FILE_STATUS_DONE = null;
+
+	public final static String PREFIX_BASE_UNZIPPED = "unzipped";
+	public final static String PREFIX_BASE_HLS = "hls";
+	public final static String HREF_HLS_INDEX = PREFIX_BASE_HLS + "/index.m3u8";
+
 
 	public final static String URL_FE_LOGIN_SUCCESS = "http://localhost:3000/User/Login?success";
 	public final static String URL_FE_LOGIN_FAIL = "http://localhost:3000/User/Login?fail";
