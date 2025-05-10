@@ -14,15 +14,7 @@ import type { CourseContainerModel } from "@/models/CourseContainerModel"
 import type { CourseFileModel } from "@/models/CourseFileModel"
 import JSZip from "jszip"
 import { v4 as uuidv4 } from "uuid"
-import {
-  addContainer,
-  addFile,
-  deleteContainer,
-  deleteFile,
-  getCourseDataWithUrl,
-  getSignedUrl,
-  uploadFileToSignedUrl,
-} from "@/app/api/api-courses"
+import { addContainer, addFile, deleteContainer, deleteFile, getCourseDataWithUrl, getSignedUrl, uploadFileToSignedUrl } from "@/app/api/api-courses"
 
 export interface UploadingFile {
   id: string
@@ -32,11 +24,9 @@ export interface UploadingFile {
   folderId: string
 }
 
-const courseId = "1"
-
 const myUploadMap = new Map<string, AbortController>()
 
-export function FileExplorer() {
+export function FileExplorer({courseId}:{courseId:string}) {
   const [resetKey, setResetKey] = useState(false)
   // State management
   const [folders, setFolders] = useState<CourseContainerModel[]>([])
@@ -54,6 +44,10 @@ export function FileExplorer() {
   const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false)
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
   const [isIframeModalOpen, setIsIframeModalOpen] = useState(false)
+  const [isDeleteFolderModalOpen, setIsDeleteFolderModalOpen] = useState(false)
+  const [isDeleteFileModalOpen, setIsDeleteFileModalOpen] = useState(false)
+  const [folderToDelete, setFolderToDelete] = useState<string>("")
+  const [fileToDelete, setFileToDelete] = useState<string>("")
   const [editingFolder, setEditingFolder] = useState<CourseContainerModel | null>(null)
   const [editingFile, setEditingFile] = useState<CourseFileModel | null>(null)
 
@@ -106,6 +100,28 @@ export function FileExplorer() {
     setIsIframeModalOpen(true)
   }
 
+  const openModalWithType = (file: CourseFileModel) => {
+    switch (file.type) {
+      case "media":
+        openMediaModal(file)
+        break
+      case "scorm":
+        openScormModal(file)
+        break
+      case "document":
+        openDocumentModal(file)
+        break
+      case "link":
+        openLinkModal(file)
+        break
+      case "iframe":
+        openIframeModal(file)
+        break
+      default:
+        openMediaModal(file)
+    }
+  }
+
   const handleFileChange = async (file: any) => {
     if (!file) return
     const fileType = file.type
@@ -148,16 +164,27 @@ export function FileExplorer() {
 
   const handleDeleteFolder = (folderId: string, e: React.MouseEvent) => {
     e.stopPropagation()
-    deleteContainer(folderId).then(() => {
-      setResetKey(!resetKey);
+    setFolderToDelete(folderId)
+    setIsDeleteFolderModalOpen(true)
+  }
+
+  const confirmDeleteFolder = () => {
+    if (!folderToDelete) return
+
+    deleteContainer(folderToDelete).then(() => {
+      setResetKey(!resetKey)
     })
-    if (selectedIndex >= 0 && folders[selectedIndex]?.id === folderId) {
+
+    if (selectedIndex >= 0 && folders[selectedIndex]?.id === folderToDelete) {
       if (folders.length > 0) {
         setSelectedIndex(0)
       } else {
         setSelectedIndex(-1)
       }
     }
+
+    setIsDeleteFolderModalOpen(false)
+    setFolderToDelete("")
   }
 
   const handleSaveFile = async (fileType = "document") => {
@@ -300,10 +327,19 @@ export function FileExplorer() {
 
   const handleDeleteFile = (fileId: string) => {
     if (selectedIndex < 0) return
-    const file = folders[selectedIndex].files.find(f => f.id === fileId)
+    const file = folders[selectedIndex].files.find((f) => f.id === fileId)
     if (!file) return
-    deleteFile(fileId).then(() => setResetKey(!resetKey))
 
+    setFileToDelete(fileId)
+    setIsDeleteFileModalOpen(true)
+  }
+
+  const confirmDeleteFile = () => {
+    if (!fileToDelete) return
+
+    deleteFile(fileToDelete).then(() => setResetKey(!resetKey))
+    setIsDeleteFileModalOpen(false)
+    setFileToDelete("")
   }
 
   const cancelUpload = (uploadId: string) => {
@@ -370,7 +406,9 @@ export function FileExplorer() {
         <div className="w-2/3 flex flex-col">
           <div className="p-3 border-b flex justify-between items-center">
             <h3 className="font-medium">
-              {selectedIndex >= 0 ? folders[selectedIndex]?.name??"Không có thư mục được chọn" : "Không có thư mục được chọn"}
+              {selectedIndex >= 0
+                ? (folders[selectedIndex]?.name ?? "Không có thư mục được chọn")
+                : "Không có thư mục được chọn"}
             </h3>
             {selectedIndex >= 0 && (
               <Popover>
@@ -431,27 +469,7 @@ export function FileExplorer() {
                             variant="ghost"
                             size="sm"
                             className="justify-start h-9"
-                            onClick={() => {
-                              switch (file.type) {
-                                case "media":
-                                  openMediaModal(file)
-                                  break
-                                case "scorm":
-                                  openScormModal(file)
-                                  break
-                                case "document":
-                                  openDocumentModal(file)
-                                  break
-                                case "link":
-                                  openLinkModal(file)
-                                  break
-                                case "iframe":
-                                  openIframeModal(file)
-                                  break
-                                default:
-                                  openMediaModal(file)
-                              }
-                            }}
+                            onClick={() => openModalWithType(file)}
                           >
                             Chỉnh sửa
                           </Button>
@@ -708,6 +726,45 @@ export function FileExplorer() {
 
         {/* Upload Status Dialog */}
         <UploadStatusDialog uploadingFiles={uploadingFiles} onCancelUpload={cancelUpload} />
+        {/* Delete Folder Confirmation Dialog */}
+        <Dialog open={isDeleteFolderModalOpen} onOpenChange={setIsDeleteFolderModalOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Xác nhận xóa thư mục</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <p>Bạn có chắc chắn muốn xóa thư mục này? Tất cả các tệp tin trong thư mục cũng sẽ bị xóa.</p>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDeleteFolderModalOpen(false)}>
+                Hủy
+              </Button>
+              <Button variant="destructive" onClick={confirmDeleteFolder}>
+                Xóa
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete File Confirmation Dialog */}
+        <Dialog open={isDeleteFileModalOpen} onOpenChange={setIsDeleteFileModalOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Xác nhận xóa tệp tin</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <p>Bạn có chắc chắn muốn xóa tệp tin này?</p>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDeleteFileModalOpen(false)}>
+                Hủy
+              </Button>
+              <Button variant="destructive" onClick={confirmDeleteFile}>
+                Xóa
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   )
@@ -732,8 +789,39 @@ export function UploadStatusDialog({ uploadingFiles, onCancelUpload }: UploadSta
         {uploadingFiles.map((file) => (
           <div key={file.id} className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-5 h-5"> 
-                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 64 64"><path fill="#37d0ee" d="M48,55H17c-2.209,0-4-1.791-4-4V11c0-2.209,1.791-4,4-4h21.311c1.06,0,2.077,0.421,2.827,1.17l9.689,9.68C51.578,18.601,52,19.619,52,20.68V51C52,53.209,50.209,55,48,55z"/><ellipse cx="32" cy="61" opacity=".3" rx="20.125" ry="3"/><path fill="#fff" d="M13,11v18c2.762,0,5-2.238,5-5V12.652c0-0.42,0.264-0.795,0.66-0.934C20.605,11.033,22,9.18,22,7h-5C14.791,7,13,8.791,13,11z" opacity=".3"/><path d="M52,51V28c-2.762,0-5,2.238-5,5v16c0,0.552-0.448,1-1,1h-9c-2.762,0-5,2.238-5,5h16C50.209,55,52,53.209,52,51z" opacity=".15"/><line x1="16.5" x2="16.5" y1="12.5" y2="19.5" fill="none" stroke="#fff" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="3"/><path fill="#008aa9" d="M50.827,17.851l-9.689-9.68C40.806,7.839,40.417,7.584,40,7.389V15c0,2.209,1.791,4,4,4h7.616C51.42,18.579,51.162,18.185,50.827,17.851z"/></svg>
+              <div className="w-5 h-5">
+                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 64 64">
+                  <path
+                    fill="#37d0ee"
+                    d="M48,55H17c-2.209,0-4-1.791-4-4V11c0-2.209,1.791-4,4-4h21.311c1.06,0,2.077,0.421,2.827,1.17l9.689,9.68C51.578,18.601,52,19.619,52,20.68V51C52,53.209,50.209,55,48,55z"
+                  />
+                  <ellipse cx="32" cy="61" opacity=".3" rx="20.125" ry="3" />
+                  <path
+                    fill="#fff"
+                    d="M13,11v18c2.762,0,5-2.238,5-5V12.652c0-0.42,0.264-0.795,0.66-0.934C20.605,11.033,22,9.18,22,7h-5C14.791,7,13,8.791,13,11z"
+                    opacity=".3"
+                  />
+                  <path
+                    d="M52,51V28c-2.762,0-5,2.238-5,5v16c0,0.552-0.448,1-1,1h-9c-2.762,0-5,2.238-5,5h16C50.209,55,52,53.209,52,51z"
+                    opacity=".15"
+                  />
+                  <line
+                    x1="16.5"
+                    x2="16.5"
+                    y1="12.5"
+                    y2="19.5"
+                    fill="none"
+                    stroke="#fff"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeMiterlimit="10"
+                    strokeWidth="3"
+                  />
+                  <path
+                    fill="#008aa9"
+                    d="M50.827,17.851l-9.689-9.68C40.806,7.839,40.417,7.584,40,7.389V15c0,2.209,1.791,4,4,4h7.616C51.42,18.579,51.162,18.185,50.827,17.851z"
+                  />
+                </svg>
               </div>
               <div className="text-sm truncate flex-1">{file.name}</div>
               <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onCancelUpload(file.id)}>

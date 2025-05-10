@@ -1,14 +1,29 @@
 "use client"
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from "@/components/ui/breadcrumb"
-import { ArrowLeft, FileImageIcon, Folder, Loader2, Send, X } from "lucide-react"
-import Link from "next/link"
 import type React from "react"
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from "@/components/ui/breadcrumb"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Textarea } from "@/components/ui/textarea"
+import {  Dialog,  DialogClose,  DialogContent,  DialogFooter,  DialogHeader,  DialogTitle,  DialogTrigger,} from "@/components/ui/dialog"
+import { ArrowLeft, FileImageIcon, Loader2, Send, X } from "lucide-react"
 import { ToastContainer } from "react-toastify"
+import DOMPurify from "dompurify"
+import MyEditor from "@/components/editor"
+import MyToaster from "@/components/ui/toastify-template"
+import { getCategories, submitCourseInfo } from "@/app/api/api-courses"
+import { CategoryModel } from "@/models/CategoryModel"
+import { CourseModel } from "@/models/CourseModel"
 
 export default function Page() {
-
-
     return (
         <>
             <Breadcrumb className="px-4 py-2">
@@ -28,16 +43,6 @@ export default function Page() {
     )
 }
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useEffect, useState } from "react"
-import MyEditor from "@/components/editor"
-
 const MainTab = () => {
     const [id, setId] = useState("")
     const [bannerFile, setBannerFile] = useState<File | null>(null);
@@ -46,10 +51,7 @@ const MainTab = () => {
     const [price, setPrice] = useState(0)
     const [isAvailable, setIsAvailable] = useState(true)
     const [categoryId, setCategoryId] = useState("")
-
     const [tab2Ready, setTab2Ready] = useState(false)
-
-
 
     return (
         <Tabs defaultValue="information">
@@ -112,21 +114,18 @@ const InfoTab = (
     }, [])
 
     const handleInfoSave = () => {
-        setTab2Ready(true)
-        // submitCourseInfo({ id, bannerFile, name, description, price, isAvailable, categoryId }).then(res => {
-        //     if (res && res.status === 200 && res.data?.details) {
-        //         const c: CourseModel = res.data.details
-        //         MyToaster({ variant: "success", message: "Lưu Thông tin học liệu thành công!" })
-        //         setId(c.id)
-        //         console.log(c)
-        //         { id && setTab2Ready(true) }
-        //     }
-        // }).catch(error => {
-        //     const msg: string = error.response.data ? error.response.data.details : error.message;
-        //     MyToaster({ variant: "error", message: msg ?? "Không xác định" })
-        //     console.log(msg)
-        // })
-
+        submitCourseInfo({ id, bannerFile, name, description, price, isAvailable, categoryId }).then(res => {
+            if (res && res.status === 200 && res.data?.details) {
+                const c: CourseModel = res.data.details
+                MyToaster({ variant: "success", message: "Lưu Thông tin học liệu thành công!" })
+                setId(c.id)
+                { id && setTab2Ready(true) }
+            }
+        }).catch(error => {
+            const msg: string = error.response.data ? error.response.data.details : error.message;
+            MyToaster({ variant: "error", message: msg ?? "Không xác định" })
+            console.log(msg)
+        })
     }
     return (
         <>
@@ -235,28 +234,14 @@ const InfoTab = (
 import { FileExplorer } from "@/app/AdminPage/Courses/components/file-manager"
 
 const DataTab = ({ id }: { id: string }) => {
-    if (id || true)
+    if (id)
         return (
             <>
-                <FileExplorer />
+                <FileExplorer courseId={id} />
             </>
         )
 }
 
-import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Textarea } from "@/components/ui/textarea"
-import { DialogClose } from "@radix-ui/react-dialog"
-import DOMPurify from 'dompurify';
-import { CategoryModel } from "@/models/CategoryModel"
-import { getCategories, submitCourseInfo } from "@/app/api/api-courses"
 
 const AIModal = ({ name, handleChange }: { name: string, handleChange: (i: string) => void }) => {
     const [cue, setCue] = useState("");
@@ -264,8 +249,6 @@ const AIModal = ({ name, handleChange }: { name: string, handleChange: (i: strin
     const [wordCount, setWordCount] = useState(300);
     const [isLoading, setIsLoading] = useState(false)
     const [allowIcons, setAllowIcons] = useState(false)
-
-
 
     const handleSubmit = async () => {
         var message = `

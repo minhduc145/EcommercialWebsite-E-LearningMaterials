@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface QueueService {
-	public void processFileQueue(CourseFileModel file, CourseModel courseModel, String containerId) throws Exception;
+	public void processFileQueue(CourseFileModel file, String containerId) throws Exception;
 
 	public void deleteFileQueue(String prefix);
 

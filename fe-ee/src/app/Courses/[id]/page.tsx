@@ -13,7 +13,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { HomeIcon } from "lucide-react"
-import MainTabs from "./components/main-tabs" 
+import MainTabs from "./components/main-tabs"
 import SubscriptionCard from "./components/subscription-card"
 import CourseHeader from "./components/course-header"
 import type { CourseModel } from "@/models/CourseModel"
@@ -24,10 +24,10 @@ axios.defaults.withCredentials = true
 axios.defaults.baseURL = url_backend_default
 
 export default function CourseDetailsClient() {
-    const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
-  
+  const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
+
   const params = useParams();
-const id = params.id;
+  const id = params.id;
   const [course, setCourse] = useState<CourseModel>()
   const [averageStar, setAverageStar] = useState<number>(0)
   const router = useRouter()
@@ -116,7 +116,7 @@ const id = params.id;
                 <div className="lg:w-80 p-5 lg:p-0 lg:absolute lg:-my-20 z-10 lg:sticky">
                   <SubscriptionCard course={course} />
                 </div>
-                <MainTabs course={course}/>
+                <MainTabs course={course} />
               </div>
             </div>
           </main>

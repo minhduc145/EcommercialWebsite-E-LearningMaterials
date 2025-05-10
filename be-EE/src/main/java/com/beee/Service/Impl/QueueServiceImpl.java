@@ -15,13 +15,13 @@ import org.springframework.util.StringUtils;
 import java.util.UUID;
 
 @Service
-public class QueueServieImpl implements QueueService {
+public class QueueServiceImpl implements QueueService {
 	private final CourseRepo courseRepo;
 	private final FileService fileService;
 	private final CourseFileRepo courseFileRepo;
 	private final S3Service s3Service;
 
-	public QueueServieImpl(CourseRepo courseRepo, FileService fileService, CourseFileRepo courseFileRepo, S3Service s3Service) {
+	public QueueServiceImpl(CourseRepo courseRepo, FileService fileService, CourseFileRepo courseFileRepo, S3Service s3Service) {
 		this.courseRepo = courseRepo;
 		this.fileService = fileService;
 		this.courseFileRepo = courseFileRepo;
@@ -29,25 +29,35 @@ public class QueueServieImpl implements QueueService {
 	}
 
 	@Override
-	public void processFileQueue(CourseFileModel file, CourseModel courseModel, String containerId) throws Exception {
-			String type = file.getType();
-			courseModel = courseRepo.findCourseModelById(courseRepo.findCourseIdByContainerId(UUID.fromString(containerId)));
-			courseModel.setStatus(Constants.FILE_STATUS_PROCESSING);
-			courseRepo.save(courseModel);
+	public void processFileQueue(CourseFileModel file, String containerId) throws Exception {
+		String type = file.getType();
+		CourseModel courseModel = courseRepo.findCourseModelById(courseRepo.findCourseIdByContainerId(UUID.fromString(containerId)));
+		courseModel.setStatus(Constants.FILE_STATUS_PROCESSING);
+		try {
 			if (type.contains("scorm")) {
-				System.out.println(file);
 				String href = fileService.unzipAndGetHrefSCORM(file.getUrl(), containerId + "/" + file.getId());
 				if (StringUtils.hasText(href)) {
 					file.setUrl(containerId + "/" + file.getId() + "/" + Constants.PREFIX_BASE_UNZIPPED + "/" + href);
 					file.setExtension("html");
 				}
-			}
-			if (type.contains("video")) {
+			} else if (type.contains("video")) {
 				fileService.convertVideoFromR2ToHLS(file.getUrl(), containerId + "/" + file.getId());
 				file.setUrl(containerId + "/" + file.getId() + "/" + Constants.HREF_HLS_INDEX);
 				file.setType("media-hls");
 				file.setExtension("m3u8");
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (file != null) {
+				file.setContainer(CourseContainerModel.builder().id(UUID.fromString(containerId)).build());
+				courseFileRepo.save(file);
+			}
+			if (courseModel != null) {
+				courseModel.setStatus(Constants.FILE_STATUS_DONE);
+				courseRepo.save(courseModel);
+			}
+		}
 	}
 
 	@Override

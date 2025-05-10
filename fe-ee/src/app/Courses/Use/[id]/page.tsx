@@ -1,35 +1,23 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import {
-    FileText,
-    Video,
-    PanelLeftClose,
-    HomeIcon,
-    FileVideo,
-    PanelLeftOpen,
-    PanelLeft,
-    Menu,
-} from "lucide-react"
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+import { FileText, Video, PanelLeftClose, HomeIcon, FileVideo, PanelLeft, } from "lucide-react"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 
 export default function CourseLayout() {
     const [openSections, setOpenSections] = useState<string[]>(["noi-dung-khoa-hoc"])
     const [sidebarMinimized, setSidebarMinimized] = useState(true)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [onMobile, setOnMobile] = useState(false)
-
+    
+    const params = useParams();
+    const id = params.id;
     useEffect(() => {
 
     }, [])
@@ -76,7 +64,7 @@ export default function CourseLayout() {
                         {sidebarMinimized ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
                     </Button>
                     <h1 className="text-lg font-semibold">Thông tin khóa học</h1>
-                    <div className="w-9"></div> {/* Spacer for alignment */}
+                    <div className="w-9"></div>
                 </div>
                 <div
                     className={cn(
