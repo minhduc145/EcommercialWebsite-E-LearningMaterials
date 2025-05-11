@@ -447,7 +447,7 @@ export function FileExplorer({courseId}:{courseId:string}) {
               <div className="p-4 space-y-2">
                 {folders[selectedIndex]?.files.map((file) => (
                   <div key={file.id} className="flex items-center p-2 rounded-md hover:bg-gray-50">
-                    <GetFileIcon type={file.type} />
+                    <GetFileIcon type={file.type} hasColor={true} />
                     <div className="ml-3 flex-1">
                       <div className="font-medium">{file.name}</div>
                       <div className="text-xs text-gray-500">

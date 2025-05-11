@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @Service
 public interface FileService {
@@ -15,7 +14,7 @@ public interface FileService {
 
 	public boolean isImage(MultipartFile file);
 
-	public void processFileInQueue(CourseFileModel courseFileModel, String containerId);
+	public void processFileInQueue(CourseFileModel file);
 
 	public void deleteFileInQueue(String prefix);
 }

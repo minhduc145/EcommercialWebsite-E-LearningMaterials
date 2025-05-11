@@ -104,7 +104,7 @@ const InfoTab = (
         const number = parseInt(raw || "0", 10);
         setPrice(number);
         const formatted = number.toLocaleString("vi-VN");
-        setDisplayPrice(formatted);
+        setDisplayPrice(formatted==="0"?'(Miễn phí)':formatted);
     };
 
     useEffect(() => {

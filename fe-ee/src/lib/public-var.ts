@@ -10,6 +10,8 @@ const publicVar: {
 
   export const link_logout = "http://localhost:8080/accounts/logout";
 
+  export const link_r2_default = "https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev"
+
 
   export function formatCurrency(amount: number): string {
     return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });

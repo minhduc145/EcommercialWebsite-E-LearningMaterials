@@ -43,25 +43,49 @@ export function getFileExtension(filename: string | undefined): string {
 }
 
 
-export function GetFileIcon({ type }: { type: string }) {
+export function GetFileIcon({ type, hasColor = false }: { type: string, hasColor?: boolean }) {
   switch (type) {
     case "document":
-      return <FileText className="h-5 w-5 text-red-500" />
+      return <FileText className={`h-5 w-5  ${hasColor && 'text-red-500'}`} />
     case "media-image":
-      return <FileImage className="h-5 w-5 text-purple-500" />
+      return <FileImage className={`h-5 w-5  ${hasColor && 'text-purple-500'}`} />
     case "media-audio":
-      return <FileAudio className="h-5 w-5 text-purple-500" />
+      return <FileAudio className={`h-5 w-5  ${hasColor && 'text-purple-500'}`} />
     case "media-hls":
-      return <Film className="h-5 w-5 text-purple-500" />
+      return <Film className={`h-5 w-5  ${hasColor && 'text-purple-500'}`} />
     case "media-video":
-      return <Film className="h-5 w-5 text-purple-500" />
+      return <Film className={`h-5 w-5  ${hasColor && 'text-purple-500'}`} />
     case "scorm":
-      return <FileBox className="h-5 w-5 text-blue-500" />
+      return <FileBox className={`h-5 w-5  ${hasColor && 'text-blue-500'}`} />
     case "link":
-      return <Link className="h-5 w-5 text-green-500" />
+      return <Link className={`h-5 w-5  ${hasColor && 'text-green-500'}`} />
     case "iframe":
-      return <Code className="h-5 w-5 text-orange-500" />
+      return <Code className={`h-5 w-5  ${hasColor && 'text-orange-500'}`} />
     default:
-      return <File className="h-5 w-5 text-gray-500" />
+      return <File className={`h-5 w-5  ${hasColor && 'text-gray-500'}`} />
+  }
+}
+
+
+export function GetFileTypeName(type: string ): string {
+  switch (type) {
+    case "document":
+      return "Tài liệu"
+    case "media-image":
+      return "Ảnh"
+    case "media-audio":
+      return "Âm thanh"
+    case "media-hls":
+      return "Video"
+    case "media-video":
+      return "Video"
+    case "scorm":
+      return "Tương tác - SCORM"
+    case "link":
+      return "Đường dẫn"
+    case "iframe":
+      return "Nhúng"
+    default:
+      return "<không xác định>"
   }
 }

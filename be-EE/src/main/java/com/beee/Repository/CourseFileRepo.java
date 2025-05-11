@@ -9,4 +9,5 @@ import java.util.UUID;
 @Transactional
 @Repository
 public interface CourseFileRepo extends JpaRepository<CourseFileModel, UUID> {
+	boolean findCourseFileModelById(UUID id);
 }

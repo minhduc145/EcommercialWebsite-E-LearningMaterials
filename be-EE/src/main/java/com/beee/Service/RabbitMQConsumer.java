@@ -56,9 +56,8 @@ public class RabbitMQConsumer {
 		String cmd = objectMapper.convertValue(map.get("command"), String.class);
 		if (cmd.equals(Constants.QUEUE_FILE_COMMAND_PROCESS)) {
 			CourseFileModel file = objectMapper.convertValue(map.get("fileModel"), CourseFileModel.class);
-			String containerId = objectMapper.convertValue(map.get("containerId"), String.class);
 			try {
-				queueService.processFileQueue(file, containerId);
+				queueService.processFileQueue(file.getId());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

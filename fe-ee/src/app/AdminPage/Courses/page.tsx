@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import MyToaster from "@/components/ui/toastify-template"
 import { formatDateTime } from "@/lib/utils"
 import Link from "next/link"
+import { Avatar, AvatarFallback,AvatarImage } from "@/components/ui/avatar"
 
 export default function Page() {
     const [courses, setCourses] = useState<CourseModel[]>([])
@@ -216,11 +217,10 @@ export default function Page() {
                                         <TableCell className="text-right">{course.price?.toLocaleString("vi-VN")} ₫</TableCell>
                                         <TableCell className="max-w-[150px]">
                                             <div className="flex items-center gap-2">
-                                                <img
-                                                    src={course.creator?.avatarUrl || "/placeholder.svg?height=24&width=24"}
-                                                    alt="Avatar"
-                                                    className="w-6 h-6 min-w-[24px] rounded-full"
-                                                />
+                                                <Avatar>
+                                                    <AvatarImage src={course.creator?.avatarUrl} alt="User settings" />
+                                                    <AvatarFallback>{course.creator?.firstName.charAt(0)}</AvatarFallback>
+                                                </Avatar>
                                                 <span
                                                     className="truncate-text"
                                                     title={`${course.creator?.firstName} ${course.creator?.lastName}`}

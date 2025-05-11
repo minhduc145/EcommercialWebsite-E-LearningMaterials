@@ -3,6 +3,7 @@ package com.beee.Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ public class CourseFileModel {
 	@Column(name = "id")
 	private UUID id;
 
+	@NotBlank
 	@Column(name = "name")
 	private String name;
 
@@ -39,6 +41,7 @@ public class CourseFileModel {
 	@Column(name = "status")
 	private String status;
 
+	@NotBlank
 	@Column(name = "url", columnDefinition = "TEXT")
 	private String url;
 

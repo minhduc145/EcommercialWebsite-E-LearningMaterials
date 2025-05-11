@@ -29,10 +29,13 @@ public class QueueServiceImpl implements QueueService {
 	}
 
 	@Override
-	public void processFileQueue(CourseFileModel file, String containerId) throws Exception {
+	public void processFileQueue(UUID fileId) throws Exception {
+		CourseFileModel file = courseFileRepo.findById(fileId).get();
 		String type = file.getType();
-		CourseModel courseModel = courseRepo.findCourseModelById(courseRepo.findCourseIdByContainerId(UUID.fromString(containerId)));
+		String containerId = String.valueOf(file.getContainer().getId());
+		CourseModel courseModel = file.getContainer().getCourse();
 		courseModel.setStatus(Constants.FILE_STATUS_PROCESSING);
+		courseRepo.save(courseModel);
 		try {
 			if (type.contains("scorm")) {
 				String href = fileService.unzipAndGetHrefSCORM(file.getUrl(), containerId + "/" + file.getId());
@@ -50,12 +53,9 @@ public class QueueServiceImpl implements QueueService {
 			e.printStackTrace();
 		} finally {
 			if (file != null) {
-				file.setContainer(CourseContainerModel.builder().id(UUID.fromString(containerId)).build());
-				courseFileRepo.save(file);
-			}
-			if (courseModel != null) {
 				courseModel.setStatus(Constants.FILE_STATUS_DONE);
 				courseRepo.save(courseModel);
+				courseFileRepo.save(file);
 			}
 		}
 	}

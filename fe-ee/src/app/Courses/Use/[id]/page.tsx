@@ -1,17 +1,19 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { FileText, Video, PanelLeftClose, HomeIcon, FileVideo, PanelLeftOpen, } from "lucide-react"
+import { PanelLeftClose, HomeIcon, PanelLeftOpen, } from "lucide-react"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { cn, GetFileIcon, GetFileTypeName } from "@/lib/utils"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { getCourseDataWithUrl, isSubscribedByUser } from "@/app/api/api-courses"
 import { CourseContainerModel } from "@/models/CourseContainerModel"
-import { file } from "jszip"
+import { Separator } from "@/components/ui/separator"
+import { CourseFileModel } from "@/models/CourseFileModel"
+import { link_r2_default } from "@/lib/public-var"
 
 export default function CourseLayout() {
     const params = useParams();
@@ -19,10 +21,10 @@ export default function CourseLayout() {
 
     const [isSubscribed, setIsSubscribed] = useState<boolean | false>(false)
     const [courseContainers, setCourseContainers] = useState<CourseContainerModel[]>([])
+    const [openingFile, setOpeningFile] = useState<CourseFileModel>()
 
 
-    const [openSections, setOpenSections] = useState<string[]>(["noi-dung-khoa-hoc"])
-    const [sidebarMinimized, setSidebarMinimized] = useState(true)
+    const [sidebarMinimized, setSidebarMinimized] = useState(false)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
     const router = useRouter()
@@ -48,6 +50,7 @@ export default function CourseLayout() {
     const toggleSidebar = () => {
         setSidebarMinimized(!sidebarMinimized)
         if (window.innerWidth < 768) {
+            setSidebarMinimized(false)
             setMobileMenuOpen(!mobileMenuOpen)
         }
     }
@@ -76,7 +79,7 @@ export default function CourseLayout() {
                     </BreadcrumbList>
                 </Breadcrumb>
 
-                <div className="flex flex-col md:flex-row min-h-max bg-background">
+                <div className="flex flex-col md:flex-row min-h-[85dvh] max-h-[85dvh]  bg-background">
                     <div className="md:hidden flex items-center justify-between p-4 border-b border-border">
                         <Button variant="ghost" size="icon" onClick={toggleSidebar}>
                             {sidebarMinimized ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
@@ -88,7 +91,7 @@ export default function CourseLayout() {
                         className={cn(
                             "border-r border-border bg-card transition-all duration-300 ease-in-out",
                             sidebarMinimized ? "w-16 overflow-hidden" : "w-80",
-                            " md:static h-[calc(100vh-64px)] md:h-screen z-40",
+                            " md:static flex flex-col min-h-[85dvh] max-h-[85dvh]  z-40",
                             !mobileMenuOpen && "hidden md:block",
                         )}
                     >
@@ -98,32 +101,33 @@ export default function CourseLayout() {
                                 {sidebarMinimized ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
                             </Button>
                         </div>
-                        <div className={cn("overflow-auto h-[calc(100vh-64px)]", sidebarMinimized && "hidden")}>
-                            <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
+                        <div className={cn("h-[83%] overflow-auto", sidebarMinimized && "hidden h-[83%] overflow-auto")}>
+                            <Accordion type="multiple" className="w-full">
                                 <Accordion type="multiple" className="w-full">
-                                    {courseContainers.length > 0 ? courseContainers.map(container => {
+                                    {courseContainers.length > 0 ? courseContainers.map((container, index) => {
                                         const files = container?.files
                                         return (
-                                            <AccordionItem  key={container.id} value="bai-giang-e-learning" className="border-b border-border/50 p-3">
+                                            <AccordionItem key={container.id} value={String(index)} className="border-b border-border/50 px-3">
                                                 <AccordionTrigger className="px-4 ">
-                                                    <span className="font-medium">Bài giảng E-Learning Scorm</span>
+                                                    <span className="font-medium">📂 {index + 1}. {container.name}</span>
                                                 </AccordionTrigger>
                                                 <AccordionContent>
                                                     {files.length > 0 ? (
                                                         files.map((file, index) => (
-                                                            <Link key={index} href={`https://www.google.com`}>
-                                                                <div className="px-4 py-2 border border-amber-50 bg-[#005fd0]/20">
+                                                            <div key={index} className="hover:cursor-pointer" onClick={() => setOpeningFile(file)}>
+                                                                <div className={`px-4 py-2 border border-white ${file.id === openingFile?.id ? 'bg-[#005fd0]/20' : 'bg-[grey]/5'} `}>
                                                                     <div className="flex items-center">
-                                                                        <Badge variant="secondary" className="mr-2  bg-blue-600 text-white">
-                                                                            <FileText className="h-3 w-3 mr-1" />
-                                                                            Bài giảng
+                                                                        <Badge variant="secondary" className={`mr-2  ${file.id === openingFile?.id ? 'bg-blue-600 text-white' : 'bg-white'}`}>
+                                                                            <GetFileIcon type={file.type} />
+                                                                            {GetFileTypeName(file.type)}
                                                                         </Badge>
                                                                     </div>
                                                                     <div className="pl-2 mt-2 font-medium">
-                                                                        Kế hoạch bài dạy Unit 7: Television - Lesson 2: A Closer Look 1
+                                                                        {file.name}
                                                                     </div>
                                                                 </div>
-                                                            </Link>
+                                                                <Separator />
+                                                            </div>
                                                         ))
                                                     ) : (
                                                         <p className="text-center py-3">Không có dữ liệu</p>
@@ -134,71 +138,149 @@ export default function CourseLayout() {
                                     }) : (
                                         <p className="text-center py-3">Không có dữ liệu</p>
                                     )}
-
-
-                                    {/* <AccordionItem value="ke-hoach-bai-day" className="border-b border-border/50 p-3">
-                                        <AccordionTrigger className="px-4">
-                                            <span className="font-medium">Kế hoạch bài dạy</span>
-                                        </AccordionTrigger>
-                                        <AccordionContent className="pl-6">
-                                            <div className="flex items-center text-sm text-muted-foreground py-1">
-                                                <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
-                                                <span>1 Học liệu</span>
-                                            </div>
-                                        </AccordionContent>
-                                    </AccordionItem>
-
-
-                                    <AccordionItem value="video-thuyet-minh" className="border-b border-border/50 p-3">
-                                        <AccordionTrigger className="px-4">
-                                            <span className="font-medium">Video Thuyết minh, hướng dẫn sử dụng bài giảng</span>
-                                        </AccordionTrigger>
-                                        <AccordionContent className="pl-6">
-                                            <div className="flex items-center text-sm text-muted-foreground py-1">
-                                                <Video className="h-4 w-4 mr-2 text-muted-foreground" />
-                                                <span>1 Học liệu</span>
-                                            </div>
-                                        </AccordionContent>
-                                    </AccordionItem> */}
                                 </Accordion>
                             </Accordion>
                         </div>
                     </div>
 
-                    <div className={cn("flex-1 overflow-auto transition-all duration-300", mobileMenuOpen && "md:ml-0")}>
-                        <div className="px-0 md:px-6">
-                            <FileContentView />
-                        </div>
+                    <div className={cn("grow border flex justify-center items-center overflow-auto", mobileMenuOpen && "md:ml-0")}>
+                        <FileContentView file={openingFile} />
                     </div>
+
                 </div >
+                <hr></hr>
             </>
 
         )
 }
 
-function FileContentView() {
-    return (
-        <>
-            {/* <img src="https://www.shutterstock.com/image-vector/colorful-abstract-banner-template-dummy-260nw-1489086422.jpg" alt="" className="mx-auto" /> */}
-            {/* `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent('https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev/note-02042025.txt')`   */}
-            <iframe
-                // src="https://gosoccerboy5.github.io/view-images/#https://hailangsgdquangtri.lms.vnedu.vn/app/assets/img/not-thing-to-show.png?v=20250428085600"
-                // src={`https://pub-e96712ffb5c644eab6d6682c1ebe8bf3.r2.dev/WebServices_notes_by_Sekhar_Sir_JavabynataraJ.pdf`}
-                src={`https://m3u8player.org/player.html?url=https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8`}
-                // src={`https://www.shutterstock.com/image-vector/colorful-abstract-banner-template-dummy-260nw-1489086422.jpg`}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin" allowFullScreen
-                className="mx-auto"
-                style={{
-                    width: '100%',
-                    height: '85dvh',
-                    maxWidth: '100%',
-                    maxHeight: '85dvh',
-                    border: 'none',
-                    overflow: 'hidden',
-                }}>
-            </iframe>
-        </>
-    )
+function FileContentView({ file }: { file: CourseFileModel | undefined }) {
+    const r2BaseUrl = link_r2_default + "/";
+    const getProcessedView = () => {
+        const rawUrl = file?.url
+        var embeddedUrl = "";
+        switch (file?.type) {
+            case "document": {
+                if (file.extension === "pdf") embeddedUrl = r2BaseUrl + rawUrl
+                else embeddedUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURI(r2BaseUrl + rawUrl)}`
+                return (
+                    <iframe
+                        src={embeddedUrl}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        className="w-full h-full aspect-video"
+                        allowFullScreen
+                    >
+                    </iframe>
+                )
+            }
+            case "media-image":
+                {
+                    embeddedUrl = `https://gosoccerboy5.github.io/view-images/#${encodeURI(r2BaseUrl + rawUrl)}`
+                    return (
+                        <iframe
+                            src={embeddedUrl}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            className="w-full h-full aspect-video"
+                            allowFullScreen
+                        >
+                        </iframe>
+                    )
+                }
+            case "media-audio":
+                {
+                    embeddedUrl = r2BaseUrl + rawUrl
+                    return (
+                        <iframe
+                            src={embeddedUrl}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            className="w-full h-full aspect-video"
+                            allowFullScreen
+                        >
+                        </iframe>
+                    )
+                }
+            case "media-hls":
+                {
+                    embeddedUrl = `https://m3u8player.org/player.html?url=${encodeURI(r2BaseUrl + rawUrl)}`
+                    return (
+                        <iframe
+                            src={embeddedUrl}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            className="w-full h-full aspect-video"
+                            allowFullScreen
+                        >
+                        </iframe>
+                    )
+                }
+            case "media-video":
+                {
+                    embeddedUrl = `https://m3u8player.org/player.html?url=${encodeURI(r2BaseUrl + rawUrl)}`
+                    return (
+                        <iframe
+                            src={embeddedUrl}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            className="w-full h-full aspect-video"
+                            allowFullScreen
+                        >
+                        </iframe>
+                    )
+                }
+            case "scorm":
+                {
+                    embeddedUrl = (r2BaseUrl + rawUrl)
+                    return (
+                        <iframe
+                            src={embeddedUrl}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            className="w-full h-full aspect-video"
+                            allowFullScreen
+                        >
+                        </iframe>
+                    )
+                }
+            case "link":
+                return (
+                    <div className="flex flex-col justify-center items-center gap-2">
+                        <h2>Đường dẫn cho Tệp <b>{file.name}</b></h2>
+                        <a className="text-blue-600 underline italic" href={file.url} title={file.url} target="_blank">{file.url}</a>
+                    </div>
+                )
+            case "iframe":
+                {
+                    const srcMatch = rawUrl?.match(/src="([^"]+)"/);
+                    if (srcMatch) {
+                        const src = srcMatch[1].trim();
+                        return (
+                            <iframe
+                                src={src}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerPolicy="strict-origin-when-cross-origin"
+                                className="w-full h-full aspect-video"
+                                allowFullScreen
+                            >
+                            </iframe>
+                        )
+                    } else {
+                        return <div dangerouslySetInnerHTML={{ __html: rawUrl ?? "" }} />
+                    }
+
+                }
+            default:
+                return "Không xác định được loại file"
+        }
+    }
+    if (file)
+        return (
+            <>
+                {getProcessedView()}
+            </>
+        )
+    else
+        return <p>Chọn bài giảng để xem</p>
 }

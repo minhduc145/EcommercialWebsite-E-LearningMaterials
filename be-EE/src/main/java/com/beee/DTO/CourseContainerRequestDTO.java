@@ -7,7 +7,6 @@ import lombok.ToString;
 @Data
 @ToString
 public class CourseContainerRequestDTO {
-	private boolean isAdd;
 	private Integer courseId;
 	private CourseContainerModel container;
 }

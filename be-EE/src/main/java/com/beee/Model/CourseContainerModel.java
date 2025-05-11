@@ -3,6 +3,7 @@ package com.beee.Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.ReadOnlyProperty;
@@ -24,6 +25,7 @@ public class CourseContainerModel {
 	@GenericGenerator(name = "uuid2", strategy = "uuid2")
 	private UUID id;
 
+	@NotBlank
 	@Column(name = "name")
 	private String name;
 

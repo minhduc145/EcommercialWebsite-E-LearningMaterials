@@ -37,7 +37,7 @@ function FileAccordion({ course_data }: IDataProp) {
                       className="flex items-center gap-5 px-10 py-3 hover:bg-gray-50 cursor-pointer"
                     >
                       <div className="flex-shrink-0">
-                        <GetFileIcon type={file.type} />
+                        <GetFileIcon type={file.type} hasColor={true} />
                       </div>
                       <div className="">{file.name}</div>
                     </div>

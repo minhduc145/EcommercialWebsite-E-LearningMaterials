@@ -7,7 +7,6 @@ import com.beee.Service.RabbitMQProducer;
 import com.beee.Service.S3Service;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
@@ -155,13 +154,11 @@ public class FileServiceImpl implements FileService {
 					baos.write(buffer, 0, len);
 				}
 				byte[] entryBytes = baos.toByteArray();
-
 				if (entryName.equalsIgnoreCase("imsmanifest.xml")) {
 					try (InputStream manifestStream = new ByteArrayInputStream(entryBytes)) {
 						href = getScormEntryHref(manifestStream);
 					}
 				}
-
 				CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
 					try (InputStream is = new ByteArrayInputStream(entryBytes)) {
 						String objectKey = StringUtils.hasText(outDir) ? outDir + "/unzipped/" + entryName : "unzipped/" + entryName;
@@ -186,14 +183,13 @@ public class FileServiceImpl implements FileService {
 	}
 
 	@Override
-	public void processFileInQueue(CourseFileModel courseFileModel, String containerId) {
-		String type = courseFileModel.getType();
-		String ex = courseFileModel.getExtension();
+	public void processFileInQueue(CourseFileModel file) {
+		String type = file.getType();
+		String ex = file.getExtension();
 		Map map = new HashMap();
 		map.put("command", Constants.QUEUE_FILE_COMMAND_PROCESS);
-		map.put("fileModel", courseFileModel);
-		map.put("containerId", containerId);
-		if ((type.contains("video") && ex.contains("mp4"))
+		map.put("fileModel", file);
+		if ((type.contains("video") && !ex.contains("m3u8"))
 				|| (type.contains("scorm") && ex.contains("zip"))) {
 			rabbitMQProducer.sendToFileProcessQueue(map);
 		}
