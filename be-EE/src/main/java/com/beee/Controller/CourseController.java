@@ -120,16 +120,14 @@ public class CourseController {
 
 	@GetMapping("/getCourseDataWithUrl/{id}")
 	public ResponseEntity getCourseDataWithUrl(@CookieValue(name = "jwt") String userToken, @PathVariable(required = true) Integer id) {
-		if (userToken == null || jwtService.isTokenExpired(userToken) || !accountRepo.existsByIdAndRole(jwtService.extractUsername(userToken), Constants.ROLE_ADMIN))
+		if (userToken == null || jwtService.isTokenExpired(userToken))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		boolean i = false;
 		String username = jwtService.extractUsername(userToken);
-		i = subscriptionRepo.existsByUser_IdAndCourse_Id(username, id)
-				|| courseRepo.existsByCreator_Id(username)
-				|| accountRepo.existsByIdAndRole(username, Constants.ROLE_ADMIN);
-		if (i)
+		if (accountRepo.existsByIdAndRole(username, Constants.ROLE_ADMIN)
+				|| courseRepo.existsByIdAndCreator_Id(id, username)
+				|| subscriptionRepo.existsByUser_IdAndCourse_Id(username, id))
 			return ResponseEntity.ok(courseContainerRepo.findAllByCourse_IdOrderByCreatedAtAsc(id));
-		else return ResponseEntity.ok(new ArrayList<String>());
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 
 	@PostMapping("/add/info")
@@ -260,13 +258,16 @@ public class CourseController {
 
 	@GetMapping("/isSubscribedByUser")
 	public ResponseEntity isSubscribedByUser(@CookieValue(name = "jwt") String userToken, @RequestParam String courseId) {
-		boolean i = false;
+		boolean i;
 		if (!jwtService.isTokenExpired(userToken)) {
 			String username = jwtService.extractUsername(userToken);
-			i = subscriptionRepo.existsByUser_IdAndCourse_Id(username, Integer.parseInt(courseId))
+			SubscriptionModel subscriptionModel = subscriptionRepo.findByUser_IdAndCourse_Id(username, Integer.parseInt(courseId));
+			i = subscriptionModel != null
 					|| courseRepo.existsByCreator_Id(username)
 					|| accountRepo.existsByIdAndRole(username, Constants.ROLE_ADMIN);
-			return ResponseEntity.ok().body(i);
+			if (i)
+				return ResponseEntity.ok().body(Map.of("inSub", i, "subAt", subscriptionModel.getCreated_at()!=null?subscriptionModel.getCreated_at():""));
+			return ResponseEntity.ok().body(Map.of("inSub", i));
 		}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}

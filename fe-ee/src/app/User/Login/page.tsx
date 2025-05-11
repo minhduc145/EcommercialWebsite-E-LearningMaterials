@@ -28,7 +28,6 @@ export default function LoginPage() {
 	});
 
 	const onSubmit = (data: any) => {
-		console.log(errors)
 		const userLogin = {
 			"id": data.id,
 			"password": data.password
@@ -43,27 +42,23 @@ export default function LoginPage() {
 		}).catch(function (error) {
 			var msg = error.response ? error.response.data.message : error.message
 			if (error.status === 404) msg = "Tài khoản hoặc mật khẩu không đúng"
-			MyToaster({ variant: "error", message: msg });
+			MyToaster("error", msg);
 		});
 	}
 	const searchParams = useSearchParams()
 	const isSuccess = searchParams.has('success')
-	const isFail = searchParams.has('fail')
+		const isFailed = searchParams.has('fail')
 	useEffect(() => {
-		localStorage.removeItem('currentUser');
 		if (isSuccess) {
-			MyToaster({ variant: "success", message: "" });
+			MyToaster("success", "");
 			window.location.href = "/"
-		} else if (isFail) {
-			MyToaster({ variant: "error", message: "" });
+		} else if(isFailed) {
+			MyToaster("error", "");
 		}
 	}, [])
 
 	return (
 		<>
-			<div>
-				<ToastContainer />
-			</div>
 			<a className="absolute p-5 float-left" href="/">
 				<House aria-hidden className="size-6" />
 			</a>

@@ -20,6 +20,7 @@ import type { CourseModel } from "@/models/CourseModel"
 import { getAverageStarReview, getCourse } from "@/app/api/api-courses"
 import { url_backend_default } from "@/lib/public-var"
 import { useUserInfo } from "@/lib/user-info"
+import { toast, ToastContainer } from "react-toastify"
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = url_backend_default
 
@@ -47,44 +48,7 @@ export default function CourseDetailsClient() {
     })
   }, [id, router])
 
-  useEffect(() => {
-    const currentUser = user;
-    if (!currentUser) return
-
-    const userId = user?.id
-    if (!userId) return
-
-    const paymentSocket = new SockJS(`${url_backend_default}/ws/payment`)
-    const paymentClient = new Client({
-      webSocketFactory: () => paymentSocket,
-      reconnectDelay: 5000,
-      onConnect: () => {
-        paymentClient.subscribe(
-          `/topic/result/${userId}`,
-          (message: IMessage) => {
-            console.log("📩 Message received:", message.body)
-            if (message.body === "1") {
-              setTimeout(() => {
-                window.location.reload()
-              }, 1000)
-            } else {
-              alert("Thanh toán thất bại")
-            }
-          },
-          { username: userId },
-        )
-        console.log("✅ Connected to WebSocket")
-      },
-      onStompError: (frame) => {
-        console.error("❌ Broker error:", frame.headers["message"])
-      },
-    })
-
-    paymentClient.activate()
-    return () => {
-      paymentClient.deactivate()
-    }
-  }, [])
+  
 
   return (
     <div className="min-h-dvh">

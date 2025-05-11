@@ -19,4 +19,6 @@ public interface CourseRepo extends JpaRepository<CourseModel, Integer> {
 	CourseModel findCourseModelById(Integer id);
 
 	boolean existsByCreator_Id(String creatorId);
+
+	boolean existsByIdAndCreator_Id(Integer id, String creatorId);
 }

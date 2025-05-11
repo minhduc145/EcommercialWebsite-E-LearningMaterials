@@ -205,10 +205,11 @@ export default function DashboardLayout({
           <main className="p-4">
 
             {children}
+            <ToastContainer />
 
           </main>
         </div>
-        <ToastContainer/>
+
       </div>
     )
   return (

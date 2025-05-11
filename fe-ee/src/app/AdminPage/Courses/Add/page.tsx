@@ -117,13 +117,13 @@ const InfoTab = (
         submitCourseInfo({ id, bannerFile, name, description, price, isAvailable, categoryId }).then(res => {
             if (res && res.status === 200 && res.data?.details) {
                 const c: CourseModel = res.data.details
-                MyToaster({ variant: "success", message: "Lưu Thông tin học liệu thành công!" })
+                MyToaster( "success", "Lưu Thông tin học liệu thành công!")
                 setId(c.id)
                 c.id && setTab2Ready(true)
             }
         }).catch(error => {
             const msg: string = error.response.data ? error.response.data.details : error.message;
-            MyToaster({ variant: "error", message: msg ?? "Không xác định" })
+            MyToaster("error", msg ?? "Không xác định" )
             console.log(msg)
         })
     }

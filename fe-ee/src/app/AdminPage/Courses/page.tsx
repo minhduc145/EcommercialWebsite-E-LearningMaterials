@@ -87,7 +87,7 @@ export default function Page() {
 
     const handleDelete = (id: string[]) => {
         deleteCourse(id).then(() => {
-            MyToaster({ variant: "success", message: "" })
+            MyToaster("success", "" )
             setSelectedRows([])
             setReloadKey(!reloadKey)
         })

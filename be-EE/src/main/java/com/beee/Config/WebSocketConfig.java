@@ -1,10 +1,13 @@
 package com.beee.Config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -19,25 +22,23 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/ws") // endpoint để client kết nối
+		registry.addEndpoint("/ws")
 				.setAllowedOriginPatterns("http://localhost:3000")
-//				.addInterceptors(new JwtHandshakeInterceptor())
 				.withSockJS();
 		registry.addEndpoint("/ws/payment")
 				.setAllowedOriginPatterns("http://localhost:3000")
-//				.addInterceptors(new JwtHandshakeInterceptor())
 				.withSockJS();
 		registry.addEndpoint("/ws/notification")
 				.setAllowedOriginPatterns("http://localhost:3000")
-//				.addInterceptors(new JwtHandshakeInterceptor())
 				.withSockJS();
 	}
 
-//	@Autowired
-//	private CustomStompInterceptor customStompInterceptor;
-//
-//	@Override
-//	public void configureClientInboundChannel(ChannelRegistration registration) {
-//		registration.interceptors(customStompInterceptor);
-//	}
+	@EventListener
+	public void handleWebSocketSubscribeListener(SessionSubscribeEvent event) {
+		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+		String sessionId = headerAccessor.getSessionId();
+		String destination = headerAccessor.getDestination();
+
+		System.out.println("Client subscribed: sessionId=" + sessionId + ", destination=" + destination);
+	}
 }

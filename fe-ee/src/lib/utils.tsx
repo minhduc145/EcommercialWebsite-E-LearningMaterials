@@ -7,7 +7,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const formatDate = (isoString: string): string => {
-  return new Intl.DateTimeFormat('vi-VN').format(new Date(isoString));
+  if(isoString) return new Intl.DateTimeFormat('vi-VN').format(new Date(isoString));
+  return ""
 };
 
 export const formatDateTime = (isoString: string): string => {

@@ -4,6 +4,11 @@ import ch.qos.logback.core.model.Model;
 import com.beee.Common.Constants;
 import com.beee.Config.VnpayConfig;
 import com.beee.DTO.VnpayPaymentResponseDTO;
+import com.beee.Model.CourseModel;
+import com.beee.Model.SubscriptionModel;
+import com.beee.Model.UserModel;
+import com.beee.Repository.CourseRepo;
+import com.beee.Repository.SubscriptionRepo;
 import com.beee.Service.PaymentService;
 import com.beee.Service.RabbitMQProducer;
 import com.beee.Service.ResponseService;
@@ -21,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.*;
 
 @Controller
@@ -36,11 +42,16 @@ public class PaymentController {
 	private JwtService jwtService;
 	@Autowired
 	private ResponseService responseService;
+	@Autowired
+	private CourseRepo courseRepo;
+	@Autowired
+	private SubscriptionRepo subscriptionRepo;
 
 	@GetMapping("/hihi")
 	public String hihi(Model model) {
 		return "course-runner";
 	}
+
 	@ResponseBody
 	@GetMapping("/vnpay")
 	public ResponseEntity<String> createPaymentUrl(
@@ -51,6 +62,12 @@ public class PaymentController {
 	) throws UnsupportedEncodingException {
 		if (jwt != null && !jwtService.isTokenExpired(jwt)) {
 			String username = jwtService.extractUsername(jwt);
+			if (amount == 0) {
+				Integer courseId = Integer.parseInt(orderInfo.split("_")[1]);
+				setSubscription(username, courseId, 0);
+				rabbitMQProducer.sendToQ2(username, Constants.RESULT_SUCCESS.toString());
+				return ResponseEntity.ok().build();
+			}
 			String ipAddress = request.getRemoteAddr();
 			String paymentUrl = paymentService.createPaymentUrl(username, amount, orderInfo, ipAddress);
 			responseService.addCookie(response, "payment", jwtService.generateToken(username + "~~" + orderInfo, 900000));
@@ -82,8 +99,9 @@ public class PaymentController {
 					String vnp_SecureHash = responseDTO.getVnp_SecureHash();
 					if (signValue.equals(vnp_SecureHash)) {
 						String vnp_ResponseCode = fields.get("vnp_ResponseCode");
-						rabbitMQProducer.sendToQ1(username, "Bạn đã thực hiện 1 giao dịch");
-						if ("00".equals(vnp_ResponseCode)) {
+						long vnp_Amount = Long.parseLong(fields.get("vnp_Amount"));
+						boolean isSubSuccess = "00".equals(vnp_ResponseCode) && setSubscription(username, Integer.parseInt(orderInfo1.split("_")[1]), vnp_Amount);
+						if (isSubSuccess) {
 							rabbitMQProducer.sendToQ2(username, Constants.RESULT_SUCCESS.toString());
 							return "redirect:" + Constants.URL_FE_PAYMENT_SUCCESS;
 						} else {
@@ -99,4 +117,18 @@ public class PaymentController {
 		}
 		return "Failed. Data is missing";
 	}
+
+	boolean setSubscription(String username, Integer courseId, long amount) {
+		CourseModel course = courseRepo.findCourseModelById(courseId);
+		if (course != null) {
+			SubscriptionModel subscriptionModel = new SubscriptionModel();
+			subscriptionModel.setUser(UserModel.builder().id(username).build());
+			subscriptionModel.setCourse(course);
+			subscriptionModel.setBoughtPrice(BigDecimal.valueOf(amount / 100));
+			subscriptionRepo.save(subscriptionModel);
+			return true;
+		}
+		return false;
+	}
+
 }

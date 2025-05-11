@@ -1,5 +1,6 @@
 import ClientHeaderWrapper from "@/components/ClientHeaderWrapper"
 import ClientFooterWrapper from "@/components/ClientFooterWrapper"
+import { ToastContainer } from "react-toastify"
 
 export default function CoursePageLayout({
     children,
@@ -8,10 +9,11 @@ export default function CoursePageLayout({
 }) {
     return (
         <>
-            <ClientHeaderWrapper color="blue"/>
-             {children}
+            <ClientHeaderWrapper color="blue" />
+            {children}
+            <ToastContainer />
             <br />
-            <ClientFooterWrapper/>
+            <ClientFooterWrapper />
         </>
     )
 }

@@ -70,7 +70,7 @@ export default function Header(props: IHeaderProps) {
   const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
 
 
-  const [userLoginCookie, setUserLoginCookie] = useState<UserModel | null>(null);
+  const [userLoginCookie, setUserLoginCookie] = useState<UserModel|undefined>();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const bgColor = props.color === "blue" ? "bg-[#001d74]" : "border-b  supports-[backdrop-filter]:bg-background/60";
 
@@ -79,11 +79,14 @@ export default function Header(props: IHeaderProps) {
   useEffect(() => {
     if (user) {
       setUserLoginCookie(user)
+    }else{
+      setUserLoginCookie(undefined)
     }
   }, [user])
 
 
   useEffect(() => {
+    if(!userLoginCookie) return
     const newMessageSocket = new SockJS(
       url_backend_default + "/ws/notification"
     );
@@ -93,11 +96,11 @@ export default function Header(props: IHeaderProps) {
       onConnect: () => {
         console.log("✅ Connected to WebSocket");
         newMessageClient.subscribe(
-          `/topic/receive/${JSON.parse(String(localStorage.getItem("currentUser")))?.id
+          `/topic/receive/${userLoginCookie?.id}
           }`,
           (message: IMessage) => {
             console.log("📩 Message received:", message.body);
-            MyToaster({ variant: "", message: message.body });
+            MyToaster(undefined,message.body);
           },
           {
             username: JSON.parse(String(localStorage.getItem("currentUser")))
@@ -113,7 +116,7 @@ export default function Header(props: IHeaderProps) {
     return () => {
       newMessageClient.deactivate();
     };
-  }, []);
+  }, [userLoginCookie]);
 
   return (
     <header className={`z-50 px-5 md:px-20 sticky top-0 w-full ${bgColor}`}>

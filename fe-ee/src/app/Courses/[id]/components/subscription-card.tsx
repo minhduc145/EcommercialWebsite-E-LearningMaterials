@@ -18,12 +18,13 @@ interface SubscriptionCardProps {
 export default function SubscriptionCard({ course }: SubscriptionCardProps) {
   const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
   const [isSubscribed, setIsSubscribed] = useState<boolean | false>(false)
+  const [subscribedAt, setSubscribedAt] = useState("")
 
 
   useEffect(() => {
     isSubscribedByUser(course.id).then(res => {
-      if (res.data == true)
-        setIsSubscribed(res.data)
+        setIsSubscribed(res.data?.inSub)
+        setSubscribedAt(res.data?.subAt??"")
     }).catch(() => {
     })
   }, [])
@@ -42,7 +43,7 @@ export default function SubscriptionCard({ course }: SubscriptionCardProps) {
           <>
             <span>Mua học liệu:</span>
             <div>
-              <VNPayButton amount={course.price} orderInfo={`${course.id}_${course.title}`} />
+              <VNPayButton amount={course.price} orderInfo={`THANHTOAN_${course.id}`} />
             </div>
           </>
         )}
@@ -56,7 +57,7 @@ export default function SubscriptionCard({ course }: SubscriptionCardProps) {
             </div>
             <div>
               <h3 className="text-lg font-medium">Ngày đăng ký</h3>
-              {isSubscribed ? <p className="font-medium">09/04/2024</p> : <i>Chưa đăng ký</i>}
+              {isSubscribed ? <p className="font-medium">{formatDate(subscribedAt)}</p> : <i>Chưa đăng ký</i>}
             </div>
           </div>
         </div>

@@ -26,7 +26,7 @@ public class SubscriptionModel {
 	@Column(name = "status")
 	private String status;
 
-	@Column(name = "created_at")
+	@Column(name = "created_at",insertable = false, updatable = false)
 	private Timestamp created_at;
 
 	@ManyToOne

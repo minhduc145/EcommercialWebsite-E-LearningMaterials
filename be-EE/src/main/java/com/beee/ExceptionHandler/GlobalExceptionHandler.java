@@ -32,6 +32,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ResponseEntity handleIllegalArgument(IllegalArgumentException e) {
+		e.printStackTrace();
 		return ResponseEntity
 				.badRequest()
 				.body(Utils.mapOfResponse(Constants.RESULT_FAIL, "failed",e.getMessage()));

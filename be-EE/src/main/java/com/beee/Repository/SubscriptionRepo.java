@@ -9,4 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface SubscriptionRepo extends JpaRepository<SubscriptionModel, Long> {
 	boolean existsByUser_IdAndCourse_Id(String userId, Integer courseId);
+
+	SubscriptionModel findByUser_IdAndCourse_Id(String userId, Integer courseId);
 }

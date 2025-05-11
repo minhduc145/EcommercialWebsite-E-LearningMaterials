@@ -1,16 +1,13 @@
 import { useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 
-interface IProps {
-    variant: string,
-    message: string
-}
-export default function MyToaster(props: IProps) {
-    if (!props.variant) {
+
+export default function MyToaster(variant:string|undefined,message:string) {
+    if (!variant) {
         toast.info(<div>
             Thông báo:
             <br />
-            {props.message&&props.message}
+            {message&&message}
         </div>, {
             position: "top-right",
             autoClose: 5000,
@@ -22,11 +19,11 @@ export default function MyToaster(props: IProps) {
             theme: "light",
         });
     }
-    else if (props.variant === "error") {
+    else if (variant === "error") {
         toast.error(<div>
             Thất bại
             <br />
-            {props.message&&props.message}
+            {message&&message}
         </div>, {
             position: "top-right",
             autoClose: 5000,
@@ -38,11 +35,11 @@ export default function MyToaster(props: IProps) {
             theme: "light",
         });
     }
-    else if (props.variant === "success") {
+    else if (variant === "success") {
         toast.success(<div>
             Thành công
             <br />
-            {props.message&&props.message}
+            {message&&message}
         </div>, {
             position: "top-right",
             autoClose: 5000,
@@ -53,11 +50,11 @@ export default function MyToaster(props: IProps) {
             progress: undefined,
             theme: "light",
         });
-    } else if (props.variant === "warn") {
+    } else if (variant === "warn") {
         toast.warn(<div>
             Cảnh báo:
             <br />
-            {props.message&&props.message}
+            {message&&message}
         </div>, {
             position: "top-right",
             autoClose: 5000,
