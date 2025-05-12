@@ -1,13 +1,16 @@
 package com.beee.DTO;
 
 import com.beee.Model.CategoryModel;
-import com.beee.Model.UserModel;
+import lombok.Data;
+import lombok.ToString;
 
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-public class FeaturedCourseResDTO {
+@Data
+@ToString
+public class CourseBasicResDTO {
 	private Integer id;
 	private Timestamp createdAt;
 	private String description;

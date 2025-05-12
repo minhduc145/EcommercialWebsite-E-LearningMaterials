@@ -17,11 +17,10 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<Map> handleValidationExceptions(MethodArgumentNotValidException ex) {
 		Map<String, Object> errors = new HashMap<>();
-		errors.put("result", Constants.RESULT_FAIL);
 		ex.getBindingResult().getFieldErrors().forEach(error -> {
 			errors.put(error.getField(), error.getDefaultMessage());
 		});
-		return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+		return ResponseEntity.badRequest().body(Utils.mapOfResponse(Constants.RESULT_FAIL,"failed",errors));
 	}
 	@ExceptionHandler(MaxUploadSizeExceededException.class)
 	public ResponseEntity handleMaxSizeException(MaxUploadSizeExceededException e) {

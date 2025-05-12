@@ -9,4 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface UserRepo extends JpaRepository<UserModel, String> {
 	UserModel findUserModelById(String id);
+
+	boolean existsByIdOrEmail(String id, String email);
 }

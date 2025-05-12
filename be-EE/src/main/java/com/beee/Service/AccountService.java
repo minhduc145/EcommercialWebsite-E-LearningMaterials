@@ -6,5 +6,4 @@ import java.util.Map;
 
 @Service
 public interface AccountService {
-	Map onDefaultLogin();
 }

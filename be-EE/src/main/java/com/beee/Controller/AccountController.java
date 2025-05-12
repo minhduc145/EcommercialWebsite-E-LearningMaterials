@@ -21,6 +21,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +44,8 @@ public class AccountController {
 	private JwtService jwtService;
 	@Autowired
 	private AccountRepo accountRepo;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@PostMapping("/login")
 	public ResponseEntity login(@RequestBody UserLoginFormDTO loginFormDTO, HttpServletResponse response) {
@@ -61,10 +65,28 @@ public class AccountController {
 
 	@PostMapping("/signup")
 	public ResponseEntity signup(@Valid @RequestBody UserRegisterFormDTO formBody) {
-		Map response = new HashMap<String, Object>();
-		response.put("code", "1");
-		response.put("user", formBody);
-		return ResponseEntity.of(Optional.of(response));
+		if(userRepo.existsByIdOrEmail(formBody.getUsername(), formBody.getEmail())) {
+			return ResponseEntity.of(Optional.of(Utils.mapOfResponse(Constants.RESULT_FAIL, "failed", "Username hoặc Email đã được sử dụng")));
+		}else{
+			AccountModel account = AccountModel.builder()
+					.password(passwordEncoder.encode(formBody.getPassword()))
+					.provider("default")
+					.role("USER")
+					.build();
+
+			UserModel user = UserModel.builder()
+					.id(formBody.getUsername())
+					.firstName(formBody.getFirstName())
+					.lastName(formBody.getLastName())
+					.email(formBody.getEmail())
+					.phone(formBody.getPhone())
+					.account(account)
+					.build();
+
+			account.setUser(user);
+			userRepo.save(user);
+		}
+		return ResponseEntity.of(Optional.of(Utils.mapOfResponse(Constants.RESULT_SUCCESS, "ok", formBody)));
 	}
 
 	@PostMapping("/get_user_login_info_by_cookie")

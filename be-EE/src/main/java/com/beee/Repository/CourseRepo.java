@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Transactional
@@ -21,4 +22,6 @@ public interface CourseRepo extends JpaRepository<CourseModel, Integer> {
 	boolean existsByCreator_Id(String creatorId);
 
 	boolean existsByIdAndCreator_Id(Integer id, String creatorId);
+
+	List<CourseModel> findAllByIsFeaturedTrue(Boolean isFeatured);
 }

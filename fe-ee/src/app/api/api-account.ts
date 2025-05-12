@@ -16,3 +16,7 @@ export async function getAccountInfo(){
 export async function getUserInfo(){
     return await axios.post("/api/accounts/get_user_login_info_by_cookie");
 }
+
+export async function submitSignUp(formData:any){
+    return await axios.post("/api/accounts/signup",formData);
+}

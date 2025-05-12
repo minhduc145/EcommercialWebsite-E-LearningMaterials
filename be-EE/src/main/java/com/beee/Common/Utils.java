@@ -2,6 +2,7 @@ package com.beee.Common;
 
 
 import com.beee.Repository.ReviewRepo;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -40,5 +41,10 @@ public class Utils {
 			return "iframe";
 		if (Constants.SCORM_TYPES.contains(contentType) || contentType.contains("scorm")) return "scorm";
 		return "unknown";
+	}
+
+	public static String encodePassword(String rawPassword) {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
+		return encoder.encode(rawPassword);
 	}
 }

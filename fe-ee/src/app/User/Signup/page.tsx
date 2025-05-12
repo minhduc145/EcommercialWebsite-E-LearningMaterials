@@ -4,178 +4,174 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
-import { Eye, EyeOff, House } from "lucide-react"
+import { House } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import * as yup from "yup";
+import axios from "axios";
+import { url_backend_default } from "@/lib/public-var"
+import { useForm } from "react-hook-form"
+import { yupResolver } from "@hookform/resolvers/yup"
+import { submitSignUp } from "@/app/api/api-account"
+import MyToaster from "@/components/ui/toastify-template"
+import { setTimeout } from "timers"
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = url_backend_default;
+const schema = yup.object({
+    firstName: yup.string().required("Vui lòng nhập Họ"),
+    lastName: yup.string().required("Vui lòng nhập Tên"),
+    username: yup.string().required('Vui lòng nhập Username'),
+    phone: yup
+        .string()
+        .matches(/^\d{10}$/, 'Vui lòng nhập SĐT (10 chữ số)')
+        .required('Vui lòng nhập SĐT'),
+    email: yup.string().email('Email không hợp lệ').required('Vui lòng nhập Email'),
+    password: yup.string().min(3, 'Mật khẩu ít nhất 3 ký tự').required('Vui lòng nhập mật khẩu'),
+    confirmPassword: yup
+        .string()
+        .oneOf([yup.ref('password')], 'Mật khẩu không khớp')
+        .required('Vui lòng xác nhận mật khẩu'),
+});
+
 
 export default function SignUpForm() {
-    const [showPassword, setShowPassword] = useState(false)
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-    const [formData, setFormData] = useState({
-        firstName: "",
-        lastName: "",
-        emailOrUsername: "",
-        phone: "",
-        address: "",
-        password: "",
-        confirmPassword: "",
-    })
+    const { register, handleSubmit, formState: { errors } } = useForm({
+        resolver: yupResolver(schema),
+    });
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }))
-    }
+    const onSubmit = (data: any) => {
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        // Form submission logic would go here
-        console.log("Form submitted:", formData)
+        submitSignUp(data).then(res => {
+            const resData = res?.data
+            if (resData.result == 1) {
+                MyToaster("success", "Đăng ký thành công")
+                setTimeout(() => {
+                    location.href = "/User/Login"
+                }, 1000)
+            } else {
+                MyToaster("error",res?.data.details)
+            }
+
+        })
     }
 
     return (
         <>
-        <a className="absolute p-5 float-left" href="/">
-        <House aria-hidden className="size-6" />
-      </a>
-        <div className=" mx-auto flex items-center justify-center min-h-screen py-6 bg-white lg:bg-muted ">
-            <Card className="w-full max-w-sm mx-auto border-0 shadow-none lg:shadow-sm lg:border-sm">
-                <CardHeader className="text-center">
-                    <CardTitle className="text-2xl">Đăng ký tài khoản</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="firstName">Họ</Label>
-                                <Input
-                                    id="firstName"
-                                    name="firstName"
-                                    placeholder="Nguyễn"
-                                    value={formData.firstName}
-                                    onChange={handleInputChange}
-                                    required
-                                />
+            <a className="absolute p-5 float-left" href="/">
+                <House aria-hidden className="size-6" />
+            </a>
+            <div className=" mx-auto flex items-center justify-center min-h-screen py-6 bg-white lg:bg-muted ">
+                <Card className="w-full max-w-sm mx-auto border-0 shadow-none lg:shadow-sm lg:border-sm">
+                    <CardHeader className="text-center">
+                        <CardTitle className="text-2xl">Đăng ký tài khoản</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="">
+                                    <Label htmlFor="firstName">Họ</Label>
+                                    <Input
+                                        {...register("firstName")}
+                                        id="firstName"
+                                        placeholder="Nguyễn"
+                                    />
+                                    {errors.firstName && (
+                                        <p className="text-red-500 text-[12px]">{errors.firstName.message}</p>
+                                    )}
+                                </div>
+                                <div className="">
+                                    <Label htmlFor="lastName">Tên</Label>
+                                    <Input
+                                        {...register("lastName")}
+                                        id="lastName"
+                                        placeholder="Văn A"
+                                    />
+                                    {errors.lastName && (
+                                        <p className="text-red-500 text-[12px]">{errors.lastName.message}</p>
+                                    )}
+                                </div>
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="lastName">Tên</Label>
+
+                            <div className="">
+                                <Label htmlFor="username">Tên đăng nhập</Label>
                                 <Input
-                                    id="lastName"
-                                    name="lastName"
-                                    placeholder="Văn A"
-                                    value={formData.lastName}
-                                    onChange={handleInputChange}
-                                    required
+                                    id="username"
+                                    type="text"
+                                    {...register("username")}
                                 />
+                                {errors.username && (
+                                    <p className="text-red-500 text-[12px]">{errors.username.message}</p>
+                                )}
                             </div>
-                        </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="emailOrUsername">Email hoặc tên đăng nhập</Label>
-                            <Input
-                                id="emailOrUsername"
-                                name="emailOrUsername"
-                                type="text"
-                                placeholder="example@domain.com"
-                                value={formData.emailOrUsername}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </div>
+                            <div className="">
+                                <Label htmlFor="phone">Số điện thoại</Label>
+                                <Input
+                                    id="phone"
+                                    type="tel"
+                                    placeholder="0912345678"
+                                    {...register("phone")}
+                                />
+                                {errors.phone && (
+                                    <p className="text-red-500 text-[12px]">{errors.phone.message}</p>
+                                )}
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="phone">Số điện thoại</Label>
-                            <Input
-                                id="phone"
-                                name="phone"
-                                type="tel"
-                                placeholder="0912345678"
-                                value={formData.phone}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </div>
+                            <div className="">
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                    type={"email"}
+                                    id="email"
+                                    placeholder="example@email.com"
+                                    {...register("email")}
+                                />
+                                {errors.email && (
+                                    <p className="text-red-500 text-[12px]">{errors.email.message}</p>
+                                )}
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="address">Địa chỉ</Label>
-                            <Input
-                                id="address"
-                                name="address"
-                                placeholder="Nhập địa chỉ của bạn"
-                                value={formData.address}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="password">Mật khẩu</Label>
-                            <div className="relative">
+                            <div className="">
+                                <Label htmlFor="password">Mật khẩu</Label>
                                 <Input
                                     id="password"
-                                    name="password"
-                                    type={showPassword ? "text" : "password"}
-                                    value={formData.password}
-                                    onChange={handleInputChange}
-                                    required
+                                    type={"password"}
+                                    {...register("password")}
                                 />
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="absolute right-0 top-0 h-full px-3"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                >
-                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                    <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
-                                </Button>
+                                {errors.password && (
+                                    <p className="text-red-500 text-[12px]">{errors.password.message}</p>
+                                )}
                             </div>
-                        </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Nhập lại mật khẩu</Label>
-                            <div className="relative">
+                            <div className="">
+                                <Label htmlFor="confirmPassword">Nhập lại mật khẩu</Label>
                                 <Input
                                     id="confirmPassword"
-                                    name="confirmPassword"
-                                    type={showConfirmPassword ? "text" : "password"}
-                                    value={formData.confirmPassword}
-                                    onChange={handleInputChange}
-                                    required
+                                    type={"password"}
+                                    {...register("confirmPassword")}
                                 />
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="absolute right-0 top-0 h-full px-3"
-                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                >
-                                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                    <span className="sr-only">{showConfirmPassword ? "Hide password" : "Show password"}</span>
-                                </Button>
+                                {errors.confirmPassword && (
+                                    <p className="text-red-500 text-[12px]">{errors.confirmPassword.message}</p>
+                                )}
                             </div>
-                        </div>
 
-                        <Button type="submit" className="w-full">
-                            Đăng ký
-                        </Button>
-                    </form>
-                </CardContent>
-                <CardFooter className="flex justify-center">
-                    <p className="text-sm text-muted-foreground">
-                        Đã có tài khoản?{" "}
-                        <Link href="/User/Login" className="text-primary underline underline-offset-4 hover:text-primary/90">
-                            Đăng nhập
-                        </Link>
-                    </p>
-                </CardFooter>
-            </Card>
-        </div>
+                            <Button type="submit" className="w-full">
+                                Đăng ký
+                            </Button>
+                        </form>
+                    </CardContent>
+                    <CardFooter className="flex justify-center">
+                        <p className="text-sm text-muted-foreground">
+                            Đã có tài khoản?{" "}
+                            <Link href="/User/Login" className="text-primary underline underline-offset-4 hover:text-primary/90">
+                                Đăng nhập
+                            </Link>
+                        </p>
+                    </CardFooter>
+                </Card>
+            </div>
         </>
     )
 }

@@ -57,7 +57,6 @@ public class UserLoginService implements UserDetailsService {
 			responseService.addCookie(response, "jwt", jwtService.generateToken(accountModel.getId()));
 			response.sendRedirect(Constants.URL_FE_LOGIN_SUCCESS);
 		} else {
-			System.out.println(principal);
 			UserModel newUserModel = new UserModel().builder()
 					.id(principal.getAttribute("sub"))
 					.email(principal.getAttribute("email"))

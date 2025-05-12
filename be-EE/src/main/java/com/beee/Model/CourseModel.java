@@ -45,6 +45,9 @@ public class CourseModel {
 	@Column(name = "subscriber_number",insertable = false, updatable = false)
 	private Long subscriberNumber;
 
+	@Column(name = "is_featured")
+	private Boolean isFeatured;
+
 	@Transient
 	private String categoryId;
 

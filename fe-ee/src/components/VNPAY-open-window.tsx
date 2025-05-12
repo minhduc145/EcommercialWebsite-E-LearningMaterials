@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import SockJS from "sockjs-client";
 import MyToaster from "./ui/toastify-template";
 import axios from "axios";
+import Image from "next/image";
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = url_backend_default;
 
@@ -117,10 +118,11 @@ export default function VNPayButton(props: IProps) {
             disabled={loading}
         >
             {loading ? "Đang xử lý..." : "Thanh toán qua"}
-            <img
-                src="https://cdn.brandfetch.io/idV02t6WJs/theme/dark/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B"
+            <Image
+                src="https://pay.vnpay.vn/images/brands/logo-en.svg"
                 alt="VNPay Logo"
                 className="w-15 h-15"
+                width={15} height={15}
             />
         </Button>
     );
