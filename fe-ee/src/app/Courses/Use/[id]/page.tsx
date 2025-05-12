@@ -156,6 +156,7 @@ export default function CourseLayout() {
 
 function FileContentView({ file }: { file: CourseFileModel | undefined }) {
     const r2BaseUrl = link_r2_default + "/";
+   
     const getProcessedView = () => {
         const rawUrl = file?.url
         var embeddedUrl = "";

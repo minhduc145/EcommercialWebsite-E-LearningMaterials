@@ -65,6 +65,11 @@ public class CourseController {
 		return ResponseEntity.ok(courseRepo.findAll());
 	}
 
+	@GetMapping("/getFeatures")
+	public ResponseEntity getFeatures() {
+		return ResponseEntity.ok(courseRepo.findAllByIsFeaturedTrue());
+	}
+
 	@GetMapping("/search")
 	public ResponseEntity searchCourses(@RequestParam Map<String, String> params) {
 		Integer pageIndex = Integer.parseInt(params.get("pageIndex"));
@@ -117,6 +122,7 @@ public class CourseController {
 					).collect(Collectors.toList()));
 		else return ResponseEntity.ok(new ArrayList<String>());
 	}
+
 
 	@GetMapping("/getCourseDataWithUrl/{id}")
 	public ResponseEntity getCourseDataWithUrl(@CookieValue(name = "jwt") String userToken, @PathVariable(required = true) Integer id) {
@@ -266,7 +272,7 @@ public class CourseController {
 					|| courseRepo.existsByCreator_Id(username)
 					|| accountRepo.existsByIdAndRole(username, Constants.ROLE_ADMIN);
 			if (i)
-				return ResponseEntity.ok().body(Map.of("inSub", i, "subAt", subscriptionModel.getCreated_at()!=null?subscriptionModel.getCreated_at():""));
+				return ResponseEntity.ok().body(Map.of("inSub", i, "subAt", subscriptionModel != null ? subscriptionModel.getCreated_at() : ""));
 			return ResponseEntity.ok().body(Map.of("inSub", i));
 		}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

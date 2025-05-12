@@ -17,15 +17,15 @@ export default function CourseHeader({ course, averageStar }: CourseHeaderProps)
     >
       <div className="absolute inset-0"></div>
       
-      <div className="w-auto relative container px-4 pt-6 pb-6 z-20">
+      <div className="w-auto max-w-[70%] relative container px-4 pt-6 pb-6 z-20  z-auto">
         <div className="flex relative items-center gap-3 md:gap-10 backdrop-blur-md bg-black/40 rounded-xl shadow-2xl p-6">
           <div>
             <img src="/global_imgs/logoCourse.svg" alt="" />
           </div>
           <div className="flex flex-col gap-4 justify-between text-white">
-            <p className="text-3xl font-bold ">{course?.title}</p>
+            <p className="text-3xl font-bold">{course?.title}</p>
             <div className="flex flex-col gap-1">
-              <p className="font-bold">{course?.category.name}</p>
+              <p className="italic">{course?.category.name}</p>
               <CourseHeaderStats course={course} averageStar={averageStar} />
             </div>
           </div>

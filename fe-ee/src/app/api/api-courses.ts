@@ -9,6 +9,11 @@ export default async function getAllCourses() {
     return await axios.get("/api/courses/getAll")
 }
 
+export async function getFeaturesSummary() {
+    return await axios.get("/api/courses/getFeatures")
+}
+
+
 export async function getSearchCourses(keyword: string, pageIndex: number) {
     return await axios.get("/api/courses/search", {
         params: {
