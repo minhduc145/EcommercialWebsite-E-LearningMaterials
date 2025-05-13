@@ -9,11 +9,11 @@ import { getCourseData } from "@/app/api/api-courses"
 
 interface MainTabsProps {
   course: CourseModel
+  resetCommentKey: boolean
 }
 
-export default function MainTabs({ course }: MainTabsProps) {
+export default function MainTabs({ course,resetCommentKey }: MainTabsProps) {
   const [courseData, setCourseData] = useState<CourseContainerModel[]>([])
-
   useEffect(() => {
     getCourseData(String(course.id))
       .then((response) => {
@@ -24,22 +24,22 @@ export default function MainTabs({ course }: MainTabsProps) {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4  rounded-md">
-      <Tabs defaultValue="mo-ta" className="w-full">
+      <Tabs defaultValue="description" className="w-full">
         <TabsList className="grid w-full items-center justify-center mx-auto grid-cols-3 rounded-lg p-1 bg-slate-100">
           <TabsTrigger
-            value="mo-ta"
+            value="description"
             className="rounded-md data-[state=active]:bg-orange-400 data-[state=active]:text-white transition-all"
           >
             Mô tả
           </TabsTrigger>
           <TabsTrigger
-            value="tai-lieu"
+            value="docs"
             className="rounded-md data-[state=active]:bg-orange-400 data-[state=active]:text-white transition-all"
           >
             Tài liệu
           </TabsTrigger>
           <TabsTrigger
-            value="danh-gia"
+            value="reviews"
             className="rounded-md data-[state=active]:bg-orange-400 data-[state=active]:text-white transition-all"
           >
             Đánh giá
@@ -47,17 +47,17 @@ export default function MainTabs({ course }: MainTabsProps) {
         </TabsList>
 
         <div className="mt-3 border shadow-xl rounded-lg p-6">
-          <TabsContent value="mo-ta" className="space-y-4 flex flex-col-reverse">
+          <TabsContent value="description" className="space-y-4 flex flex-col-reverse">
             <br />
             <div
               className="reset"
               dangerouslySetInnerHTML={{
-                __html: course.description?course.description: "<p class='text-center font-light'><i class='mx-auto'>Không có dữ liệu</i><p>",
+                __html: course.description ? course.description : "<p class='text-center font-light'><i class='mx-auto'>Không có dữ liệu</i><p>",
               }}
             />
           </TabsContent>
 
-          <TabsContent value="tai-lieu" className="space-y-4">
+          <TabsContent value="docs" className="space-y-4">
             <div className="">
               {courseData.length !== 0 ? (
                 <CourseFileAccordion course_data={courseData ?? []} />
@@ -67,9 +67,9 @@ export default function MainTabs({ course }: MainTabsProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="danh-gia" className="space-y-4">
+          <TabsContent value="reviews" className="space-y-4">
             <div className="space-4">
-              <CommentLayout id={String(course?.id)} />
+              <CommentLayout id={String(course?.id)} resetCommentKey={resetCommentKey} />
             </div>
           </TabsContent>
         </div>

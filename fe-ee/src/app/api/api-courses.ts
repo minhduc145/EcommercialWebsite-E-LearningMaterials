@@ -28,7 +28,7 @@ export async function getCourse(id: string | null) {
 }
 
 export async function getCourseReview(id: string | null, currentPage: any) {
-    return await axios.get("/api/courses/getReview/" + id, {
+    return await axios.get("/api/courses/review/get/" + id, {
         params: {
             pageIndex: currentPage
         }
@@ -36,11 +36,11 @@ export async function getCourseReview(id: string | null, currentPage: any) {
 }
 
 export async function getSumAllStarReview(id: string | null) {
-    return await axios.get("/api/courses/getReview/getTotalStar/" + id)
+    return await axios.get("/api/courses/review/get/getTotalStar/" + id)
 }
 
 export async function getAverageStarReview(id: string | null) {
-    return await axios.get("/api/courses/getReview/getAverageStar/" + id)
+    return await axios.get("/api/courses/review/get/getAverageStar/" + id)
 }
 
 export async function getCourseData(id: string | null) {
@@ -48,6 +48,21 @@ export async function getCourseData(id: string | null) {
 }
 export async function getCourseDataWithUrl(id: string | null) {
     return await axios.get("/api/courses/getCourseDataWithUrl/" + id)
+}
+export async function getReviewByUserAndCourse(courseId:string,username:string) {
+    return await axios.get("/api/courses/review/get",{
+        params:{
+            courseId,
+            username
+        }
+    })
+}
+export async function submitReview(reviewId:number|undefined,courseId:string, comment:string, star:number) {
+    return await axios.post("/api/courses/review/add",{reviewId,courseId,comment,star})
+}
+
+export async function deleteReview(reviewId:number) {
+    return await axios.post("/api/courses/review/delete",{reviewId})
 }
 
 export async function deleteCourse(idSet: string[] | []) {

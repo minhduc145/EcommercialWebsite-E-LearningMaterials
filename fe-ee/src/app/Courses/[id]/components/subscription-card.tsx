@@ -5,26 +5,29 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import VNPayButton from "@/components/VNPAY-open-window"
 import { formatDate } from "@/lib/utils"
-import { getUserInfo } from "@/app/api/api-account"
 import type { CourseModel } from "@/models/CourseModel"
-import type { UserModel } from "@/models/UserModel"
 import { useUserInfo } from "@/lib/user-info"
-import { isSubscribedByUser } from "@/app/api/api-courses"
+import { deleteReview, getReviewByUserAndCourse, isSubscribedByUser, submitReview } from "@/app/api/api-courses"
+import { StarRating } from "@/components/ui/star-rating"
+import { Textarea } from "@/components/ui/textarea"
+import { CourseReviewModel } from "@/models/CourseReviewModel"
+import MyToaster from "@/components/ui/toastify-template"
 
 interface SubscriptionCardProps {
   course: CourseModel
+  onReviewSubmit: (i: boolean) => void
+  resetCommentKey: boolean
 }
 
-export default function SubscriptionCard({ course }: SubscriptionCardProps) {
+export default function SubscriptionCard({ course, onReviewSubmit, resetCommentKey }: SubscriptionCardProps) {
   const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
   const [isSubscribed, setIsSubscribed] = useState<boolean | false>(false)
   const [subscribedAt, setSubscribedAt] = useState("")
 
-
   useEffect(() => {
     isSubscribedByUser(course.id).then(res => {
-        setIsSubscribed(res.data?.inSub)
-        setSubscribedAt(res.data?.subAt??"")
+      setIsSubscribed(res.data?.inSub)
+      setSubscribedAt(res.data?.subAt ?? "")
     }).catch(() => {
     })
   }, [])
@@ -66,7 +69,70 @@ export default function SubscriptionCard({ course }: SubscriptionCardProps) {
           <h3 className="text-lg font-medium">Số học viên</h3>
           <p className="text-2xl font-bold">{course.subscriberNumber}</p>
         </div>
+        <hr className="border-t border-gray-200" />
+        <div>
+          <UserRate userId={user?.id} course={course} isShown={isSubscribed} resetCommentKey={resetCommentKey} setCommentResetKey={onReviewSubmit} />
+        </div>
+
       </CardContent>
     </Card>
+  )
+}
+
+
+function UserRate({ userId, course, isShown = false, resetCommentKey, setCommentResetKey }: { userId: string | undefined, course: CourseModel, isShown: boolean, resetCommentKey: boolean, setCommentResetKey: (i: boolean) => void }) {
+  const [review, setReview] = useState<CourseReviewModel>()
+  const [star, setStar] = useState<number>(5)
+  const [isEditing, setIsEditing] = useState(false)
+  const [comment, setComment] = useState("")
+
+  useEffect(() => {
+    if (userId)
+      getReviewByUserAndCourse(course?.id, userId).then(res => {
+        setReview(res.data)
+        setComment(res.data.comment)
+        setStar(res.data.starRate)
+        setIsEditing(true)
+      }).catch(() => {
+        setReview(undefined)
+        setIsEditing(false)
+      })
+  }, [resetCommentKey])
+
+  const handleSubmit = () => {
+    submitReview(review?.id, course.id, comment, star == 0 ? 1 : star).then(res => {
+      if (res.data) {
+        setReview(res.data)
+        setCommentResetKey(!resetCommentKey)
+        MyToaster("success", `${isEditing ? "Sửa" : "Gửi"} đánh giá thành công`)
+      }
+    }).catch()
+  }
+
+  const handleDelete = () => {
+    if (review?.id)
+      deleteReview(review?.id).then(res => {
+        if (res?.data == true) {
+          setCommentResetKey(!resetCommentKey)
+          setStar(0)
+          setComment("")
+          MyToaster("success", "Xóa đánh giá thành công")
+        }
+      }).catch()
+  }
+
+  if (isShown) return (
+    <div className="flex flex-col gap-2">
+      <h3 className="text-lg font-medium">Để lại đánh giá</h3>
+      <div className="flex  gap-2 self-center">
+        <StarRating rating={star} className="hover:cursor-pointer" onChange={setStar} />
+        <i>{`(${star} sao)`}</i>
+      </div>
+      <Textarea value={comment} placeholder="Viết đánh giá" onChange={(e) => setComment(e.target.value)} />
+      <div className="self-end">
+        {review && <Button className="text-red-500" variant={"link"} onClick={handleDelete}>Xóa</Button>}
+        <Button className=" bg-green-600 hover:bg-green-500" onClick={handleSubmit}>Gửi</Button>
+      </div>
+    </div>
   )
 }

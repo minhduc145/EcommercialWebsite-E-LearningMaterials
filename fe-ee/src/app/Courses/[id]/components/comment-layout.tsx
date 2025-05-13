@@ -4,21 +4,23 @@ import { Star } from "lucide-react"
 import { ProgressBar } from "@/components/ui/progress"
 import PaginationCluster from "@/components/ui/pagination-button-cluster"
 import type { CourseReviewModel } from "@/models/CourseReviewModel"
-import type { UserModel } from "@/models/UserModel"
 import { getCourseReview } from "@/app/api/api-courses"
 import { formatDateTime } from "@/lib/utils"
+import { useUserInfo } from "@/lib/user-info"
 
 interface CommentLayoutProps {
-  id: string
+  id: string;
+  resetCommentKey:boolean
 }
 
-export default function CommentLayout({ id }: CommentLayoutProps) {
+export default function CommentLayout({ id,resetCommentKey }: CommentLayoutProps) {
+    const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
+  
   const [reviews, setReviews] = useState<CourseReviewModel[]>([])
   const [reviewLength, setReviewLength] = useState<number>(0)
   const [totalPages, setTotalPages] = useState<number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [starRateMeta, setStarRateMeta] = useState<[number, number][]>([])
-  const currentUser: UserModel = JSON.parse(String(localStorage.getItem("currentUser")))
 
   const onPageChange = (page: number) => {
     setCurrentPage(page)
@@ -31,7 +33,7 @@ export default function CommentLayout({ id }: CommentLayoutProps) {
       setTotalPages(response?.data.reviewPageable.totalPages)
       setStarRateMeta(response?.data.starRateMeta)
     })
-  }, [id, currentPage])
+  }, [id, currentPage,resetCommentKey])
 
   return (
     <>
@@ -73,7 +75,7 @@ export default function CommentLayout({ id }: CommentLayoutProps) {
                     <div className="flex justify-between items-center mb-2">
                       <h3 className="font-medium">
                         {review.user.lastName}&nbsp;{review.user.firstName}&nbsp;
-                        <i className="text-sm font-light">{review.user.id === currentUser?.id ? "• Bạn" : ""}</i>
+                        <i className="text-sm font-light">{review.user.id === user?.id ? "• Bạn" : ""}</i>
                       </h3>
                       <span className="text-sm text-gray-500">{formatDateTime(review.createdAt)}</span>
                     </div>

@@ -3,31 +3,22 @@ package com.beee.Controller;
 import com.beee.Common.Constants;
 import com.beee.Common.Utils;
 import com.beee.DTO.CourseContainerRequestDTO;
-import com.beee.DTO.CourseDataRequestDTO;
 import com.beee.DTO.CourseFileReqDTO;
 import com.beee.Model.*;
 import com.beee.Repository.*;
 import com.beee.Service.CourseService;
 import com.beee.Service.FileService;
-import com.beee.Service.Impl.S3ServiceImpl;
 import com.beee.Service.S3Service;
 import com.beee.WebSecurityService.JwtService;
-import jakarta.persistence.Version;
 import jakarta.validation.Valid;
-import jdk.jshell.execution.Util;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -86,7 +77,7 @@ public class CourseController {
 		else return ResponseEntity.notFound().build();
 	}
 
-	@GetMapping("/getReview/{id}")
+	@GetMapping("/review/get/{id}")
 	public ResponseEntity getReviewById(@PathVariable int id, Integer pageIndex) {
 		if (pageIndex == null || pageIndex < 1) pageIndex = 1;
 		pageIndex--;
@@ -97,12 +88,48 @@ public class CourseController {
 		return ResponseEntity.ok(map);
 	}
 
-	@GetMapping("/getReview/getTotalStar/{id}")
+	@PostMapping("/review/add")
+	public ResponseEntity addReview(@CookieValue(name = "jwt") String userToken, @RequestBody Map<String, String> params) {
+		if (userToken == null || jwtService.isTokenExpired(userToken))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		String username = jwtService.extractUsername(userToken);
+		CourseReviewModel courseReviewModel;
+		if (params.get("reviewId") == null) {
+			courseReviewModel = CourseReviewModel.builder().starRate(Integer.valueOf(params.get("star")))
+					.comment(params.get("comment"))
+					.user(UserModel.builder().id(username).build())
+					.course(CourseModel.builder().id(Integer.valueOf(params.get("courseId"))).build()).build();
+		} else {
+			courseReviewModel = reviewRepo.getCourseReviewModelById(Integer.valueOf(params.get("reviewId")));
+			courseReviewModel.setStarRate(Integer.valueOf(params.get("star")));
+			courseReviewModel.setComment(params.get("comment"));
+		}
+		CourseReviewModel saved = reviewRepo.save(courseReviewModel);
+		return ResponseEntity.ok(saved);
+	}
+
+	@PostMapping("/review/delete")
+	public ResponseEntity deleteReview(@CookieValue(name = "jwt") String userToken,@RequestBody Map<String, String> params) {
+		if (userToken == null || jwtService.isTokenExpired(userToken))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		String username = jwtService.extractUsername(userToken);
+		boolean i = reviewRepo.deleteByUser_IdAndId(username, Integer.valueOf(params.getOrDefault("reviewId","0"))) == 1 ? true : false;
+		return ResponseEntity.ok(i);
+	}
+
+	@GetMapping("/review/get/getTotalStar/{id}")
 	public ResponseEntity getReviewTotalStar(@PathVariable int id) {
 		return ResponseEntity.ok(reviewRepo.sumAllStarsByCourse_Id(id));
 	}
 
-	@GetMapping("/getReview/getAverageStar/{id}")
+	@GetMapping("/review/get")
+	public ResponseEntity getSingleReview(@RequestParam Integer courseId, @RequestParam String username) {
+		 CourseReviewModel review = reviewRepo.getFirstByCourseIdAndUserId(courseId, username);
+		if(review == null) return ResponseEntity.notFound().build();
+		return ResponseEntity.ok(review);
+	}
+
+	@GetMapping("/review/get/getAverageStar/{id}")
 	public ResponseEntity getAverageStar(@PathVariable int id) {
 		return ResponseEntity.ok(reviewRepo.averageStarsByCourse_Id(id));
 	}
@@ -125,7 +152,7 @@ public class CourseController {
 
 
 	@GetMapping("/getCourseDataWithUrl/{id}")
-	public ResponseEntity getCourseDataWithUrl(@CookieValue(name = "jwt") String userToken, @PathVariable(required = true) Integer id) {
+	public ResponseEntity getCourseDataWithUrl(@CookieValue(name = "jwt") String userToken, @PathVariable Integer id) {
 		if (userToken == null || jwtService.isTokenExpired(userToken))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		String username = jwtService.extractUsername(userToken);
@@ -185,21 +212,6 @@ public class CourseController {
 		}
 		return ResponseEntity.ok(1);
 	}
-
-//	@PostMapping("/add/data")
-//	public ResponseEntity addCourseData(@RequestBody(required = false) CourseDataRequestDTO courseDataRequestDTO) {
-//		List<CourseContainerModel> processedCourses = courseDataRequestDTO.getObject().stream()
-//				.map(courseContainerModel -> {
-//					courseContainerModel.setCourse(CourseModel.builder().id(courseDataRequestDTO.getCourseId()).build());
-//					for (CourseFileModel cf : courseContainerModel.getFiles()) {
-//						cf.setContainer(courseContainerModel);
-//					}
-//					return courseContainerModel;
-//				})
-//				.collect(Collectors.toList());
-//		courseContainerRepo.saveAll(processedCourses);
-//		return ResponseEntity.ok().build();
-//	}
 
 	@PostMapping("/add/data/container")
 	public ResponseEntity addCourseDataContainer(@CookieValue("jwt") String userToken, @Valid @RequestBody(required = false) CourseContainerRequestDTO courseContainerRequestDTO) {

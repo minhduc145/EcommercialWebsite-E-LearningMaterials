@@ -24,7 +24,7 @@ public class CourseReviewModel {
 	@Column(name = "star_rate")
 	private Integer starRate;
 
-	@Column(name = "created_at")
+	@Column(name = "created_at",insertable = false, updatable = false)
 	private Timestamp createdAt;
 
 	@ManyToOne

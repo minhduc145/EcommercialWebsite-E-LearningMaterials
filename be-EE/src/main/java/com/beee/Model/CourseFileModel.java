@@ -29,7 +29,7 @@ public class CourseFileModel {
 	@Column(name = "name")
 	private String name;
 
-	@Column(name = "created_at")
+	@Column(name = "created_at",insertable = false, updatable = false)
 	private Timestamp createdAt;
 
 	@Column(name = "type")

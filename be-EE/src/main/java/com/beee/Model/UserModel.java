@@ -1,6 +1,7 @@
 package com.beee.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,6 +29,7 @@ public class UserModel {
 	@Column(name = "avatar_url")
 	private String avatarUrl;
 
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Column(name = "phone")
 	private String phone;
 

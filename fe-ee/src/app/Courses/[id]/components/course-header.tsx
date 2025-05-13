@@ -3,21 +3,30 @@ import { Banknote } from "lucide-react"
 import { StarRating } from "@/components/ui/star-rating"
 import type { CourseModel } from "@/models/CourseModel"
 import { formatCurrency } from "@/lib/public-var"
+import { useEffect, useState } from "react"
+import { getAverageStarReview } from "@/app/api/api-courses"
 
 interface CourseHeaderProps {
-  course: CourseModel
-  averageStar: number
+  course: CourseModel;
+  resetCommentKey:boolean
 }
 
-export default function CourseHeader({ course, averageStar }: CourseHeaderProps) {
+export default function CourseHeader({ course,resetCommentKey }: CourseHeaderProps) {
+  const [averageStar, setAverageStar] = useState<number>(0)
+
+  useEffect(() => {
+    getAverageStarReview(String(course.id)).then((response) => {
+      setAverageStar(response?.data)
+    })
+  }, [resetCommentKey])
   return (
     <div
       className="flex shadow-md items-center relative thumbnail w-full bg-center left-0 bottom-0 bg-cover h-[300px]"
       style={{ backgroundImage: `url(${course?.thumbnailUrl})` }}
     >
       <div className="absolute inset-0"></div>
-      
-      <div className="w-auto max-w-[70%] relative container px-4 pt-6 pb-6 z-20  z-auto">
+
+      <div className="w-auto max-w-[100%]  md:max-w-[70%]  relative container px-4 pt-6 pb-6 z-20  z-auto">
         <div className="flex relative items-center gap-3 md:gap-10 backdrop-blur-md bg-black/40 rounded-xl shadow-2xl p-6">
           <div>
             <img src="/global_imgs/logoCourse.svg" alt="" />

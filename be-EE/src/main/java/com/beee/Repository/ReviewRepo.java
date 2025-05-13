@@ -1,5 +1,6 @@
 package com.beee.Repository;
 
+import com.beee.Model.CourseModel;
 import com.beee.Model.CourseReviewModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,10 +11,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.SequencedCollection;
+
 @Transactional
 @Repository
 public interface ReviewRepo extends JpaRepository<CourseReviewModel, Integer> {
 	Page findCourseReviewModelsByCourse_IdOrderByCreatedAtDesc(Integer courseId, PageRequest pageRequest);
+
+	CourseReviewModel getCourseReviewModelById(Integer id);
 
 	@Query("SELECT SUM(r.starRate) FROM CourseReviewModel r WHERE r.course.id = :courseId")
 	Long sumAllStarsByCourse_Id(Integer courseId);
@@ -23,4 +28,8 @@ public interface ReviewRepo extends JpaRepository<CourseReviewModel, Integer> {
 
 	@Query("SELECT r.starRate, COUNT(r) FROM CourseReviewModel r WHERE r.course.id = :courseId GROUP BY r.starRate order by r.starRate desc")
 	List<Object[]> countEachStarRateByCourseId(@Param("courseId") Integer courseId);
+
+	int deleteByUser_IdAndId(String userId, Integer id);
+
+	CourseReviewModel getFirstByCourseIdAndUserId(Integer courseId, String userId);
 }

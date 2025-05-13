@@ -26,11 +26,11 @@ axios.defaults.baseURL = url_backend_default
 
 export default function CourseDetailsClient() {
   const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
+  const [resetCommentKey, setCommentResetKey] = useState(false)
 
   const params = useParams();
   const id = params.id;
   const [course, setCourse] = useState<CourseModel>()
-  const [averageStar, setAverageStar] = useState<number>(0)
   const router = useRouter()
   useEffect(() => {
     getCourse(String(id))
@@ -42,10 +42,6 @@ export default function CourseDetailsClient() {
           router.push("/NotFound")
         }
       })
-
-    getAverageStarReview(String(id)).then((response) => {
-      setAverageStar(response?.data)
-    })
   }, [id, router])
 
   
@@ -72,15 +68,15 @@ export default function CourseDetailsClient() {
 
       {course && (
         <>
-          <CourseHeader course={course} averageStar={averageStar} />
+          <CourseHeader resetCommentKey={resetCommentKey} course={course} />
 
           <main>
             <div className="container mx-auto">
               <div className="p-5 lg:pt-5 lg:flex lg:flex-row-reverse">
-                <div className="lg:w-80 p-5 lg:p-0 lg:absolute lg:-my-20 z-10 lg:sticky">
-                  <SubscriptionCard course={course} />
+                <div className="lg:w-80 p-5 lg:p-0 lg:-my-20 z-10">
+                  <SubscriptionCard course={course} resetCommentKey={resetCommentKey} onReviewSubmit = {setCommentResetKey}/>
                 </div>
-                <MainTabs course={course} />
+                <MainTabs course={course} resetCommentKey={resetCommentKey}/>
               </div>
             </div>
           </main>

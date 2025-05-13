@@ -1,3 +1,4 @@
+import { CourseModel } from "./CourseModel";
 import {UserModel} from "./UserModel"
 
 export interface CourseReviewModel {
@@ -6,4 +7,5 @@ export interface CourseReviewModel {
   starRate: number;
   createdAt: string; 
   user: UserModel;
+  course:CourseModel
 }
