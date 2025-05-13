@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,8 +29,6 @@ import java.util.stream.Collectors;
 public class CourseController {
 	@Autowired
 	private CourseRepo courseRepo;
-	@Autowired
-	private ReviewRepo reviewRepo;
 	@Autowired
 	private S3Service s3Service;
 	@Autowired
@@ -77,63 +76,6 @@ public class CourseController {
 		else return ResponseEntity.notFound().build();
 	}
 
-	@GetMapping("/review/get/{id}")
-	public ResponseEntity getReviewById(@PathVariable int id, Integer pageIndex) {
-		if (pageIndex == null || pageIndex < 1) pageIndex = 1;
-		pageIndex--;
-		PageRequest pr = PageRequest.of(pageIndex, Constants.PAGEABLE_PAGE_SIZE);
-		Map<String, Object> map = new HashMap<>();
-		map.put("reviewPageable", reviewRepo.findCourseReviewModelsByCourse_IdOrderByCreatedAtDesc(id, pr));
-		map.put("starRateMeta", courseService.getStarRateCount(id));
-		return ResponseEntity.ok(map);
-	}
-
-	@PostMapping("/review/add")
-	public ResponseEntity addReview(@CookieValue(name = "jwt") String userToken, @RequestBody Map<String, String> params) {
-		if (userToken == null || jwtService.isTokenExpired(userToken))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		String username = jwtService.extractUsername(userToken);
-		CourseReviewModel courseReviewModel;
-		if (params.get("reviewId") == null) {
-			courseReviewModel = CourseReviewModel.builder().starRate(Integer.valueOf(params.get("star")))
-					.comment(params.get("comment"))
-					.user(UserModel.builder().id(username).build())
-					.course(CourseModel.builder().id(Integer.valueOf(params.get("courseId"))).build()).build();
-		} else {
-			courseReviewModel = reviewRepo.getCourseReviewModelById(Integer.valueOf(params.get("reviewId")));
-			courseReviewModel.setStarRate(Integer.valueOf(params.get("star")));
-			courseReviewModel.setComment(params.get("comment"));
-		}
-		CourseReviewModel saved = reviewRepo.save(courseReviewModel);
-		return ResponseEntity.ok(saved);
-	}
-
-	@PostMapping("/review/delete")
-	public ResponseEntity deleteReview(@CookieValue(name = "jwt") String userToken,@RequestBody Map<String, String> params) {
-		if (userToken == null || jwtService.isTokenExpired(userToken))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		String username = jwtService.extractUsername(userToken);
-		boolean i = reviewRepo.deleteByUser_IdAndId(username, Integer.valueOf(params.getOrDefault("reviewId","0"))) == 1 ? true : false;
-		return ResponseEntity.ok(i);
-	}
-
-	@GetMapping("/review/get/getTotalStar/{id}")
-	public ResponseEntity getReviewTotalStar(@PathVariable int id) {
-		return ResponseEntity.ok(reviewRepo.sumAllStarsByCourse_Id(id));
-	}
-
-	@GetMapping("/review/get")
-	public ResponseEntity getSingleReview(@RequestParam Integer courseId, @RequestParam String username) {
-		 CourseReviewModel review = reviewRepo.getFirstByCourseIdAndUserId(courseId, username);
-		if(review == null) return ResponseEntity.notFound().build();
-		return ResponseEntity.ok(review);
-	}
-
-	@GetMapping("/review/get/getAverageStar/{id}")
-	public ResponseEntity getAverageStar(@PathVariable int id) {
-		return ResponseEntity.ok(reviewRepo.averageStarsByCourse_Id(id));
-	}
-
 	@GetMapping("/getCourseData/{id}")
 	public ResponseEntity getCourseData(@PathVariable Integer id) {
 		if (id != null)
@@ -176,21 +118,27 @@ public class CourseController {
 		}
 		try {
 			String username = jwtService.extractUsername(userToken);
-			courseModel.setCategory(categoryRepo.findById(Integer.valueOf(courseModel.getCategoryId())).get());
-			if (courseModel.getId() == null)
-				courseModel.setCreator(userRepo.findUserModelById(username));
-			CourseModel saved = courseRepo.save(courseModel);
+			CourseModel newCourse = new CourseModel();
+			newCourse.setCreator(UserModel.builder().id(username).build());
+			if (courseModel.getId() != null)
+				newCourse = courseRepo.findCourseModelById(courseModel.getId());
+			newCourse.setTitle(courseModel.getTitle().trim());
+			newCourse.setDescription(courseModel.getDescription().trim());
+			newCourse.setCategory(CategoryModel.builder().id(Integer.valueOf(courseModel.getCategoryId())).build());
+			newCourse.setIsAvailable(courseModel.getIsAvailable());
+			newCourse.setPrice(courseModel.getPrice());
+			CourseModel saved = courseRepo.save(newCourse);
 			if (bannerFile != null) {
 				String fileName = bannerFile.getOriginalFilename();
-				String fileKey = UUID.randomUUID() + fileName.substring(fileName.lastIndexOf('.'));
+				String fileKey = "banner" + fileName.substring(fileName.lastIndexOf('.'));
 				String prefix = "course-data/" + saved.getId();
 				String url = prefix + "/" + fileKey;
 				s3Service.uploadFileViaSignedUrl(bannerFile, url);
-				saved.setThumbnailUrl(Constants.CLOUD_URL_PUBLIC + "/" + url);
-			} else {
-				saved.setThumbnailUrl(Constants.CLOUD_URL_PUBLIC + "/course-banner/default.png");
+				newCourse.setThumbnailUrl(Constants.CLOUD_URL_PUBLIC + "/" + url);
+			} else if (!StringUtils.hasText(newCourse.getThumbnailUrl())) {
+				newCourse.setThumbnailUrl(Constants.CLOUD_URL_PUBLIC + "/course-banner/default.png");
 			}
-			courseRepo.save(saved);
+			saved = courseRepo.save(saved);
 			return ResponseEntity.ok(
 					Utils.mapOfResponse(Constants.RESULT_SUCCESS, "ok", saved)
 			);

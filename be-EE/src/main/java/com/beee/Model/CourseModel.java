@@ -1,6 +1,7 @@
 package com.beee.Model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.springframework.data.annotation.ReadOnlyProperty;
 
@@ -24,6 +25,7 @@ public class CourseModel {
 	@Column(name = "created_at",insertable = false, updatable = false)
 	private Timestamp createdAt;
 
+	@NotBlank
 	@Column(name = "description", columnDefinition = "TEXT")
 	private String description;
 
@@ -39,6 +41,7 @@ public class CourseModel {
 	@Column(name = "thumbnail_url")
 	private String thumbnailUrl;
 
+	@NotBlank
 	@Column(name = "title")
 	private String title;
 

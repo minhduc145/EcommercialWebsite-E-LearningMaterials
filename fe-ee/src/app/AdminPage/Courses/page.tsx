@@ -23,7 +23,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import MyToaster from "@/components/ui/toastify-template"
 import { formatDateTime } from "@/lib/utils"
 import Link from "next/link"
-import { Avatar, AvatarFallback,AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 export default function Page() {
     const [courses, setCourses] = useState<CourseModel[]>([])
@@ -35,6 +36,10 @@ export default function Page() {
     const [selectedRows, setSelectedRows] = useState<string[]>([])
     const [sortBy, setSortBy] = useState("newest")
     const [reloadKey, setReloadKey] = useState(true)
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+    const [deleteId, setDeleteId] = useState<string[]>([])
+
+
 
 
     const onPageChange = (page: number) => {
@@ -82,13 +87,11 @@ export default function Page() {
         }
     }
 
-    const handleEdit = (id: string) => {
-    }
-
     const handleDelete = (id: string[]) => {
         deleteCourse(id).then(() => {
-            MyToaster("success", "" )
+            MyToaster("success", "")
             setSelectedRows([])
+            setIsDeleteModalOpen(false)
             setReloadKey(!reloadKey)
         })
     }
@@ -151,7 +154,7 @@ export default function Page() {
                             {selectedRows.length > 0 && (
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm font-medium">{selectedRows.length} đã chọn</span>
-                                    <Button variant="outline" size="sm" onClick={() => handleDelete(selectedRows)}>
+                                    <Button variant="outline" size="sm" onClick={() => { setIsDeleteModalOpen(true); setDeleteId(selectedRows) }}>
                                         Xóa đã chọn
                                     </Button>
                                 </div>
@@ -249,8 +252,8 @@ export default function Page() {
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem><a href={`/Courses/${course.id}`} target="_blank">Xem chi tiết</a></DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleEdit(course.id)}>Chỉnh sửa</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleDelete([course.id])} className="text-red-600">
+                                                    <DropdownMenuItem className="hover:cursor-pointer"><Link href={`/AdminPage/Courses/Edit/${course.id}`}>Chỉnh sửa</Link></DropdownMenuItem>
+                                                    <DropdownMenuItem className="hover:cursor-pointer text-red-600" onClick={() => { setIsDeleteModalOpen(true); setDeleteId([course.id]) }}>
                                                         Xóa
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -266,6 +269,36 @@ export default function Page() {
                     <PaginationCluster totalPages={totalPages} initialPage={currentPage} onPageChange={onPageChange} />
                 </div>
             </div>
+            <DeleteModal isDeleteModalOpen={isDeleteModalOpen} handleDelete={handleDelete} id={deleteId} setIsDeleteModalOpen={setIsDeleteModalOpen} />
         </>
+    )
+}
+
+interface DeleteModalProps {
+    id: string[];
+    handleDelete: (id: string[]) => void;
+    isDeleteModalOpen: boolean;
+    setIsDeleteModalOpen: (open: boolean) => void;
+};
+function DeleteModal({ id, handleDelete, isDeleteModalOpen, setIsDeleteModalOpen }: DeleteModalProps) {
+    return (
+        <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Xác nhận xóa Học liệu:</DialogTitle>
+                </DialogHeader>
+                <div className="py-4">
+                    <p>Bạn có chắc chắn muốn xóa học liệu có id: {id.join(", ")}</p>
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
+                        Hủy
+                    </Button>
+                    <Button variant="destructive" onClick={() => handleDelete(id)}>
+                        Xóa
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }

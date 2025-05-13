@@ -131,7 +131,7 @@ function UserRate({ userId, course, isShown = false, resetCommentKey, setComment
       <Textarea value={comment} placeholder="Viết đánh giá" onChange={(e) => setComment(e.target.value)} />
       <div className="self-end">
         {review && <Button className="text-red-500" variant={"link"} onClick={handleDelete}>Xóa</Button>}
-        <Button className=" bg-green-600 hover:bg-green-500" onClick={handleSubmit}>Gửi</Button>
+        <Button className=" bg-green-500 hover:bg-green-600" onClick={handleSubmit}>{isEditing ? "Chỉnh sửa" : "Gửi"}</Button>
       </div>
     </div>
   )
