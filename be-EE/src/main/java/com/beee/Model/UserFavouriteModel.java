@@ -18,7 +18,7 @@ public class UserFavouriteModel {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@Column(name = "created_at")
+	@Column(name = "created_at",insertable = false, updatable = false)
 	private Timestamp createdAt;
 
 	@ManyToOne

@@ -10,10 +10,10 @@ import { useUserInfo } from "@/lib/user-info"
 
 interface CommentLayoutProps {
   id: string;
-  resetCommentKey:boolean
+  resetKey:boolean
 }
 
-export default function CommentLayout({ id,resetCommentKey }: CommentLayoutProps) {
+export default function CommentLayout({ id,resetKey }: CommentLayoutProps) {
     const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
   
   const [reviews, setReviews] = useState<CourseReviewModel[]>([])
@@ -33,7 +33,7 @@ export default function CommentLayout({ id,resetCommentKey }: CommentLayoutProps
       setTotalPages(response?.data.reviewPageable.totalPages)
       setStarRateMeta(response?.data.starRateMeta)
     })
-  }, [id, currentPage,resetCommentKey])
+  }, [id, currentPage,resetKey])
 
   return (
     <>

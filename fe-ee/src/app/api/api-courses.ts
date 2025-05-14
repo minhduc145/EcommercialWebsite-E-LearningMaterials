@@ -49,20 +49,43 @@ export async function getCourseData(id: string | null) {
 export async function getCourseDataWithUrl(id: string | null) {
     return await axios.get("/api/courses/getCourseDataWithUrl/" + id)
 }
-export async function getReviewByUserAndCourse(courseId:string,username:string) {
-    return await axios.get("/api/courses/review/get",{
-        params:{
+export async function getReviewByUserAndCourse(courseId: string, username: string) {
+    return await axios.get("/api/courses/review/get", {
+        params: {
             courseId,
             username
         }
     })
 }
-export async function submitReview(reviewId:number|undefined,courseId:string, comment:string, star:number) {
-    return await axios.post("/api/courses/review/add",{reviewId,courseId,comment,star})
+export async function submitReview(reviewId: number | undefined, courseId: string, comment: string, star: number) {
+    return await axios.post("/api/courses/review/add", { reviewId, courseId, comment, star })
 }
 
-export async function deleteReview(reviewId:number) {
-    return await axios.post("/api/courses/review/delete",{reviewId})
+export async function getSubscriptionCardSummary(username: string, courseId: string) {
+    return await axios.get("/api/courses/subscription/getSummary", {
+        params: {
+            username,
+            courseId
+        }
+    })
+}
+
+export async function markAsFavourite(courseId: string) {
+    return await axios.put("/api/courses/favourite/add", {
+        courseId
+    }
+    )
+}
+
+export async function deleteFromFavourite(courseId: string) {
+    return await axios.delete("/api/courses/favourite/delete", {
+        data: {courseId}
+    })
+}
+
+
+export async function deleteReview(reviewId: number) {
+    return await axios.post("/api/courses/review/delete", { reviewId })
 }
 
 export async function deleteCourse(idSet: string[] | []) {
@@ -196,7 +219,7 @@ export async function uploadFileToSignedUrl(
     }
 }
 
-export async function isSubscribedByUser(courseId: string|undefined) {
+export async function isSubscribedByUser(courseId: string | undefined) {
     return await axios.get("/api/courses/isSubscribedByUser", {
         params: { courseId },
     });

@@ -9,17 +9,17 @@ import { getCourseData } from "@/app/api/api-courses"
 
 interface MainTabsProps {
   course: CourseModel
-  resetCommentKey: boolean
+  resetKey: boolean
 }
 
-export default function MainTabs({ course,resetCommentKey }: MainTabsProps) {
+export default function MainTabs({ course,resetKey }: MainTabsProps) {
   const [courseData, setCourseData] = useState<CourseContainerModel[]>([])
   useEffect(() => {
     getCourseData(String(course.id))
       .then((response) => {
         setCourseData(response?.data)
       })
-      .catch()
+      .catch(()=>{})
   }, [course.id])
 
   return (
@@ -69,7 +69,7 @@ export default function MainTabs({ course,resetCommentKey }: MainTabsProps) {
 
           <TabsContent value="reviews" className="space-y-4">
             <div className="space-4">
-              <CommentLayout id={String(course?.id)} resetCommentKey={resetCommentKey} />
+              <CommentLayout id={String(course?.id)} resetKey={resetKey} />
             </div>
           </TabsContent>
         </div>

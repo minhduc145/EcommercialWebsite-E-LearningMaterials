@@ -113,7 +113,7 @@ export default function VNPayButton(props: IProps) {
     return (
         <Button
             variant="default"
-            className="w-full text-white bg-green-500"
+            className="grow text-white bg-green-500"
             onClick={handlePayment}
             disabled={loading}
         >

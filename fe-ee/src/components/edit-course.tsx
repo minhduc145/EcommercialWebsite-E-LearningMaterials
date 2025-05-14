@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
@@ -24,13 +24,13 @@ export default function MainCourseEditTab({ course = undefined }: { course?: Cou
     const [id, setId] = useState(course?.id ?? "")
     const [bannerFile, setBannerFile] = useState<File | null>(null);
     const [name, setName] = useState(course?.title ?? "")
-    const [description, setDescription] = useState(course?.description ??"")
-    const [price, setPrice] = useState(course?.price ??0)
-    const [isAvailable, setIsAvailable] = useState(course?.isAvailable ??true)
-    const [categoryId, setCategoryId] = useState(String(course?.category.id) ??"")
-    const [tab2Ready, setTab2Ready] = useState(course? true: false)
-    const [bannerUrl, setBannerUrl] = useState<string|undefined>(course?.thumbnailUrl??undefined)
-    useEffect(()=>{},[course])
+    const [description, setDescription] = useState(course?.description ?? "")
+    const [price, setPrice] = useState(course?.price ?? 0)
+    const [isAvailable, setIsAvailable] = useState(course?.isAvailable ?? true)
+    const [categoryId, setCategoryId] = useState(String(course?.category.id) ?? "")
+    const [tab2Ready, setTab2Ready] = useState(course ? true : false)
+    const [bannerUrl, setBannerUrl] = useState<string | undefined>(course?.thumbnailUrl ?? undefined)
+    useEffect(() => { }, [course])
     return (
         <Tabs defaultValue="information">
             <TabsList className="grid w-full grid-cols-2">
@@ -68,7 +68,7 @@ export default function MainCourseEditTab({ course = undefined }: { course?: Cou
 const InfoTab = (
     { id, setId, bannerFile, setBannerFile, bannerUrl, name, setName, categoryId, setCategoryId, isAvailable, price, setPrice, setIsAvailable, description, setDescription, setTab2Ready }
         : {
-            id: string, setId: (i: string) => void, bannerUrl: string|undefined,
+            id: string, setId: (i: string) => void, bannerUrl: string | undefined,
             bannerFile: File | null, setBannerFile: (i: File | null) => void, name: string, setName: (i: string) => void, categoryId: string, setCategoryId: (i: string) => void,
             isAvailable: boolean, setIsAvailable: (i: boolean) => void, price: number, setPrice: (i: number) => void,
             description: string, setDescription: (i: string) => void, setTab2Ready: (i: boolean) => void
@@ -153,7 +153,7 @@ const InfoTab = (
                     />
                 </div>
 
-            </div>
+            </div >
             <div className="space-y-1">
                 <div>
                     <div className="grid grid-cols-1 gap-4">
@@ -189,7 +189,7 @@ const InfoTab = (
                 <div className="relative mx-auto my-3 max-w-4xl h-50 bg-gray-100 overflow-hidden rounded-md">
                     <img
                         className="object-fill w-full h-full"
-                        src={bannerFile ? URL.createObjectURL(bannerFile) : bannerUrl?? "/global_imgs/KH-demo.png"}
+                        src={bannerFile ? URL.createObjectURL(bannerFile) : bannerUrl ?? "/global_imgs/KH-demo.png"}
                         alt="banner-img"
                     />
                 </div>
@@ -210,7 +210,7 @@ const InfoTab = (
         </>
     )
 }
-import { FileExplorer } from "@/app/AdminPage/Courses/components/file-manager"
+import { FileExplorer } from "@/components/file-manager"
 
 const DataTab = ({ id }: { id: string }) => {
     if (id)

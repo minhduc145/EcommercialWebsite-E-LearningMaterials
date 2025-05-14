@@ -1,7 +1,7 @@
 import type React from "react"
 import Link from "next/link"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from "@/components/ui/breadcrumb"
-import MainCourseEditTab from "../components/edit-course"
+import MainCourseEditTab from "../../../../components/edit-course"
 import { ArrowLeft } from "lucide-react"
 
 export default function Page() {

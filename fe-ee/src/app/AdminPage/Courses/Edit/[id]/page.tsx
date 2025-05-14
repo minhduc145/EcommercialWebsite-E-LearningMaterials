@@ -4,7 +4,7 @@ import type React from "react"
 import Link from "next/link"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from "@/components/ui/breadcrumb"
 import { ToastContainer } from "react-toastify"
-import MainCourseEditTab from "../../components/edit-course"
+import MainCourseEditTab from "../../../../../components/edit-course"
 import { ArrowLeft } from "lucide-react"
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -33,7 +33,7 @@ export default function Page() {
                 </BreadcrumbList>
             </Breadcrumb>
             <div className="w-[90%] mx-auto">
-{course && <MainCourseEditTab course={course} />}
+                {course && <MainCourseEditTab course={course} />}
             </div>
         </>
     )

@@ -26,7 +26,7 @@ axios.defaults.baseURL = url_backend_default
 
 export default function CourseDetailsClient() {
   const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
-  const [resetCommentKey, setCommentResetKey] = useState(false)
+  const [resetKey, setResetKey] = useState(false)
 
   const params = useParams();
   const id = params.id;
@@ -68,15 +68,15 @@ export default function CourseDetailsClient() {
 
       {course && (
         <>
-          <CourseHeader resetCommentKey={resetCommentKey} course={course} />
+          <CourseHeader resetKey={resetKey} course={course} />
 
           <main>
             <div className="container mx-auto">
               <div className="p-5 lg:pt-5 lg:flex lg:flex-row-reverse">
                 <div className="lg:w-80 p-5 lg:p-0 lg:-my-20 z-10">
-                  <SubscriptionCard course={course} resetCommentKey={resetCommentKey} onReviewSubmit = {setCommentResetKey}/>
+                  <SubscriptionCard course={course} resetKey={resetKey} setResetKey = {setResetKey}/>
                 </div>
-                <MainTabs course={course} resetCommentKey={resetCommentKey}/>
+                <MainTabs course={course} resetKey={resetKey}/>
               </div>
             </div>
           </main>

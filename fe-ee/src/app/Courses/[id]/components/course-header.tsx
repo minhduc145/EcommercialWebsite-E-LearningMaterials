@@ -8,17 +8,17 @@ import { getAverageStarReview } from "@/app/api/api-courses"
 
 interface CourseHeaderProps {
   course: CourseModel;
-  resetCommentKey:boolean
+  resetKey:boolean
 }
 
-export default function CourseHeader({ course,resetCommentKey }: CourseHeaderProps) {
+export default function CourseHeader({ course,resetKey }: CourseHeaderProps) {
   const [averageStar, setAverageStar] = useState<number>(0)
 
   useEffect(() => {
     getAverageStarReview(String(course.id)).then((response) => {
       setAverageStar(response?.data)
     })
-  }, [resetCommentKey])
+  }, [resetKey])
   return (
     <div
       className="flex shadow-md items-center relative thumbnail w-full bg-center left-0 bottom-0 bg-cover h-[300px]"

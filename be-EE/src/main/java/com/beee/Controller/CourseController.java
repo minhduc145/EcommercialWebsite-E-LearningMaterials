@@ -4,6 +4,7 @@ import com.beee.Common.Constants;
 import com.beee.Common.Utils;
 import com.beee.DTO.CourseContainerRequestDTO;
 import com.beee.DTO.CourseFileReqDTO;
+import com.beee.DTO.SubscriptionTabSummaryDTO;
 import com.beee.Model.*;
 import com.beee.Repository.*;
 import com.beee.Service.CourseService;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,6 +51,10 @@ public class CourseController {
 	private AccountRepo accountRepo;
 	@Autowired
 	private CourseService courseService;
+	@Autowired
+	private FavouriteRepo favouriteRepo;
+	@Autowired
+	private ReviewRepo reviewRepo;
 
 	@GetMapping("/getAll")
 	public ResponseEntity getAllCourses() {
@@ -223,18 +229,56 @@ public class CourseController {
 	}
 
 	@GetMapping("/isSubscribedByUser")
-	public ResponseEntity isSubscribedByUser(@CookieValue(name = "jwt") String userToken, @RequestParam String courseId) {
+	public ResponseEntity isSubscribed(@CookieValue(name = "jwt") String userToken, @RequestParam String courseId) {
 		boolean i;
 		if (!jwtService.isTokenExpired(userToken)) {
 			String username = jwtService.extractUsername(userToken);
 			SubscriptionModel subscriptionModel = subscriptionRepo.findByUser_IdAndCourse_Id(username, Integer.parseInt(courseId));
-			i = subscriptionModel != null
-					|| courseRepo.existsByCreator_Id(username)
-					|| accountRepo.existsByIdAndRole(username, Constants.ROLE_ADMIN);
+			i = isSubscribedByUser(username, subscriptionModel);
 			if (i)
 				return ResponseEntity.ok().body(Map.of("inSub", i, "subAt", subscriptionModel != null ? subscriptionModel.getCreated_at() : ""));
 			return ResponseEntity.ok().body(Map.of("inSub", i));
 		}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	}
+
+	@PutMapping("/favourite/add")
+	public ResponseEntity addToFavourite(@CookieValue(name = "jwt") String userToken, @RequestBody Map<String, String> map) {
+		if (userToken == null || jwtService.isTokenExpired(userToken))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		String username = jwtService.extractUsername(userToken);
+		return ResponseEntity.ok().body(favouriteRepo.save(UserFavouriteModel
+				.builder()
+				.user(UserModel.builder().id(username).build())
+				.course(CourseModel.builder().id(Integer.parseInt(map.getOrDefault("courseId","0"))).build()).build()));
+	}
+
+	@DeleteMapping("/favourite/delete")
+	public ResponseEntity deleteFromFavourite(@CookieValue(name = "jwt") String userToken, @RequestBody Map<String, String> map) {
+		if (userToken == null || jwtService.isTokenExpired(userToken))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		String username = jwtService.extractUsername(userToken);
+		return ResponseEntity.ok(favouriteRepo.removeByCourse_IdAndUser_Id(Integer.parseInt(map.getOrDefault("courseId","0")), username));
+	}
+
+	@GetMapping("/subscription/getSummary")
+	public ResponseEntity getSubscriptionSummary(@RequestParam String username, @RequestParam String courseId) {
+		SubscriptionTabSummaryDTO summaryDTO = new SubscriptionTabSummaryDTO();
+		SubscriptionModel subscriptionModel = subscriptionRepo.findByUser_IdAndCourse_Id(username, Integer.parseInt(courseId));
+		boolean i = isSubscribedByUser(username, subscriptionModel);
+		boolean ii = favouriteRepo.existsByUser_IdAndCourse_Id(username, Integer.valueOf(courseId));
+		summaryDTO.setSubscribed(i);
+		summaryDTO.setFavourite(ii);
+		if (i&&subscriptionModel!=null) summaryDTO.setSubscribedAt(subscriptionModel.getCreated_at());
+		summaryDTO.setReview(reviewRepo.getFirstByCourseIdAndUserId(Integer.parseInt(courseId), username));
+		return ResponseEntity.ok().body(summaryDTO);
+	}
+
+	boolean isSubscribedByUser(String username, SubscriptionModel subscriptionModel) {
+		boolean i;
+		i = subscriptionModel != null
+				|| courseRepo.existsByCreator_Id(username)
+				|| accountRepo.existsByIdAndRole(username, Constants.ROLE_ADMIN);
+		return i;
 	}
 }

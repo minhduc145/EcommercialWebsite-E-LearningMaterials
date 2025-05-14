@@ -18,7 +18,7 @@ public class CourseReviewModel {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@Column(name = "comment", columnDefinition = "TEXT")
+	@Column(name = "comment")
 	private String comment;
 
 	@Column(name = "star_rate")
