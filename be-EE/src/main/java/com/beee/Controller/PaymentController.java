@@ -47,11 +47,6 @@ public class PaymentController {
 	@Autowired
 	private SubscriptionRepo subscriptionRepo;
 
-	@GetMapping("/hihi")
-	public String hihi(Model model) {
-		return "course-runner";
-	}
-
 	@ResponseBody
 	@GetMapping("/vnpay")
 	public ResponseEntity<String> createPaymentUrl(

@@ -35,7 +35,7 @@ public class RedirectController {
 
 	@GetMapping("/xem-pdf")
 	public String xemPdf() {
-		return "course-runner"; // Trả về file view-pdf.html
+		return "course-runner";
 	}
 
 }

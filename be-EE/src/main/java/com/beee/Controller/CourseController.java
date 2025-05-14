@@ -1,15 +1,12 @@
 package com.beee.Controller;
 
-import com.beee.Common.Constants;
-import com.beee.Common.Utils;
 import com.beee.DTO.CourseContainerRequestDTO;
 import com.beee.DTO.CourseFileReqDTO;
-import com.beee.DTO.SubscriptionTabSummaryDTO;
 import com.beee.Model.*;
 import com.beee.Repository.*;
+import com.beee.Service.AccountService;
 import com.beee.Service.CourseService;
 import com.beee.Service.FileService;
-import com.beee.Service.S3Service;
 import com.beee.WebSecurityService.JwtService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,29 +27,15 @@ public class CourseController {
 	@Autowired
 	private CourseRepo courseRepo;
 	@Autowired
-	private S3Service s3Service;
-	@Autowired
-	private CategoryRepo categoryRepo;
-	@Autowired
-	private JwtService jwtService;
-	@Autowired
-	private UserRepo userRepo;
-	@Autowired
 	private CourseContainerRepo courseContainerRepo;
 	@Autowired
 	private CourseFileRepo courseFileRepo;
 	@Autowired
 	private FileService fileService;
 	@Autowired
-	private SubscriptionRepo subscriptionRepo;
-	@Autowired
-	private AccountRepo accountRepo;
-	@Autowired
 	private CourseService courseService;
 	@Autowired
-	private FavouriteRepo favouriteRepo;
-	@Autowired
-	private ReviewRepo reviewRepo;
+	private AccountService accountService;
 
 	@GetMapping("/getAll")
 	public ResponseEntity getAllCourses() {
@@ -84,141 +65,48 @@ public class CourseController {
 
 	@GetMapping("/getCourseData/{id}")
 	public ResponseEntity getCourseData(@PathVariable Integer id) {
-		if (id != null)
-			return ResponseEntity.ok(courseContainerRepo.findAllByCourse_IdOrderByCreatedAtAsc(id)
-					.stream().map(data ->
-							{
-								List<CourseFileModel> files = data.getFiles();
-								files.forEach(file -> {
-									file.setUrl(null);
-								});
-								return data;
-							}
-					).collect(Collectors.toList()));
-		else return ResponseEntity.ok(new ArrayList<String>());
+		return courseService.getCourseData(id);
 	}
 
 
 	@GetMapping("/getCourseDataWithUrl/{id}")
 	public ResponseEntity getCourseDataWithUrl(@CookieValue(name = "jwt") String userToken, @PathVariable Integer id) {
-		if (userToken == null || jwtService.isTokenExpired(userToken))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		String username = jwtService.extractUsername(userToken);
-		if (accountRepo.existsByIdAndRole(username, Constants.ROLE_ADMIN)
-				|| courseRepo.existsByIdAndCreator_Id(id, username)
-				|| subscriptionRepo.existsByUser_IdAndCourse_Id(username, id))
-			return ResponseEntity.ok(courseContainerRepo.findAllByCourse_IdOrderByCreatedAtAsc(id));
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		return courseService.getCourseDataWithUrl(userToken, id);
 	}
 
-	@PostMapping("/add/info")
+	@PostMapping("/info/add")
 	public ResponseEntity addCourseInfo(@CookieValue(name = "jwt") String userToken,
 	                                    @ModelAttribute CourseModel courseModel, @RequestParam(name = "bannerFile", required = false) MultipartFile bannerFile) throws IOException {
-		if (userToken == null || jwtService.isTokenExpired(userToken) || !accountRepo.existsByIdAndRole(jwtService.extractUsername(userToken), Constants.ROLE_ADMIN))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		if (bannerFile != null) {
-			if (!bannerFile.getContentType().startsWith("image/"))
-				throw new IllegalArgumentException("Chỉ được tải tập tin ảnh lên cho ảnh bìa");
-			if (bannerFile.getSize() >= 1000 * 1024)
-				throw new IllegalArgumentException("Ảnh bìa không vượt quá 1MB");
-		}
-		try {
-			String username = jwtService.extractUsername(userToken);
-			CourseModel newCourse = new CourseModel();
-			newCourse.setCreator(UserModel.builder().id(username).build());
-			if (courseModel.getId() != null)
-				newCourse = courseRepo.findCourseModelById(courseModel.getId());
-			newCourse.setTitle(courseModel.getTitle().trim());
-			newCourse.setDescription(courseModel.getDescription().trim());
-			newCourse.setCategory(CategoryModel.builder().id(Integer.valueOf(courseModel.getCategoryId())).build());
-			newCourse.setIsAvailable(courseModel.getIsAvailable());
-			newCourse.setPrice(courseModel.getPrice());
-			CourseModel saved = courseRepo.save(newCourse);
-			if (bannerFile != null) {
-				String fileName = bannerFile.getOriginalFilename();
-				String fileKey = "banner" + fileName.substring(fileName.lastIndexOf('.'));
-				String prefix = "course-data/" + saved.getId();
-				String url = prefix + "/" + fileKey;
-				s3Service.uploadFileViaSignedUrl(bannerFile, url);
-				newCourse.setThumbnailUrl(Constants.CLOUD_URL_PUBLIC + "/" + url);
-			} else if (!StringUtils.hasText(newCourse.getThumbnailUrl())) {
-				newCourse.setThumbnailUrl(Constants.CLOUD_URL_PUBLIC + "/course-banner/default.png");
-			}
-			saved = courseRepo.save(saved);
-			return ResponseEntity.ok(
-					Utils.mapOfResponse(Constants.RESULT_SUCCESS, "ok", saved)
-			);
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(Utils.mapOfResponse(Constants.RESULT_FAIL, "failed", e.getMessage()));
-		}
+		return courseService.addCourseInfo(userToken, courseModel, bannerFile);
 	}
 
 	@DeleteMapping("/delete")
 	public ResponseEntity deleteCourses(@CookieValue("jwt") String userToken, @RequestBody List<String> params) {
-		if (userToken == null || jwtService.isTokenExpired(userToken) || !accountRepo.existsByIdAndRole(jwtService.extractUsername(userToken), Constants.ROLE_ADMIN))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		try {
-			for (String id : params) {
-				courseRepo.deleteById(Integer.parseInt(id));
-			}
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		}
-		return ResponseEntity.ok(1);
+		return courseService.deleteCourses(userToken, params);
 	}
 
-	@PostMapping("/add/data/container")
+	@PostMapping("/data/container/add")
 	public ResponseEntity addCourseDataContainer(@CookieValue("jwt") String userToken, @Valid @RequestBody(required = false) CourseContainerRequestDTO courseContainerRequestDTO) {
-		if (userToken == null || jwtService.isTokenExpired(userToken) || !accountRepo.existsByIdAndRole(jwtService.extractUsername(userToken), Constants.ROLE_ADMIN))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		CourseContainerModel container;
-		if (courseContainerRequestDTO.getContainer().getId() == null) {
-			container = courseContainerRequestDTO.getContainer();
-			container.setCourse(new CourseModel().builder().id(courseContainerRequestDTO.getCourseId()).build());
-			for (CourseFileModel cf : container.getFiles()) {
-				cf.setContainer(container);
-			}
-		} else {
-			container = courseContainerRepo.findById(courseContainerRequestDTO.getContainer().getId()).get();
-			container.setName(courseContainerRequestDTO.getContainer().getName());
-		}
-		courseContainerRepo.save(container);
-		return ResponseEntity.ok().build();
+		return courseService.addCourseDataContainer(userToken, courseContainerRequestDTO);
 	}
 
-	@PostMapping("/add/data/file")
+	@PostMapping("/data/file/add")
 	public ResponseEntity addCourseDataFile(@CookieValue("jwt") String userToken, @Valid @RequestBody(required = false) CourseFileReqDTO courseFileReqDTO) {
-		if (userToken == null || jwtService.isTokenExpired(userToken))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		String username = jwtService.extractUsername(userToken);
-		CourseFileModel file;
-		if (courseFileRepo.existsById(courseFileReqDTO.getFile().getId())) {
-			file = courseFileRepo.findById(courseFileReqDTO.getFile().getId()).get();
-			file.setName(courseFileReqDTO.getFile().getName());
-			file.setUrl(courseFileReqDTO.getFile().getUrl());
-		} else {
-			file = courseFileReqDTO.getFile();
-			file.setContainer(CourseContainerModel.builder().id(courseFileReqDTO.getContainerId()).build());
-			file.setType(Utils.detectFileCategory(file.getType()));
-			file.setUser(UserModel.builder().id(username).build());
-		}
-		CourseFileModel saved = courseFileRepo.save(file);
-		fileService.processFileInQueue(saved);
-		return ResponseEntity.ok().build();
+		return courseService.addCourseDataFile(userToken, courseFileReqDTO);
 	}
 
-	@PostMapping("/delete/data/container")
+	@PostMapping("/data/container/delete")
 	public ResponseEntity deleteCourseDataFolder(@CookieValue("jwt") String userToken, @RequestBody(required = false) UUID id) {
-		if (userToken == null || jwtService.isTokenExpired(userToken))
+		if (!accountService.isAdminJwtOk(userToken))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		fileService.deleteFileInQueue(id.toString());
 		courseContainerRepo.deleteById(id);
 		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping("/delete/data/file")
+	@PostMapping("/data/file/delete")
 	public ResponseEntity deleteCourseDataFile(@CookieValue("jwt") String userToken, @RequestBody(required = false) UUID id) {
-		if (userToken == null || jwtService.isTokenExpired(userToken))
+		if (!accountService.isAdminJwtOk(userToken))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		CourseFileModel file = courseFileRepo.findById(id).orElse(null);
 		if (file != null) {
@@ -230,55 +118,13 @@ public class CourseController {
 
 	@GetMapping("/isSubscribedByUser")
 	public ResponseEntity isSubscribed(@CookieValue(name = "jwt") String userToken, @RequestParam String courseId) {
-		boolean i;
-		if (!jwtService.isTokenExpired(userToken)) {
-			String username = jwtService.extractUsername(userToken);
-			SubscriptionModel subscriptionModel = subscriptionRepo.findByUser_IdAndCourse_Id(username, Integer.parseInt(courseId));
-			i = isSubscribedByUser(username, subscriptionModel);
-			if (i)
-				return ResponseEntity.ok().body(Map.of("inSub", i, "subAt", subscriptionModel != null ? subscriptionModel.getCreated_at() : ""));
-			return ResponseEntity.ok().body(Map.of("inSub", i));
-		}
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		return courseService.isSubscribedByUserAndCourse(userToken, courseId);
 	}
 
-	@PutMapping("/favourite/add")
-	public ResponseEntity addToFavourite(@CookieValue(name = "jwt") String userToken, @RequestBody Map<String, String> map) {
-		if (userToken == null || jwtService.isTokenExpired(userToken))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		String username = jwtService.extractUsername(userToken);
-		return ResponseEntity.ok().body(favouriteRepo.save(UserFavouriteModel
-				.builder()
-				.user(UserModel.builder().id(username).build())
-				.course(CourseModel.builder().id(Integer.parseInt(map.getOrDefault("courseId","0"))).build()).build()));
-	}
 
-	@DeleteMapping("/favourite/delete")
-	public ResponseEntity deleteFromFavourite(@CookieValue(name = "jwt") String userToken, @RequestBody Map<String, String> map) {
-		if (userToken == null || jwtService.isTokenExpired(userToken))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		String username = jwtService.extractUsername(userToken);
-		return ResponseEntity.ok(favouriteRepo.removeByCourse_IdAndUser_Id(Integer.parseInt(map.getOrDefault("courseId","0")), username));
-	}
 
 	@GetMapping("/subscription/getSummary")
 	public ResponseEntity getSubscriptionSummary(@RequestParam String username, @RequestParam String courseId) {
-		SubscriptionTabSummaryDTO summaryDTO = new SubscriptionTabSummaryDTO();
-		SubscriptionModel subscriptionModel = subscriptionRepo.findByUser_IdAndCourse_Id(username, Integer.parseInt(courseId));
-		boolean i = isSubscribedByUser(username, subscriptionModel);
-		boolean ii = favouriteRepo.existsByUser_IdAndCourse_Id(username, Integer.valueOf(courseId));
-		summaryDTO.setSubscribed(i);
-		summaryDTO.setFavourite(ii);
-		if (i&&subscriptionModel!=null) summaryDTO.setSubscribedAt(subscriptionModel.getCreated_at());
-		summaryDTO.setReview(reviewRepo.getFirstByCourseIdAndUserId(Integer.parseInt(courseId), username));
-		return ResponseEntity.ok().body(summaryDTO);
-	}
-
-	boolean isSubscribedByUser(String username, SubscriptionModel subscriptionModel) {
-		boolean i;
-		i = subscriptionModel != null
-				|| courseRepo.existsByCreator_Id(username)
-				|| accountRepo.existsByIdAndRole(username, Constants.ROLE_ADMIN);
-		return i;
+		return courseService.getSubscriptionSummary(username, courseId);
 	}
 }

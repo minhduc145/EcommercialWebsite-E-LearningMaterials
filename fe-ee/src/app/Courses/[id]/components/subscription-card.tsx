@@ -7,12 +7,13 @@ import VNPayButton from "@/components/VNPAY-open-window"
 import { formatDate } from "@/lib/utils"
 import type { CourseModel } from "@/models/CourseModel"
 import { useUserInfo } from "@/lib/user-info"
-import { deleteFromFavourite, deleteReview, getReviewByUserAndCourse, getSubscriptionCardSummary, isSubscribedByUser, markAsFavourite, submitReview } from "@/app/api/api-courses"
+import { deleteReview, getReviewByUserAndCourse, getSubscriptionCardSummary, isSubscribedByUser, submitReview } from "@/app/api/api-courses"
 import { StarRating } from "@/components/ui/star-rating"
 import { Textarea } from "@/components/ui/textarea"
 import { CourseReviewModel } from "@/models/CourseReviewModel"
 import MyToaster from "@/components/ui/toastify-template"
 import { Star } from "lucide-react"
+import { deleteFromFavourite, markAsFavourite } from "@/app/api/api-favourites"
 
 interface SubscriptionCardProps {
   course: CourseModel

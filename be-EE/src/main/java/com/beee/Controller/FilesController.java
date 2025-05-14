@@ -68,38 +68,6 @@ public class FilesController {
 		return ResponseEntity.ok(signedUrl);
 	}
 
-	@PostMapping("/process")
-	public ResponseEntity processFile() {
-		Map map = new HashMap();
-		map.put("file", 1);
-		rabbitMQProducer.sendToFileProcessQueue(map);
-		rabbitMQProducer.sendToQ1("jhiafhsdf", "kdfgshjdf");
-		return ResponseEntity.ok().build();
-	}
-
-//	@PostMapping("/unzip-and-upload-stream")
-//	public ResponseEntity<?> unzipAndUploadStream(@RequestParam String fileKey) {
-//		try {
-//			fileService.unzipAndUploadStream(fileKey,null);
-//			return ResponseEntity.ok().build();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			return ResponseEntity.status(500).body("Lỗi: " + e.getMessage());
-//		}
-//	}
-
-
-	@PostMapping("/convert-mp4")
-	public ResponseEntity convertVideoFromR2ToHLS(@RequestParam String fileKey) throws IOException, InterruptedException {
-		try {
-			fileService.convertVideoFromR2ToHLS(fileKey, null);
-			return ResponseEntity.ok().build();
-		} catch (RuntimeException e) {
-			return ResponseEntity.status(500).body(e.getMessage());
-		}
-	}
-
-
 	@DeleteMapping("/deletePrefix")
 	public ResponseEntity deletePrefix(@RequestParam String prefix) throws IOException, InterruptedException {
 		s3Service.deleteFolderInParallel(prefix);
@@ -143,8 +111,6 @@ public class FilesController {
 
 		return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(html);
 	}
-
-
 
 
 	@GetMapping("/proxy-file")

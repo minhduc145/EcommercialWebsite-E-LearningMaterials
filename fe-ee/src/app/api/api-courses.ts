@@ -70,19 +70,6 @@ export async function getSubscriptionCardSummary(username: string, courseId: str
     })
 }
 
-export async function markAsFavourite(courseId: string) {
-    return await axios.put("/api/courses/favourite/add", {
-        courseId
-    }
-    )
-}
-
-export async function deleteFromFavourite(courseId: string) {
-    return await axios.delete("/api/courses/favourite/delete", {
-        data: {courseId}
-    })
-}
-
 
 export async function deleteReview(reviewId: number) {
     return await axios.post("/api/courses/review/delete", { reviewId })
@@ -131,7 +118,7 @@ export async function submitCourseInfo({
     formData.append("isAvailable", String(isAvailable));
     formData.append("categoryId", categoryId);
 
-    return await axios.post("/api/courses/add/info", formData, {
+    return await axios.post("/api/courses/info/add", formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
@@ -144,48 +131,47 @@ export async function addContainer(id: string, container: CourseContainerModel) 
         courseId: id,
         container: container
     }
-    return await axios.post("/api/courses/add/data/container", postObject, {
+    return await axios.post("/api/courses/data/container/add", postObject, {
         headers: { "Content-Type": "application/json", },
     })
 }
-
-export async function deleteContainer(id: string) {
-    return await axios.post("/api/courses/delete/data/container", id, {
-        headers: { "Content-Type": "application/json", },
-    })
-}
-
-export async function deleteFile(id: string) {
-    return await axios.post("/api/courses/delete/data/file", id, {
-        headers: { "Content-Type": "application/json", },
-    })
-}
-
-export async function addAllContainer(id: string, containers: CourseContainerModel[]) {
-    const postObject = {
-        courseId: id,
-        object: containers
-    }
-    return await axios.post("/api/courses/add/data", postObject, {
-        headers: { "Content-Type": "application/json", },
-    })
-}
-
-export async function getSignedUrl(fileKey: string) {
-    return await axios.get("/api/files/uploadSigned", {
-        params: { fileKey },
-    });
-}
-
 
 export async function addFile(id: string, file: CourseFileModel) {
     const postObject = {
         containerId: id,
         file: file
     }
-    return await axios.post("/api/courses/add/data/file", postObject, {
+    return await axios.post("/api/courses/data/file/add", postObject, {
         headers: { "Content-Type": "application/json", },
     })
+}
+
+export async function deleteContainer(id: string) {
+    return await axios.post("/api/courses/data/container/delete", id, {
+        headers: { "Content-Type": "application/json", },
+    })
+}
+
+export async function deleteFile(id: string) {
+    return await axios.post("/api/courses/data/file/delete", id, {
+        headers: { "Content-Type": "application/json", },
+    })
+}
+
+// export async function addAllContainer(id: string, containers: CourseContainerModel[]) {
+//     const postObject = {
+//         courseId: id,
+//         object: containers
+//     }
+//     return await axios.post("/api/courses/add/data", postObject, {
+//         headers: { "Content-Type": "application/json", },
+//     })
+// }
+
+export async function getSignedUrl(fileKey: string) {
+    return await axios.get("/api/files/uploadSigned", {
+        params: { fileKey },
+    });
 }
 
 export async function uploadFileToSignedUrl(
