@@ -16,16 +16,18 @@ import getAllCourses, { getFeaturesSummary } from '../api/api-courses';
 export default function Courses() {
 
   return (
-    <div className=' min-h-dvh'>
+    <div className='min-h-dvh'>
       <div className="banner m-0 p-0 inset-x-0 top-0 w-full h-96 bg-[#001d74] rounded-bl-3xl rounded-br-3xl bg-left">
         <div className="grid w-full h-80 grid-cols-1 inset-x-0 lg:grid-cols-2">
           <div className='m-auto text-white'>
-            <p className='text-3xl'>Chào mừng bạn đến với</p>
-            <p className='text-5xl mt-3'>e-Edu</p>
+            <h1 className="text-white text-xl md:text-2xl font-normal drop-shadow-sm">
+              Chào mừng bạn đến với
+            </h1>
+            <h2 className="text-6xl md:text-7xl font-extrabold bg-gradient-to-r from-sky-400 to-indigo-600 bg-clip-text text-transparent drop-shadow-xl uppercase tracking-wide">
+              e-Edu
+            </h2>
           </div>
-          <div className="s2-col">
-            <img className='m-auto' width='570' src='/global_imgs/dummy-slide-min.png' alt="" />
-          </div>
+          <Image className='m-auto w-full max-w-100 h-auto' width={500} height={500} src='/global_imgs/dummy-slide-min.png' alt="" />
         </div>
       </div>
       <br />
@@ -46,6 +48,7 @@ import { cn } from "@/lib/utils"
 import { StarRating } from '@/components/ui/star-rating'
 import { CourseBasicDTO } from '@/models/CourseBasicDTO'
 import Link from 'next/link'
+import Image from 'next/image'
 
 function FeaturedCarousel() {
   const [features, setFeatures] = useState<CourseBasicDTO[]>([])
@@ -58,7 +61,7 @@ function FeaturedCarousel() {
       if (res?.data) {
         setFeatures(res.data)
       }
-    }).catch(()=>setFeatures([]))
+    }).catch(() => setFeatures([]))
   }, [])
 
   // Set up autoplay
@@ -84,7 +87,7 @@ function FeaturedCarousel() {
     return () => api.off("select", onChange)
   }, [api])
 
-  if (features.length>0)
+  if (features.length > 0)
     return (
       <div className="w-full px-2 ">
         <h2 className="text-lg sm:text-xl md:text-2xl font-bold px-2 sm:px-4 md:px-6 py-3 md:py-4">

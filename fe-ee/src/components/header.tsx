@@ -9,7 +9,7 @@ import Logo_Dark from "@/app/logo-1.png";
 
 import type { UserModel } from "@/models/UserModel";
 
-import { Bell, BellRingIcon, Menu, Star } from "lucide-react";
+import { Bell, BellRingIcon, LogOut, Menu, Star } from "lucide-react";
 import { ChevronDown, Phone, Play, GraduationCap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -76,8 +76,6 @@ interface IHeaderProps {
 
 export default function Header(props: IHeaderProps) {
   const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
-
-
   const [userLoginCookie, setUserLoginCookie] = useState<UserModel | undefined>();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const bgColor = props.color === "blue" ? "bg-[#001d74]" : "border-b  supports-[backdrop-filter]:bg-background/60";
@@ -351,7 +349,7 @@ export function UserDropDown(props: IUserDropDownProps) {
             </a>
           </>}
           <Link href="/User/Logout" onClick={props.logout}>
-            <DropdownMenuItem>Đăng xuất</DropdownMenuItem>
+            <DropdownMenuItem><LogOut className="size-4"/> Đăng xuất</DropdownMenuItem>
           </Link>
         </DropdownMenuContent>
       </DropdownMenu>
