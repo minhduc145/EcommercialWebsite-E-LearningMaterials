@@ -63,7 +63,7 @@ export default function Page() {
         <>
             <ToastContainer />
             <div className="flex justify-between items-center mb-6">
-                    <Link href={"/AdminPage/Courses/Add"}>
+                    <Link href={"/AdminPage/Categories/Add"}>
                         <Button className="flex items-center gap-2 hover:opacity-50">
                             <Plus className="h-4 w-4" /> Thêm mới
                         </Button>

@@ -56,7 +56,7 @@ export default function ChatBox() {
                     {/* Messages */}
                     <div className="flex-1 px-4 py-2 space-y-2 h-64 overflow-y-auto text-sm">
                         {messages.map((msg, index) => (
-                            <div ref={msg.isLast && msg.from === "You" ? messagesEndRef : null} key={index} className={`flex ${msg.from === 'You' ? 'justify-end' : 'justify-start'}`}>
+                            <div ref={msg.isLast ? messagesEndRef : null} key={index} className={`flex ${msg.from === 'You' ? 'justify-end' : 'justify-start'}`}>
                                 <div
                                     className={`px-2 py-2 rounded-lg max-w-[80%] break-words whitespace-pre-wrap ${msg.from === 'You' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
                                         }`}
@@ -66,10 +66,10 @@ export default function ChatBox() {
                             </div>
                         ))}
                         {isTyping && <>
-                            <div className="flex items-center space-x-2">
-                                <div className="w-2 h-2 rounded-full bg-gray-200 border border-gray-300 sh-ani-typing-1 dark:bg-gray-800 dark:border-gray-700 dark:border-gray-800 animate-bounce float-left" />
-                                <div className="w-2 h-2 rounded-full bg-gray-200 border border-gray-300 sh-ani-typing-2 dark:bg-gray-800 dark:border-gray-700 dark:border-gray-800 animate-bounce float-left" />
-                                <div className="w-2 h-2 rounded-full bg-gray-200 border border-gray-300 sh-ani-typing-3 dark:bg-gray-800 dark:border-gray-700 dark:border-gray-800 animate-bounce float-left" />
+                            <div ref={messagesEndRef}  className="flex items-center space-x-2">
+                                <div className="w-2 h-2 rounded-full bg-gray-200 border border-gray-300 sh-ani-typing-1 dark:bg-gray-800  animate-bounce float-left" />
+                                <div className="w-2 h-2 rounded-full bg-gray-200 border border-gray-300 sh-ani-typing-2 dark:bg-gray-800 animate-bounce float-left" />
+                                <div className="w-2 h-2 rounded-full bg-gray-200 border border-gray-300 sh-ani-typing-3 dark:bg-gray-800 animate-bounce float-left" />
                             </div>
                         </>}
                     </div>

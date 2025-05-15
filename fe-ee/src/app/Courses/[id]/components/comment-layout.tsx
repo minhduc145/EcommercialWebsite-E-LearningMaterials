@@ -7,15 +7,17 @@ import type { CourseReviewModel } from "@/models/CourseReviewModel"
 import { getCourseReview } from "@/app/api/api-courses"
 import { formatDateTime } from "@/lib/utils"
 import { useUserInfo } from "@/lib/user-info"
+import Image from "next/image"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface CommentLayoutProps {
   id: string;
-  resetKey:boolean
+  resetKey: boolean
 }
 
-export default function CommentLayout({ id,resetKey }: CommentLayoutProps) {
-    const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
-  
+export default function CommentLayout({ id, resetKey }: CommentLayoutProps) {
+  const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
+
   const [reviews, setReviews] = useState<CourseReviewModel[]>([])
   const [reviewLength, setReviewLength] = useState<number>(0)
   const [totalPages, setTotalPages] = useState<number>(0)
@@ -33,7 +35,7 @@ export default function CommentLayout({ id,resetKey }: CommentLayoutProps) {
       setTotalPages(response?.data.reviewPageable.totalPages)
       setStarRateMeta(response?.data.starRateMeta)
     })
-  }, [id, currentPage,resetKey])
+  }, [id, currentPage, resetKey])
 
   return (
     <>
@@ -71,23 +73,30 @@ export default function CommentLayout({ id,resetKey }: CommentLayoutProps) {
             ) : (
               <div className="space-y-3">
                 {reviews?.map((review) => (
-                  <div key={review.id} className="border-b pb-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="font-medium">
-                        {review.user.lastName}&nbsp;{review.user.firstName}&nbsp;
-                        <i className="text-sm font-light">{review.user.id === user?.id ? "• Bạn" : ""}</i>
-                      </h3>
-                      <span className="text-sm text-gray-500">{formatDateTime(review.createdAt)}</span>
+                  <div key={review.id} className="flex flex-row items-center gap-5">
+                    <Avatar>
+                      <AvatarImage src={review.user.avatarUrl} alt="User" />
+                      <AvatarFallback>{review.user.firstName.charAt(0)}</AvatarFallback>
+                    </Avatar>
+
+                    <div key={review.id} className="border-b pb-4 grow">
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="font-medium">
+                          {review.user.lastName}&nbsp;{review.user.firstName}&nbsp;
+                          <i className="text-sm font-light">{review.user.id === user?.id ? "• Bạn" : ""}</i>
+                        </h3>
+                        <span className="text-sm text-gray-500">{formatDateTime(review.createdAt)}</span>
+                      </div>
+                      <div className="flex mb-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`w-4 h-4 ${star <= review.starRate ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+                          />
+                        ))}
+                      </div>
+                      <p className="text-gray-700">{review.comment}</p>
                     </div>
-                    <div className="flex mb-2">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          className={`w-4 h-4 ${star <= review.starRate ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-gray-700">{review.comment}</p>
                   </div>
                 ))}
               </div>

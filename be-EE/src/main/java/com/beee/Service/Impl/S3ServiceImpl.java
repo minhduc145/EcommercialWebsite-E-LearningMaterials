@@ -43,6 +43,14 @@ public class S3ServiceImpl implements S3Service {
 	@Autowired
 	private S3Presigner s3Presigner;
 
+	public void uploadFileSDK(File file, String key) {
+		PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+				.bucket(Constants.CLOUD_BUCKET_NAME)
+				.key(key)
+				.build();
+		s3Client.putObject(putObjectRequest, RequestBody.fromFile(file));
+	}
+
 	public void uploadFileViaSignedUrl(MultipartFile file, String objectKey) throws IOException {
 		try (InputStream is = file.getInputStream()) {
 			uploadStreamViaSignedUrl(is, file.getContentType(), objectKey);

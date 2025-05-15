@@ -61,7 +61,7 @@ export default function SubscriptionCard({ course, setResetKey, resetKey }: Subs
           ) : (
             <VNPayButton amount={course.price} orderInfo={`THANHTOAN_${course.id}`} />
           )}
-          <Star fill={summary?.favourite ? 'yellow' : 'white'} className="w-6 h-6 hover:cursor-pointer" onClick={handleAddToFavourite} />
+          {user?.id&&<Star fill={summary?.favourite ? 'yellow' : 'white'} className="w-6 h-6 hover:cursor-pointer" onClick={handleAddToFavourite} />}
         </div>
 
       </CardHeader>

@@ -17,12 +17,18 @@ import {
   User2Icon,
   TypeIcon,
   DatabaseIcon,
+  UserCircle2,
+  KeyRound,
+  MessageCircleMoreIcon,
+  MessageCirclePlusIcon,
+  Undo2Icon,
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { UserModel } from "@/models/UserModel"
 import { getUserInfo } from "../api/api-account"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { usePathname } from "next/navigation"
 
 // Define types for our navigation items
 interface NavItemType {
@@ -42,6 +48,8 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+  const pathname = usePathname();
+
   const [currentUser, setCurrentUser] = useState<UserModel>()
 
   useEffect(() => {
@@ -54,36 +62,44 @@ export default function DashboardLayout({
   const [collapsed, setCollapsed] = useState(false)
   const [activeItem, setActiveItem] = useState("")
 
-  // Main navigation items
+  const infoItems: NavItemType[] = [
+    { icon: UserCircle2, label: "Thông tin tài khoản", url: "/AdminPage/UserInfo", isActive: activeItem === "/AdminPage/UserInfo"||pathname.startsWith("/AdminPage/UserInfo")},
+  ]
   const mainNavItems: NavItemType[] = [
-    { icon: LayoutDashboard, label: "Dashboard", url: "/AdminPage/Details", isActive: activeItem === "/AdminPage/Details" },
-    { icon: FileText, label: "Quản lý học liệu", url: "/AdminPage/Courses", isActive: activeItem === "/AdminPage/Courses" },
-    { icon: TypeIcon, label: "Quản lý Loại học liệu", url: "/AdminPage/Categories", isActive: activeItem === "/AdminPage/Categories" },
-    { icon: DatabaseIcon, label: "Quản lý Kho dữ liệu", url: "/AdminPage/CourseData", isActive: activeItem === "/AdminPage/CourseData" },
-
+    { icon: FileText, label: "Quản lý học liệu", url: "/AdminPage/Courses", isActive: activeItem === "/AdminPage/Courses"||pathname.startsWith("/AdminPage/Courses") },
+    { icon: TypeIcon, label: "Quản lý Loại học liệu", url: "/AdminPage/Categories", isActive: activeItem === "/AdminPage/Categories"||pathname.startsWith("/AdminPage/Categories") },
   ]
-
-  // User section items
   const userItems: NavItemType[] = [
-    { icon: User2Icon, label: "Người dùng", url: "/AdminPage/Users", isActive: activeItem === "/AdminPage/Users" },
-    { icon: FileBarChart, label: "Reports", url: "/AdminPage/Reports", isActive: activeItem === "/AdminPage/Reports" },
+    { icon: User2Icon, label: "Quản lý Người dùng", url: "/AdminPage/Users", isActive: activeItem === "/AdminPage/Users"||pathname.startsWith("/AdminPage/Users") },
+  ]
+  const messeageItems: NavItemType[] = [
+    { icon: MessageCirclePlusIcon, label: "Gửi thông báo", url: "/AdminPage/Transaction", isActive: activeItem === "/AdminPage/Transaction"||pathname.startsWith("/AdminPage/Transaction") },
+    { icon: MessageCircleMoreIcon, label: "Danh sách thông báo", url: "/AdminPage/Transaction", isActive: activeItem === "/AdminPage/Transaction"||pathname.startsWith("/AdminPage/Transaction") },
   ]
 
-  // Payment section items
   const paymentItems: NavItemType[] = [
-    { icon: CreditCard, label: "Giao dịch", url: "/AdminPage/Transaction", isActive: activeItem === "/AdminPage/Transaction" },
+    { icon: CreditCard, label: "Lịch sử giao dịch", url: "/AdminPage/Transaction", isActive: activeItem === "/AdminPage/Transaction"||pathname.startsWith("/AdminPage/Transaction") },
+    { icon: Undo2Icon, label: "Yêu cầu hoàn trả", url: "/AdminPage/Transaction", isActive: activeItem === "/AdminPage/Transaction"||pathname.startsWith("/AdminPage/Transaction") },
   ]
 
-  // All navigation groups
   const navGroups: NavGroupType[] = [
     {
-      title: "Khóa học",
+      title: "Tài khoản",
+      items: infoItems
+    },
+    {
+      title: "Học liệu",
       items: mainNavItems
     },
     {
       title: "Người dùng",
       items: userItems
     },
+    {
+      title: "Thông báo",
+      items: messeageItems
+    },
+
     {
       title: "Thanh toán",
       items: paymentItems
@@ -122,7 +138,7 @@ export default function DashboardLayout({
             <a href="/">
               <div className={cn("flex items-center", collapsed ? "justify-center w-full" : "")}>
                 <Building2 className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                {!collapsed && <span className="ml-2 font-semibold text-slate-800">{"eEdu"}</span>}
+                {!collapsed && <span className="ml-2 font-semibold text-slate-800">eEdu</span>}
               </div>
             </a>
             <Button

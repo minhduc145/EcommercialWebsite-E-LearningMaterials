@@ -9,8 +9,8 @@ import Logo_Dark from "@/app/logo-1.png";
 
 import type { UserModel } from "@/models/UserModel";
 
-import { Bell, BellRingIcon, LogOut, Menu, Star } from "lucide-react";
-import { ChevronDown, Phone, Play, GraduationCap } from "lucide-react";
+import { Bell, LogOut, Menu, MessageCircleMoreIcon, Search, Star } from "lucide-react";
+import { ChevronDown, GraduationCap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -46,11 +46,17 @@ axios.defaults.baseURL = url_backend_default;
 const navigation = [
   { name: "Trang chủ", href: "/" },
   { name: "Khám phá", href: "/Courses" },
-  { name: "Xem thông báo", href: "/" ,className:"inline-block md:hidden"},
+  { name: "Xem thông báo", href: "/", className: "inline-block md:hidden" },
 
 ];
 
 const options = [
+  {
+    name: "Tìm kiếm học liệu",
+    description: "Đến trang tìm kiếm và lọc học liệu theo từ khóa",
+    href: "#",
+    icon: Search,
+  },
   {
     name: "Đã đăng ký",
     description: "Đến danh sách các khóa học đã đăng ký",
@@ -63,11 +69,6 @@ const options = [
     href: "#",
     icon: Star,
   },
-];
-
-const callsToAction = [
-  { name: "Watch demo", href: "#", icon: Play },
-  { name: "Contact sales", href: "#", icon: Phone },
 ];
 
 interface IHeaderProps {
@@ -158,7 +159,7 @@ export default function Header(props: IHeaderProps) {
                   variant="ghost"
                   size="icon"
                   onClick={() => setMobileMenuOpen(false)}
-                  
+
                 ></Button>
               </div>
               <div className="mt-6 flow-root">
@@ -270,18 +271,6 @@ export default function Header(props: IHeaderProps) {
                     </div>
                   ))}
                 </div>
-                <div className="grid grid-cols-2 divide-x divide-gray-900/5 bg-gray-50">
-                  {callsToAction.map((item) => (
-                    <a
-                      key={item.name}
-                      href={item.href}
-                      className="flex items-center justify-center gap-x-2.5 p-3 font-semibold text-gray-900 hover:bg-gray-100"
-                    >
-                      <item.icon className="h-5 w-5 flex-none text-gray-400" />
-                      {item.name}
-                    </a>
-                  ))}
-                </div>
               </div>
             </PopoverContent>
           </Popover>
@@ -339,9 +328,8 @@ export function UserDropDown(props: IUserDropDownProps) {
             </span>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Dashboard</DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
-          <DropdownMenuItem>Earnings</DropdownMenuItem>
+          <DropdownMenuItem>Cài đặt tài khoản</DropdownMenuItem>
+          <DropdownMenuItem>Yêu cầu hoàn tiền</DropdownMenuItem>
           <DropdownMenuSeparator />
           {userModel?.account.role.toLowerCase() === "admin" && <>
             <a href="/AdminPage">
@@ -349,7 +337,7 @@ export function UserDropDown(props: IUserDropDownProps) {
             </a>
           </>}
           <Link href="/User/Logout" onClick={props.logout}>
-            <DropdownMenuItem><LogOut className="size-4"/> Đăng xuất</DropdownMenuItem>
+            <DropdownMenuItem><LogOut className="size-4" /> Đăng xuất</DropdownMenuItem>
           </Link>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -361,6 +349,21 @@ export function UserDropDown(props: IUserDropDownProps) {
 import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 
+const messages = [
+  {
+    id: 1,
+    sender: "who",
+    title: " ăn cức",
+    message: "tui giỡn á"
+  },
+  {
+    id: 2,
+    sender: "2",
+    message: "ăn kít"
+  }
+]
+
+
 function NotificationButton() {
   return (
     <DropdownMenu>
@@ -368,38 +371,33 @@ function NotificationButton() {
         <Button variant="outline" size="icon" className="relative rounded-full">
           <Bell className="h-5 w-5" />
           <Badge className="absolute -top-2 -right-2 rounded-full bg-red-500 text-white px-2 py-0.5 text-xs font-medium">
-            3
+            {messages?.length ? messages.length > 10 ? '10+' : messages.length : '0'}
           </Badge>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 p-4">
+      <DropdownMenuContent align="end" className="w-80 p-4 pb-0">
         <DropdownMenuLabel className="mb-2 mx-auto self-center text-md font-medium">Thông báo</DropdownMenuLabel>
         <DropdownMenuSeparator className="my-2" />
         <div className="space-y-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white">
+          {messages?.map((m) => (
+            <div key={m.id} className="flex items-start gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white">
+                <MessageCircleMoreIcon className="size-4" />
+              </div>
+              <div className="flex-1 space-y-1">
+                <p className="text-sm font-medium">{m.message}</p>
+                <p className="text-sm">{m.message}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">5 minutes ago</p>
+              </div>
             </div>
-            <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium">Your call has been confirmed</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">5 minutes ago</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white">
-            </div>
-            <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium">You have a new message</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">1 minute ago</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white">
-            </div>
-            <div className="flex-1 space-y-1">
-              <p className="text-sm font-medium">Your subscription is expiring soon</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">2 hours ago</p>
-            </div>
-          </div>
+          ))}
+
+        </div>
+        <div className="pt-2">
+          <Link
+            href="#"
+            className="flex items-center justify-center gap-x-2.5 p-3 font-semibold text-gray-900 hover:bg-gray-100"
+          >Xem tất cả</Link>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
