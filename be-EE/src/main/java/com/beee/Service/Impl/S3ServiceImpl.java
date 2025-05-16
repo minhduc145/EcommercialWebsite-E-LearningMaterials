@@ -8,6 +8,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
@@ -106,11 +108,15 @@ public class S3ServiceImpl implements S3Service {
 	}
 
 	public void deleteObject(String key) {
-		s3Client.deleteObject(DeleteObjectRequest.builder()
-				.bucket(Constants.CLOUD_BUCKET_NAME)
-				.key(key)
-				.build());
-		System.out.println("Deleted: " + key);
+		try {
+			s3Client.deleteObject(DeleteObjectRequest.builder()
+					.bucket(Constants.CLOUD_BUCKET_NAME)
+					.key(key)
+					.build());
+			System.out.println("Deleted: " + key);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void deleteFolderInParallel(String prefix) {

@@ -3,6 +3,8 @@ package com.beee.Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @NoArgsConstructor
@@ -17,12 +19,16 @@ public class UserModel {
 	@Column(name = "id")
 	private String id;
 
+	@NotBlank(message = "Họ tên không được để trống")
 	@Column(name = "first_name")
 	private String firstName;
 
+	@NotBlank(message = "Họ tên không được để trống")
 	@Column(name = "last_name")
 	private String lastName;
 
+	@NotBlank(message = "Email không được để trống")
+	@Email(message = "Email phải nhập đúng định dạng")
 	@Column(name = "email")
 	private String email;
 

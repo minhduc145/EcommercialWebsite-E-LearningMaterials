@@ -2,8 +2,9 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { UserModel } from "@/models/UserModel"
 
-export default function EditUserPassword() {
+export default function EditUserPassword({currentUser}:{currentUser:UserModel}) {
     return (
         <div className="w-full mx-auto border-0">
             <CardHeader className="pb-10">
