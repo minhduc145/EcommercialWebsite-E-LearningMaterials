@@ -15,7 +15,7 @@ import { editProfile } from "@/app/api/api-account"
 import MyToaster from "./ui/toastify-template"
 import { ToastContainer } from "react-toastify"
 
-export default function EditProfilePage({ currentUser }: { currentUser: UserModel }) {
+export default function EditProfilePage({ currentUser, isForAdmin = false }: { currentUser: UserModel, isForAdmin?:boolean }) {
   const [user, setUser] = useState<UserModel>(currentUser)
   const [file, setFile] = useState<File | null>(null)
 

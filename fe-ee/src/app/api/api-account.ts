@@ -41,3 +41,10 @@ export async function editProfile(userModel: UserModel, avatarFile: File | null)
         },
     });
 }
+
+export async function editPassword(userId:string,formData:any) {
+    return await axios.post("/api/accounts/password/edit", {
+        userId:userId,
+        ...formData
+    });
+}

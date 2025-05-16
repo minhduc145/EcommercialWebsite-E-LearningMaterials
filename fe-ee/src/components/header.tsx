@@ -9,7 +9,7 @@ import Logo_Dark from "@/app/logo-1.png";
 
 import type { UserModel } from "@/models/UserModel";
 
-import { Bell, LogOut, Menu, MessageCircleMoreIcon, Search, Star } from "lucide-react";
+import { Bell, Heart, LogOut, Menu, MessageCircleMoreIcon, Search } from "lucide-react";
 import { ChevronDown, GraduationCap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -67,7 +67,7 @@ const options = [
     name: "Danh sách yêu thích",
     description: "Đến danh sách các học liệu đã yêu thích",
     href: "#",
-    icon: Star,
+    icon: Heart,
   },
 ];
 

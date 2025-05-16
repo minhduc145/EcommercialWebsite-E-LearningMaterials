@@ -12,7 +12,7 @@ import { StarRating } from "@/components/ui/star-rating"
 import { Textarea } from "@/components/ui/textarea"
 import { CourseReviewModel } from "@/models/CourseReviewModel"
 import MyToaster from "@/components/ui/toastify-template"
-import { Star } from "lucide-react"
+import { Heart, Star } from "lucide-react"
 import { deleteFromFavourite, markAsFavourite } from "@/app/api/api-favourites"
 
 interface SubscriptionCardProps {
@@ -61,7 +61,7 @@ export default function SubscriptionCard({ course, setResetKey, resetKey }: Subs
           ) : (
             <VNPayButton amount={course.price} orderInfo={`THANHTOAN_${course.id}`} />
           )}
-          {user?.id&&<Star fill={summary?.favourite ? 'yellow' : 'white'} className="w-6 h-6 hover:cursor-pointer" onClick={handleAddToFavourite} />}
+          {user?.id&&<Heart fill={summary?.favourite ? 'red' : 'white'} className="w-6 h-6 hover:cursor-pointer" onClick={handleAddToFavourite} />}
         </div>
 
       </CardHeader>

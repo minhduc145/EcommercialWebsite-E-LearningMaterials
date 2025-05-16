@@ -163,5 +163,28 @@ public class AccountController {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 
+	@PostMapping("/password/edit")
+	public ResponseEntity editPassword(@CookieValue(name = "jwt") String userToken, @RequestBody Map<String, String> formData) {
+		if (accountService.isJwtOk(userToken)) {
+			if (jwtService.extractUsername(userToken).equals(formData.get("userId")) || accountService.isAdminJwtOk(userToken)) {
+				String username = formData.get("userId");
+				String oldPassword = formData.getOrDefault("oldPassword", "");
+				String newPassword = formData.get("newPassword");
+				String confirmPassword = formData.get("confirmPassword");
+				AccountModel acc = accountRepo.getById(username);
+				if (!passwordEncoder.matches(oldPassword, acc.getPassword())) {
+					return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, "Sai mật khẩu hiện tại", null));
+				}
+				if (!newPassword.equals(confirmPassword)) {
+					return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, "Mật khẩu xác nhận không khớp mk mới", null));
+				}
+				acc.setPassword(passwordEncoder.encode(newPassword));
+				accountRepo.save(acc);
+				return ResponseEntity.status(HttpStatus.OK).build();
+			}
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	}
+
 
 }
