@@ -27,6 +27,7 @@ export default function MainCourseEditTab({ course = undefined }: { course?: Cou
     const [description, setDescription] = useState(course?.description ?? "")
     const [price, setPrice] = useState(course?.price ?? 0)
     const [isAvailable, setIsAvailable] = useState(course?.isAvailable ?? true)
+    const [isFeatured, setIsFeatured] = useState(course?.isFeatured ?? true)
     const [categoryId, setCategoryId] = useState(String(course?.category.id) ?? "")
     const [tab2Ready, setTab2Ready] = useState(course ? true : false)
     const [bannerUrl, setBannerUrl] = useState<string | undefined>(course?.thumbnailUrl ?? undefined)
@@ -45,7 +46,7 @@ export default function MainCourseEditTab({ course = undefined }: { course?: Cou
                 <Card>
                     <CardContent className="space-y-4">
                         <InfoTab id={id} setId={setId} bannerFile={bannerFile} setBannerFile={setBannerFile} bannerUrl={bannerUrl}
-                            name={name} setName={setName} price={price} setPrice={setPrice}
+                            name={name} setName={setName} price={price} setPrice={setPrice} isFeatured={isFeatured} setIsFeatured={setIsFeatured}
                             categoryId={categoryId} setCategoryId={setCategoryId} isAvailable={isAvailable} setIsAvailable={setIsAvailable}
                             description={description} setDescription={setDescription} setTab2Ready={setTab2Ready} />
                     </CardContent>
@@ -66,9 +67,9 @@ export default function MainCourseEditTab({ course = undefined }: { course?: Cou
 }
 
 const InfoTab = (
-    { id, setId, bannerFile, setBannerFile, bannerUrl, name, setName, categoryId, setCategoryId, isAvailable, price, setPrice, setIsAvailable, description, setDescription, setTab2Ready }
+    { id, setId, bannerFile, setBannerFile, bannerUrl, name, setName, categoryId, setCategoryId, isFeatured,setIsFeatured, isAvailable, price, setPrice, setIsAvailable, description, setDescription, setTab2Ready }
         : {
-            id: string, setId: (i: string) => void, bannerUrl: string | undefined,
+            id: string, setId: (i: string) => void, bannerUrl: string | undefined, isFeatured:boolean, setIsFeatured:(i:boolean)=>void,
             bannerFile: File | null, setBannerFile: (i: File | null) => void, name: string, setName: (i: string) => void, categoryId: string, setCategoryId: (i: string) => void,
             isAvailable: boolean, setIsAvailable: (i: boolean) => void, price: number, setPrice: (i: number) => void,
             description: string, setDescription: (i: string) => void, setTab2Ready: (i: boolean) => void
@@ -93,7 +94,7 @@ const InfoTab = (
     }, [])
 
     const handleInfoSave = () => {
-        submitCourseInfo({ id, bannerFile, name, description, price, isAvailable, categoryId }).then(res => {
+        submitCourseInfo({ id, bannerFile, name, description, price, isAvailable, isFeatured, categoryId }).then(res => {
             if (res && res.status === 200 && res.data?.details) {
                 const c: CourseModel = res.data.details
                 MyToaster("success", "Lưu Thông tin học liệu thành công!")
@@ -126,6 +127,19 @@ const InfoTab = (
                         <div className="flex items-center space-x-2">
                             <RadioGroupItem value="false" id="closed" />
                             <Label htmlFor="closed">Đóng</Label>
+                        </div>
+                    </RadioGroup>
+                </div>
+                <div className="flex flex-col gap-1  justify-around">
+                    <Label>Thêm vào "Nổi bật"<span className='text-red-600'>*</span></Label>
+                    <RadioGroup defaultValue={String(isFeatured)} onValueChange={(value) => setIsFeatured(value === "true")} className="flex gap-4">
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="true" id="ftrue" />
+                            <Label htmlFor="true">Có</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="false" id="ffalse" />
+                            <Label htmlFor="false">Không</Label>
                         </div>
                     </RadioGroup>
                 </div>

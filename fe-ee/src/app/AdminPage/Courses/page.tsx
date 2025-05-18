@@ -10,7 +10,7 @@ import { useEffect, useState } from "react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { MoreHorizontal, Search, Plus, SortAsc, LoaderIcon, Loader2, RefreshCcw, RefreshCcwDotIcon } from "lucide-react"
+import { MoreHorizontal, Search, Plus, SortAsc, LoaderIcon, Loader2, RefreshCcw, RefreshCcwDotIcon, Check, X } from "lucide-react"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -184,6 +184,7 @@ export default function Page() {
                                     <TableHead className="w-[300px] text-white">Tiêu đề</TableHead>
                                     <TableHead className="w-[120px] text-white">Danh mục</TableHead>
                                     <TableHead className="w-[100px] text-white">Trạng thái</TableHead>
+                                    <TableHead className="w-[100px] text-white">Nổi bật</TableHead>
                                     <TableHead className="w-[100px] text-right text-white">Giá (VNĐ)</TableHead>
                                     <TableHead className="w-[150px] text-white">Người tạo</TableHead>
                                     <TableHead className="w-[80px] text-right text-white">Đăng ký</TableHead>
@@ -216,6 +217,14 @@ export default function Page() {
                                             >
                                                 {course.status ? course.status : course.isAvailable ? "Đang mở" : "Tạm đóng"}
                                             </span>
+                                        </TableCell>
+                                        <TableCell>
+                                            {course.isFeatured ? 
+                                                <div className="rounded-full h-6 w-6 bg-green-100 p-1">
+                                                    <Check className="h-4 w-4 text-green-600" />
+                                                </div> : <div className="rounded-full h-6 w-6 bg-red-100 p-1">
+                                                    <X className="h-4 w-4 text-red-600" />
+                                                </div>}
                                         </TableCell>
                                         <TableCell className="text-right">{course.price?.toLocaleString("vi-VN")} ₫</TableCell>
                                         <TableCell className="max-w-[150px]">
@@ -251,8 +260,8 @@ export default function Page() {
                                                 <DropdownMenuContent align="end" className="w-[150px]">
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem><a href={`/Courses/${course.id}`} target="_blank">Xem chi tiết</a></DropdownMenuItem>
-                                                    <DropdownMenuItem className="hover:cursor-pointer"><Link href={`/AdminPage/Courses/Edit/${course.id}`}>Chỉnh sửa</Link></DropdownMenuItem>
+                                                    <a href={`/Courses/${course.id}`} target="_blank"> <DropdownMenuItem>Xem chi tiết</DropdownMenuItem></a>
+                                                    <Link href={`/AdminPage/Courses/Edit/${course.id}`}> <DropdownMenuItem className="hover:cursor-pointer">Chỉnh sửa</DropdownMenuItem></Link>
                                                     <DropdownMenuItem className="hover:cursor-pointer text-red-600" onClick={() => { setIsDeleteModalOpen(true); setDeleteId([course.id]) }}>
                                                         Xóa
                                                     </DropdownMenuItem>

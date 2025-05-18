@@ -6,7 +6,7 @@ import com.beee.Model.CourseReviewModel;
 import com.beee.Model.UserModel;
 import com.beee.Repository.*;
 import com.beee.Service.CourseService;
-import com.beee.WebSecurityService.JwtService;
+import com.beee.Service.Impl.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;

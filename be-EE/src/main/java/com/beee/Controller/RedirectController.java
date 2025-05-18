@@ -4,7 +4,7 @@ import com.beee.Common.Constants;
 import com.beee.Model.AccountModel;
 import com.beee.Repository.AccountRepo;
 import com.beee.Service.ResponseService;
-import com.beee.WebSecurityService.JwtService;
+import com.beee.Service.Impl.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

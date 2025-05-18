@@ -7,7 +7,6 @@ import com.beee.Repository.*;
 import com.beee.Service.AccountService;
 import com.beee.Service.CourseService;
 import com.beee.Service.FileService;
-import com.beee.WebSecurityService.JwtService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -19,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/courses")

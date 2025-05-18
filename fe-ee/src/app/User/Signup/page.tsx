@@ -18,6 +18,7 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import { submitSignUp } from "@/app/api/api-account"
 import MyToaster from "@/components/ui/toastify-template"
 import { setTimeout } from "timers"
+import { ToastContainer } from "react-toastify"
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = url_backend_default;
 const schema = yup.object({
@@ -60,6 +61,8 @@ export default function SignUpForm() {
 
     return (
         <>
+                <ToastContainer />
+
             <a className="absolute p-5 float-left" href="/">
                 <House aria-hidden className="size-6" />
             </a>

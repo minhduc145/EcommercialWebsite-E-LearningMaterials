@@ -1,12 +1,11 @@
-package com.beee.WebSecurityService;
+package com.beee.Service;
 
 import com.beee.Common.Constants;
 import com.beee.Model.AccountModel;
 import com.beee.Model.UserModel;
 import com.beee.Repository.AccountRepo;
 import com.beee.Repository.UserRepo;
-import com.beee.Service.ResponseService;
-import com.beee.Service.S3Service;
+import com.beee.Service.Impl.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;

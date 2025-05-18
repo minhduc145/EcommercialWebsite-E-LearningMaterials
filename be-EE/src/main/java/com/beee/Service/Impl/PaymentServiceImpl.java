@@ -2,7 +2,6 @@ package com.beee.Service.Impl;
 
 import com.beee.Config.VnpayConfig;
 import com.beee.Service.PaymentService;
-import com.beee.WebSecurityService.JwtService;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,9 +20,6 @@ import java.util.*;
 public class PaymentServiceImpl implements PaymentService {
 	@Autowired
 	private VnpayConfig vnpayConfig;
-	@Autowired
-	private JwtService jwtService;
-
 
 	public String createPaymentUrl(String username, long amount, String orderInfo, String ipAddress) throws UnsupportedEncodingException {
 		Map<String, String> vnpParams = new HashMap<>();

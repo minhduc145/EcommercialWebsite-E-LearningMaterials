@@ -2,6 +2,7 @@ package com.beee.Controller;
 
 import com.beee.Common.Constants;
 import com.beee.Common.Utils;
+import com.beee.DTO.UserDTO;
 import com.beee.DTO.UserLoginFormDTO;
 import com.beee.DTO.UserRegisterFormDTO;
 import com.beee.Model.AccountModel;
@@ -11,7 +12,7 @@ import com.beee.Repository.UserRepo;
 import com.beee.Service.AccountService;
 import com.beee.Service.ResponseService;
 import com.beee.Service.S3Service;
-import com.beee.WebSecurityService.JwtService;
+import com.beee.Service.Impl.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,17 +22,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -107,8 +104,9 @@ public class AccountController {
 			}
 			String username = jwtService.extractUsername(token);
 			UserModel user = userRepo.findUserModelById(username);
-			System.out.println(user);
-			return ResponseEntity.ok(user);
+			UserDTO userDTO = new UserDTO().toDto(user,true);
+			System.out.println(userDTO);
+			return ResponseEntity.ok(userDTO);
 		}
 		return ResponseEntity.ok().build();
 	}
@@ -186,5 +184,11 @@ public class AccountController {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 
-
+	@GetMapping("/users")
+	public ResponseEntity listUsers(@CookieValue(name = "jwt") String userToken) {
+		if(!accountService.isAdminJwtOk(userToken)) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+		return ResponseEntity.ok().body(userRepo.findAll());
+	}
 }

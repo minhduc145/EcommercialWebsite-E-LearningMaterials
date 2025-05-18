@@ -1,4 +1,4 @@
-package com.beee.WebSecurityService;
+package com.beee.Service.Impl;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -7,14 +7,14 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.function.Function;
 
-@Service
-public class JwtService {
+@Component
+public class JwtService implements com.beee.Service.JwtService {
 	private final String SECRET_KEY_STRING;
 	private final SecretKey SECRET_KEY;
 

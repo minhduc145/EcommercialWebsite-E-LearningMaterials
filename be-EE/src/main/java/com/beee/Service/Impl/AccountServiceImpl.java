@@ -3,10 +3,7 @@ package com.beee.Service.Impl;
 import com.beee.Common.Constants;
 import com.beee.Repository.AccountRepo;
 import com.beee.Service.AccountService;
-import com.beee.WebSecurityService.JwtService;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 @Service
 public class AccountServiceImpl implements AccountService {

@@ -27,12 +27,6 @@ import java.util.*;
 public class FilesController {
 	@Autowired
 	private S3Service s3Service;
-	@Autowired
-	private RabbitMQProducer rabbitMQProducer;
-	@Autowired
-	private S3Client s3Client;
-	@Autowired
-	private FileService fileService;
 
 	@PostMapping("/upload")
 	public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {

@@ -27,9 +27,6 @@ public class MessageModel {
 	@Column(name = "is_for_everyone")
 	private Boolean isForEveryone;
 
-	@Column(name = "is_read")
-	private Boolean isRead;
-
 	@Column(name = "created_at", insertable = false, updatable = false)
 	private Timestamp createdAt;
 

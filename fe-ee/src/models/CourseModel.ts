@@ -7,6 +7,7 @@ export interface CourseModel {
   createdAt: string;
   description: string;
   isAvailable: boolean;
+  isFeatured: boolean;
   price: number | 0;
   status: string;
   thumbnailUrl: string;

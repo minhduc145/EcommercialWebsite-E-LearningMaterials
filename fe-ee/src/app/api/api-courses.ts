@@ -94,6 +94,7 @@ export async function submitCourseInfo({
     description,
     price,
     isAvailable,
+    isFeatured,
     categoryId
 }: {
     id: string | null;
@@ -102,6 +103,7 @@ export async function submitCourseInfo({
     description: string;
     price: number | 0;
     isAvailable: boolean;
+    isFeatured: boolean;
     categoryId: string;
 }) {
     if (!name || !categoryId || !description) {
@@ -116,6 +118,7 @@ export async function submitCourseInfo({
     formData.append("description", description);
     formData.append("price", String(price ?? 0));
     formData.append("isAvailable", String(isAvailable));
+    formData.append("isFeatured", String(isFeatured));
     formData.append("categoryId", categoryId);
 
     return await axios.post("/api/courses/info/add", formData, {

@@ -73,8 +73,8 @@ export default function DashboardLayout({
     { icon: User2Icon, label: "Quản lý Người dùng", url: "/AdminPage/Users", isActive: activeItem === "/AdminPage/Users"||pathname.startsWith("/AdminPage/Users") },
   ]
   const messeageItems: NavItemType[] = [
-    { icon: MessageCirclePlusIcon, label: "Gửi thông báo", url: "/AdminPage/Transaction", isActive: activeItem === "/AdminPage/Transaction"||pathname.startsWith("/AdminPage/Transaction") },
-    { icon: MessageCircleMoreIcon, label: "Danh sách thông báo", url: "/AdminPage/Transaction", isActive: activeItem === "/AdminPage/Transaction"||pathname.startsWith("/AdminPage/Transaction") },
+    { icon: MessageCirclePlusIcon, label: "Gửi thông báo", url: "/AdminPage/SendNotification", isActive: activeItem === "/AdminPage/SendNotification"||pathname.startsWith("/AdminPage/SendNotification") },
+    { icon: MessageCircleMoreIcon, label: "Danh sách thông báo", url: "/AdminPage/NotificationList", isActive: activeItem === "/AdminPage/Transaction"||pathname.startsWith("/AdminPage/NotificationList") },
   ]
 
   const paymentItems: NavItemType[] = [

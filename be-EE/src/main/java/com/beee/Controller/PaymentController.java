@@ -1,6 +1,5 @@
 package com.beee.Controller;
 
-import ch.qos.logback.core.model.Model;
 import com.beee.Common.Constants;
 import com.beee.Config.VnpayConfig;
 import com.beee.DTO.VnpayPaymentResponseDTO;
@@ -12,19 +11,15 @@ import com.beee.Repository.SubscriptionRepo;
 import com.beee.Service.PaymentService;
 import com.beee.Service.RabbitMQProducer;
 import com.beee.Service.ResponseService;
-import com.beee.WebSecurityService.JwtService;
+import com.beee.Service.Impl.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.*;

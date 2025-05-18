@@ -6,7 +6,7 @@ import com.beee.Model.UserModel;
 import com.beee.Repository.FavouriteRepo;
 import com.beee.Service.AccountService;
 import com.beee.Service.CourseService;
-import com.beee.WebSecurityService.JwtService;
+import com.beee.Service.Impl.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

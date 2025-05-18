@@ -11,7 +11,6 @@ import com.beee.Service.AccountService;
 import com.beee.Service.CourseService;
 import com.beee.Service.FileService;
 import com.beee.Service.S3Service;
-import com.beee.WebSecurityService.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -118,6 +117,8 @@ public class CourseServiceImpl implements CourseService {
 			newCourse.setDescription(courseModel.getDescription().trim());
 			newCourse.setCategory(CategoryModel.builder().id(Integer.valueOf(courseModel.getCategoryId())).build());
 			newCourse.setIsAvailable(courseModel.getIsAvailable());
+			newCourse.setIsFeatured(courseModel.getIsFeatured());
+			System.out.println(courseModel);
 			newCourse.setPrice(courseModel.getPrice());
 			CourseModel saved = courseRepo.save(newCourse);
 			if (bannerFile != null) {

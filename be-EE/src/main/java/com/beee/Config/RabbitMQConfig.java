@@ -60,7 +60,7 @@ public class RabbitMQConfig {
 		return new RabbitAdmin(connectionFactory);
 	}
 
-
+///
 	@Bean
 	public MessageConverter jsonMessageConverter() {
 		return new Jackson2JsonMessageConverter();

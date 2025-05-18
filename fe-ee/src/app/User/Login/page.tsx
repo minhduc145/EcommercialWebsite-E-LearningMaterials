@@ -59,6 +59,8 @@ export default function LoginPage() {
 
 	return (
 		<>
+		        <ToastContainer />
+
 			<a className="absolute p-5 float-left" href="/">
 				<House aria-hidden className="size-6" />
 			</a>

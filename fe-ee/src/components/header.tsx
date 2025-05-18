@@ -9,7 +9,7 @@ import Logo_Dark from "@/app/logo-1.png";
 
 import type { UserModel } from "@/models/UserModel";
 
-import { Bell, Heart, LogOut, Menu, MessageCircleMoreIcon, Search } from "lucide-react";
+import { Bell, Heart, LogOut, Menu, MessageCircleMoreIcon, Search, View } from "lucide-react";
 import { ChevronDown, GraduationCap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -77,23 +77,15 @@ interface IHeaderProps {
 
 export default function Header(props: IHeaderProps) {
   const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
-  const [userLoginCookie, setUserLoginCookie] = useState<UserModel | undefined>();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const bgColor = props.color === "blue" ? "bg-[#001d74]" : "border-b  supports-[backdrop-filter]:bg-background/60";
 
   const txtColor = props.color === "blue" ? "text-white" : "text-gray-900";
 
-  useEffect(() => {
-    if (user) {
-      setUserLoginCookie(user)
-    } else {
-      setUserLoginCookie(undefined)
-    }
-  }, [user])
 
 
   useEffect(() => {
-    if (!userLoginCookie) return
+    if (!user) return
     const newMessageSocket = new SockJS(
       url_backend_default + "/ws/notification"
     );
@@ -103,15 +95,20 @@ export default function Header(props: IHeaderProps) {
       onConnect: () => {
         console.log("✅ Connected to WebSocket");
         newMessageClient.subscribe(
-          `/topic/receive/${userLoginCookie?.id}
-          }`,
+          `/topic/receive/${user?.id}`,
           (message: IMessage) => {
-            console.log("📩 Message received:", message.body);
-            MyToaster(undefined, message.body);
-          },
-          {
-            username: JSON.parse(String(localStorage.getItem("currentUser")))
-              ?.id,
+            console.log("📩 Message for user:", message.body);
+            MyToaster("info", message.body);
+            mutate('messages-by-cookie')
+          }
+        );
+
+        newMessageClient.subscribe(
+          `/topic/receive`,
+          (message: IMessage) => {
+            console.log("📢 Broadcast message:", message.body);
+            MyToaster("info", message.body);
+            mutate('messages-by-cookie')
           }
         );
       },
@@ -123,7 +120,7 @@ export default function Header(props: IHeaderProps) {
     return () => {
       newMessageClient.deactivate();
     };
-  }, [userLoginCookie]);
+  }, [user]);
 
   return (
     <header className={`z-50 px-5 md:px-20 sticky top-0 w-full ${bgColor}`}>
@@ -136,95 +133,94 @@ export default function Header(props: IHeaderProps) {
             <Image src={props.color === "blue" ? Logo_Dark : Logo_Light} alt="Logo" />
           </a>
         </div>
-
         <div className="flex lg:hidden">
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={txtColor}
-                onClick={() => setMobileMenuOpen(true)}
-              >
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-full sm:max-w-sm">
-              <SheetTitle className="hidden"></SheetTitle>
-              <div className="flex p-5 items-center justify-between">
-                <a href="#" className="w-[50px] h-[50px]">
-                  <Image src={props.color === "blue" ? Logo_Dark : Logo_Light} alt="Logo" />
-                </a>
+          <NotificationButton userId={user?.id} />
+          <div className="flex">
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setMobileMenuOpen(false)}
-
-                ></Button>
-              </div>
-              <div className="mt-6 flow-root">
-                <div className="-my-6 divide-y divide-gray-500/10">
-                  <div className="space-y-2 p-6">
-                    {navigation.map((item) => (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        className={`-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"`}
-                      >
-                        {item.name}
-                      </Link>
-                    ))}
-                    <div className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">
-                      <div className="w-full max-w-md mx-auto">
-                        <Accordion type="single" collapsible>
-                          <AccordionItem value="options">
-                            <AccordionTrigger>Options</AccordionTrigger>
-                            <AccordionContent>
-                              <div className="space-y-2">
-                                {options.map((option, index) => {
-                                  const Icon = option.icon
-                                  return (
-                                    <Link
-                                      key={index}
-                                      href={option.href}
-                                      className="flex items-start p-3 -mx-3 rounded-lg hover:bg-gray-50 transition-colors"
-                                    >
-                                      <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-md bg-gray-100 text-gray-600">
-                                        <Icon className="h-6 w-6" />
-                                      </div>
-                                      <div className="ml-4">
-                                        <p className="text-base font-medium text-gray-900">{option.name}</p>
-                                        <p className="mt-1 text-sm text-gray-500">{option.description}</p>
-                                      </div>
-                                    </Link>
-                                  )
-                                })}
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
+                  className={txtColor}
+                  onClick={() => setMobileMenuOpen(true)}
+                >
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              {mobileMenuOpen && (<SheetContent side="right" className="w-full sm:max-w-sm">
+                <SheetTitle className="hidden"></SheetTitle>
+                <div className="flex p-5 items-center justify-between">
+                  <a href="#" className="w-[50px] h-[50px]">
+                    <Image src={props.color === "blue" ? Logo_Dark : Logo_Light} alt="Logo" />
+                  </a>
+                </div>
+                <div className="mt-6 flow-root">
+                  <div className="-my-6 divide-y divide-gray-500/10">
+                    <div className="space-y-2 p-6">
+                      {navigation.map((item) => (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          className={`-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"`}
+                        >
+                          {item.name}
+                        </Link>
+                      ))}
+                      <div className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">
+                        <div className="w-full max-w-md mx-auto">
+                          <Accordion type="single" collapsible>
+                            <AccordionItem value="options">
+                              <AccordionTrigger>Options</AccordionTrigger>
+                              <AccordionContent>
+                                <div className="space-y-2">
+                                  {options.map((option, index) => {
+                                    const Icon = option.icon
+                                    return (
+                                      <Link
+                                        key={index}
+                                        href={option.href}
+                                        className="flex items-start p-3 -mx-3 rounded-lg hover:bg-gray-50 transition-colors"
+                                      >
+                                        <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-md bg-gray-100 text-gray-600">
+                                          <Icon className="h-6 w-6" />
+                                        </div>
+                                        <div className="ml-4">
+                                          <p className="text-base font-medium text-gray-900">{option.name}</p>
+                                          <p className="mt-1 text-sm text-gray-500">{option.description}</p>
+                                        </div>
+                                      </Link>
+                                    )
+                                  })}
+                                </div>
+                              </AccordionContent>
+                            </AccordionItem>
+                          </Accordion>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="pl-5 pt-5 lg:px-0 lg:pt-0">
-                    {!userLoginCookie ? (
-                      <Link
-                        href="/User/Login"
-                        className="mx-3 block rounded-lg px-3 py-2.5 text-gray-900 hover:bg-gray-50"
-                      >
-                        Đăng nhập
-                      </Link>
-                    ) : (
-                      <>
-                        <UserDropDown userModel={userLoginCookie} logout={logout} />
-                      </>
-                    )}
+                    <div className="pl-5 pt-5 lg:px-0 lg:pt-0">
+                      {!user ? (
+                        <Link
+                          href="/User/Login"
+                          className="mx-3 block rounded-lg px-3 py-2.5 text-gray-900 hover:bg-gray-50"
+                        >
+                          Đăng nhập
+                        </Link>
+                      ) : (
+                        <>
+                          <UserDropDown userModel={user} logout={logout} />
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+              </SheetContent>)}
+            </Sheet>
+          </div>
+
         </div>
+
+
 
         <div className="hidden items-center lg:flex lg:gap-x-12">
           {navigation.map((item) => (
@@ -276,22 +272,22 @@ export default function Header(props: IHeaderProps) {
           </Popover>
         </div>
 
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          {!userLoginCookie ? (
+        <div className="hidden lg:flex lg:gap-5 lg:flex-1 lg:justify-end">
+          {!user ? (
             <Link
               href="/User/Login"
               className={`text-sm/6 font-semibold ${txtColor}`}
             >
               <span>Đăng nhập</span>&nbsp;<span aria-hidden="true">&rarr;</span>
             </Link>
-          ) : (
-            <div className="flex flex-row gap-4">
-              <NotificationButton />
-              <UserDropDown userModel={userLoginCookie} logout={logout} />
-            </div>
+          ) : (<>
+            <NotificationButton userId={user?.id} />
+            <UserDropDown userModel={user} logout={logout} /></>
           )}
         </div>
+
       </nav>
+
       <div>
         <ToastContainer />
       </div>
@@ -348,58 +344,58 @@ export function UserDropDown(props: IUserDropDownProps) {
 
 import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
-
-const messages = [
-  {
-    id: 1,
-    sender: "who",
-    title: " ăn cức",
-    message: "tui giỡn á"
-  },
-  {
-    id: 2,
-    sender: "2",
-    message: "ăn kít"
-  }
-]
+import useSWR, { mutate } from "swr";
+import { MessageModel } from "@/models/MessageModel";
+import { getPreviewByCookie } from "@/app/api/api-messages";
+import { formatDateTime } from "@/lib/utils";
 
 
-function NotificationButton() {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="relative rounded-full">
-          <Bell className="h-5 w-5" />
-          <Badge className="absolute -top-2 -right-2 rounded-full bg-red-500 text-white px-2 py-0.5 text-xs font-medium">
-            {messages?.length ? messages.length > 10 ? '10+' : messages.length : '0'}
-          </Badge>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 p-4 pb-0">
-        <DropdownMenuLabel className="mb-2 mx-auto self-center text-md font-medium">Thông báo</DropdownMenuLabel>
-        <DropdownMenuSeparator className="my-2" />
-        <div className="space-y-4">
-          {messages?.map((m) => (
-            <div key={m.id} className="flex items-start gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white">
-                <MessageCircleMoreIcon className="size-4" />
+function NotificationButton({ userId = undefined }: { userId?: string }) {
+
+  const fetcher = () => getPreviewByCookie().then(res => res.data).catch(() => { })
+  const { data, error, isLoading, mutate } = useSWR<{ messages: MessageModel[]; count: number }>('messages-by-cookie', fetcher)
+
+  if (userId)
+    return (
+      <DropdownMenu >
+        <DropdownMenuTrigger asChild >
+          <Button variant="outline" size="icon" className="relative rounded-full" >
+            <Bell className="h-5 w-5" />
+            <Badge className="absolute -top-2 -right-2 rounded-full bg-red-500 text-white px-2 py-0.5 text-xs font-medium">
+              {data?.count ? data.count > 10 ? '10+' : data.count : '0'}
+            </Badge>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-80  p-4 pb-0">
+          <DropdownMenuLabel className="mb-2 mx-auto self-center text-md font-medium">Thông báo</DropdownMenuLabel>
+          <DropdownMenuSeparator className="my-2" />
+          <div className="space-y-4 max-w-full max-h-[50dvh] overflow-y-auto">
+            {data?.messages && data?.messages.map((m) => (
+              <div key={m.id} className="flex gap-3 items-center">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white">
+                  <MessageCircleMoreIcon className="size-4" />
+                </div>
+                <div className="flex-1 space-y-1 max-w-full">
+                  <p className="text-sm font-medium  break-words line-clamp-3">{m.title}</p>
+                  {/* <p className="text-sm break-words line-clamp-3 text-start" dangerouslySetInnerHTML={{
+                __html: m.message ? m.message : "<p class='text-center font-light'><i class='mx-auto'>Không có dữ liệu</i><p>",
+              }}/> */}
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{formatDateTime(m.createdAt ?? "")}</p>
+                </div>
+                <Button variant={"link"}>...</Button>
               </div>
-              <div className="flex-1 space-y-1">
-                <p className="text-sm font-medium">{m.message}</p>
-                <p className="text-sm">{m.message}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">5 minutes ago</p>
-              </div>
-            </div>
-          ))}
-
-        </div>
-        <div className="pt-2">
-          <Link
-            href="#"
-            className="flex items-center justify-center gap-x-2.5 p-3 font-semibold text-gray-900 hover:bg-gray-100"
-          >Xem tất cả</Link>
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
+            ))}
+            {data && data?.count > 10 && (
+              <p className="justify-self-center italic">... còn {data.count - data?.messages?.length} tin nhắn</p>
+            )}
+          </div>
+          <div className="pt-2">
+            <Link
+              href="#"
+              className="flex items-center justify-center gap-x-2.5 p-3 font-semibold text-gray-900 hover:bg-gray-100"
+            >Xem tất cả</Link>
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    )
 }

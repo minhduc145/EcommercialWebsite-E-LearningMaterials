@@ -1,7 +1,7 @@
-package com.beee.WebSecurityService;
+package com.beee.Config;
 
 import com.beee.Common.Constants;
-import com.beee.Config.GoogleRequestResolverConfig;
+import com.beee.Service.UserLoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -16,40 +16,27 @@ public class RabbitMQProducer {
 
 	ObjectMapper objectMapper = new ObjectMapper();
 
-	public void sendToQ1(String username, String message) {
-		Map<String, Object> map = new HashMap<>();
-		map.put("username", username);
-		map.put("message", message);
-		String json = new String();
-		try {
-			json = objectMapper.writeValueAsString(map);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void sendToQ1(Map<String, Object> map) {
+
 		rabbitTemplate.convertAndSend(
 				RabbitMQConfig.EXCHANGE,
 				RabbitMQConfig.ROUTING_KEY1,
-				json
+				map
 		);
-		System.out.println("Sent-1: " + json);
+		System.out.println("Sent-1: " + map);
 	}
 
 	public void sendToQ2(String username, String message) {
 		Map<String, Object> map = new HashMap<>();
 		map.put("username", username);
 		map.put("message", message);
-		String json = new String();
-		try {
-			json = objectMapper.writeValueAsString(map);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+
 		rabbitTemplate.convertAndSend(
 				RabbitMQConfig.EXCHANGE,
 				RabbitMQConfig.ROUTING_KEY2,
-				json
+				map
 		);
-		System.out.println("Sent-2: " + json);
+		System.out.println("Sent-2: " + map);
 	}
 
 	public void sendToFileProcessQueue(Map map) {
