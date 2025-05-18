@@ -1,5 +1,7 @@
 package com.beee.Controller;
 
+import com.beee.Common.Constants;
+import com.beee.Common.Utils;
 import com.beee.DTO.CourseContainerRequestDTO;
 import com.beee.DTO.CourseFileReqDTO;
 import com.beee.Model.*;
@@ -10,7 +12,9 @@ import com.beee.Service.FileService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.util.ParsingUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,11 +51,14 @@ public class CourseController {
 
 	@GetMapping("/search")
 	public ResponseEntity searchCourses(@RequestParam Map<String, String> params) {
-		Integer pageIndex = Integer.parseInt(params.get("pageIndex"));
-		if (pageIndex == null || pageIndex < 1) pageIndex = 1;
+		Integer pageIndex = Integer.parseInt(params.getOrDefault("pageIndex", "1"));
 		pageIndex--;
-		PageRequest pr = PageRequest.of(pageIndex, 7, Sort.by(Sort.Direction.DESC, "createdAt"));
-		return ResponseEntity.ok(courseRepo.findAll(pr));
+		String sort = params.getOrDefault("sort", "createdAt");
+		sort = ParsingUtils.reconcatenateCamelCase(sort, "_");
+		boolean descending = Boolean.parseBoolean(params.getOrDefault("descending", "true"));
+		String keyword = params.getOrDefault("keyword", " ");
+		Pageable pageable = Utils.setPageable(pageIndex, Constants.PAGEABLE_PAGE_SIZE_7, sort, descending);
+		return ResponseEntity.ok(courseRepo.getCoursesWithQueryParams(keyword.trim(),pageable));
 	}
 
 	@GetMapping("/get/{id}")
@@ -118,7 +125,6 @@ public class CourseController {
 	public ResponseEntity isSubscribed(@CookieValue(name = "jwt") String userToken, @RequestParam String courseId) {
 		return courseService.isSubscribedByUserAndCourse(userToken, courseId);
 	}
-
 
 
 	@GetMapping("/subscription/getSummary")

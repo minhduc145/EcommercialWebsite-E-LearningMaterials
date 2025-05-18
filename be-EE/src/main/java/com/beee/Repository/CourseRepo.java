@@ -1,7 +1,8 @@
 package com.beee.Repository;
 
-import com.beee.DTO.CourseBasicResDTO;
 import com.beee.Model.CourseModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,20 +34,31 @@ public interface CourseRepo extends JpaRepository<CourseModel, Integer> {
 			"ORDER BY c.created_at desc;", nativeQuery = true)
 	List<Map> findAllByIsFeaturedTrue();
 
-	@Query(value = "SELECT \n" +
-			"    a.id,\n" +
-			"    CASE \n" +
-			"        WHEN s.course_id IS NOT null or a.\"role\" = 'ADMIN' or a.id = c.creator_id THEN true ELSE FALSE\n" +
-			"    END AS inSub,\n" +
-			"    s.created_at AS subAt,\n" +
-			"    CASE \n" +
-			"        WHEN uf.course_id IS NOT NULL THEN true ELSE FALSE\n" +
-			"    END AS isFavourite\n" +
-			"FROM accounts a " +
-			"left join courses c on a.id  = c.creator_id \n" +
-			"LEFT JOIN subscriptions s ON a.id = s.user_id \n" +
-			"LEFT JOIN user_favourites uf ON a.id = uf.user_id "+
-			"WHERE a.id = :username and c.id = :courseId;\n",nativeQuery = true)
-	List<Map> getSubCardInfoByUserIdAndCourseId(String username, Integer courseId);
+//	@Query(value = "SELECT \n" +
+//			"    a.id,\n" +
+//			"    CASE \n" +
+//			"        WHEN s.course_id IS NOT null or a.\"role\" = 'ADMIN' or a.id = c.creator_id THEN true ELSE FALSE\n" +
+//			"    END AS inSub,\n" +
+//			"    s.created_at AS subAt,\n" +
+//			"    CASE \n" +
+//			"        WHEN uf.course_id IS NOT NULL THEN true ELSE FALSE\n" +
+//			"    END AS isFavourite\n" +
+//			"FROM accounts a " +
+//			"left join courses c on a.id  = c.creator_id \n" +
+//			"LEFT JOIN subscriptions s ON a.id = s.user_id \n" +
+//			"LEFT JOIN user_favourites uf ON a.id = uf.user_id "+
+//			"WHERE a.id = :username and c.id = :courseId;\n",nativeQuery = true)
+//	List<Map> getSubCardInfoByUserIdAndCourseId(String username, Integer courseId);
 
+	@Query(value = "SELECT c.* \n" +
+			"        FROM courses c \n" +
+			"        JOIN users u ON c.creator_id = u.id \n" +
+			"        JOIN categories cat ON c.category_id = cat.id \n" +
+			"        WHERE unaccent(c.title) ILIKE unaccent(CONCAT('%', :keyword, '%')) \n" +
+			"           OR unaccent(cat.name) ILIKE unaccent(CONCAT('%', :keyword, '%'))\n" +
+			"           OR unaccent(u.first_name) ILIKE unaccent(CONCAT('%', :keyword, '%'))\n" +
+			"           OR unaccent(u.last_name) ILIKE unaccent(CONCAT('%', :keyword, '%'))", nativeQuery = true)
+	Page<CourseModel> getCoursesWithQueryParams(String keyword,Pageable pageable);
 }
+
+

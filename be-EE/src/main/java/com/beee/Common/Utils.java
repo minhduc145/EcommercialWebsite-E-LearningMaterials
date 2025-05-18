@@ -2,6 +2,9 @@ package com.beee.Common;
 
 
 import com.beee.Repository.ReviewRepo;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -46,5 +49,11 @@ public class Utils {
 	public static String encodePassword(String rawPassword) {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
 		return encoder.encode(rawPassword);
+	}
+
+	public static Pageable setPageable(Integer pageIndex, Integer pageSize, String sortField, boolean isDescending) {
+		if (isDescending)
+			return PageRequest.of(pageIndex, pageSize, Sort.by(sortField).descending());
+		else return PageRequest.of(pageIndex, pageSize, Sort.by(sortField).ascending());
 	}
 }

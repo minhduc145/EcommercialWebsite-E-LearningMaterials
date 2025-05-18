@@ -3,7 +3,10 @@ package com.beee.Common;
 import java.util.Set;
 
 public class Constants {
-	public static final Integer PAGEABLE_PAGE_SIZE = 5;
+	public static final Integer PAGEABLE_PAGE_SIZE_5 = 5;
+	public static final Integer PAGEABLE_PAGE_SIZE_7 = 7;
+	public static final Integer PAGEABLE_PAGE_SIZE_10 = 10;
+
 
 	public final static Integer RESULT_SUCCESS = 1;
 	public final static Integer RESULT_FAIL = 0;

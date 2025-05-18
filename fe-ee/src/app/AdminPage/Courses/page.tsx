@@ -10,7 +10,7 @@ import { useEffect, useState } from "react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { MoreHorizontal, Search, Plus, SortAsc, LoaderIcon, Loader2, RefreshCcw, RefreshCcwDotIcon, Check, X } from "lucide-react"
+import { MoreHorizontal, Search, Plus, SortAsc, RefreshCcw, Check, X, SortDesc, SlidersHorizontalIcon } from "lucide-react"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -31,15 +31,17 @@ export default function Page() {
     const [totalPages, setTotalPages] = useState(0)
     const [totalElements, settotalElements] = useState(0)
     const [currentPage, setCurrentPage] = useState(1)
-    const [keyWord, setKeyWord] = useState("")
     const [searchInput, setSearchInput] = useState("")
     const [selectedRows, setSelectedRows] = useState<string[]>([])
-    const [sortBy, setSortBy] = useState("newest")
+    const [sortBy, setSortBy] = useState("createdAt")
+    const [descending, setDescending] = useState(true)
     const [reloadKey, setReloadKey] = useState(true)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [deleteId, setDeleteId] = useState<string[]>([])
 
-
+    useEffect(() => {
+        getCourse();
+    }, [currentPage, reloadKey, sortBy, descending])
 
 
     const onPageChange = (page: number) => {
@@ -49,8 +51,7 @@ export default function Page() {
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault()
-        setKeyWord(searchInput)
-        setCurrentPage(1)
+        setReloadKey(!reloadKey)
     }
 
     const handleSortChange = (value: string) => {
@@ -58,17 +59,12 @@ export default function Page() {
     }
 
     const getCourse = () => {
-        getSearchCourses(keyWord, currentPage).then((response) => {
+        getSearchCourses(currentPage, searchInput, sortBy, descending).then((response) => {
             setCourses(response.data.content)
             setTotalPages(response.data.totalPages)
             settotalElements(response.data.totalElements)
-            console.log(response)
         })
     }
-
-    useEffect(() => {
-        getCourse();
-    }, [currentPage, reloadKey])
 
     const toggleRowSelection = (id: string) => {
         console.log(selectedRows)
@@ -89,7 +85,7 @@ export default function Page() {
 
     const handleDelete = (id: string[]) => {
         deleteCourse(id).then(() => {
-            MyToaster("success", "")
+            MyToaster("success")
             setSelectedRows([])
             setIsDeleteModalOpen(false)
             setReloadKey(!reloadKey)
@@ -111,16 +107,15 @@ export default function Page() {
                 {/* Search and filter controls */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <form onSubmit={handleSearch} className="relative col-span-2">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
                         <Input
                             type="text"
-                            placeholder="Tìm kiếm theo tiêu đề, danh mục..."
+                            placeholder="Tìm kiếm theo tiêu đề, danh mục, người tạo..."
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
                             className="pl-9"
                         />
                         <Button type="submit" variant="ghost" className="absolute right-0 top-0 h-full px-3">
-                            Tìm
+                            <Search className="h-4 w-4" />
                         </Button>
                     </form>
 
@@ -128,18 +123,31 @@ export default function Page() {
                         <Select value={sortBy} onValueChange={handleSortChange}>
                             <SelectTrigger className="w-full">
                                 <div className="flex items-center gap-2">
-                                    <SortAsc className="h-4 w-4" />
+                                    <SlidersHorizontalIcon className="h-4 w-4" />
                                     <SelectValue placeholder="Sắp xếp theo" />
                                 </div>
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="newest">Mới nhất</SelectItem>
-                                <SelectItem value="oldest">Cũ nhất</SelectItem>
-                                <SelectItem value="price-asc">Giá tăng dần</SelectItem>
-                                <SelectItem value="price-desc">Giá giảm dần</SelectItem>
-                                <SelectItem value="title-asc">Tiêu đề A-Z</SelectItem>
-                                <SelectItem value="subscribers">Lượt đăng ký</SelectItem>
-                                <SelectItem value="status">Trạng thái</SelectItem>
+                                <SelectItem value="id">ID</SelectItem>
+                                <SelectItem value="createdAt">Ngày tạo</SelectItem>
+                                <SelectItem value="price">Giá</SelectItem>
+                                <SelectItem value="title">Tiêu đề</SelectItem>
+                                <SelectItem value="subscriberNumber">Lượt đăng ký</SelectItem>
+                                <SelectItem value="isAvailable">Trạng thái</SelectItem>
+                                <SelectItem value="isFeatured">Nổi bật</SelectItem>
+                                <SelectItem value="creatorId">Người tạo</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Select value={String(descending)} onValueChange={(v) => setDescending(v === "true")}>
+                            <SelectTrigger className="w-full">
+                                <div className="flex items-center gap-2">
+                                    {descending ? <SortDesc className="h-4 w-4" /> : <SortAsc className="h-4 w-4" />}
+                                    <SelectValue placeholder="Chiều sắp xếp" />
+                                </div>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="true">Giảm dần</SelectItem>
+                                <SelectItem value="false">Tăng dần</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -219,7 +227,7 @@ export default function Page() {
                                             </span>
                                         </TableCell>
                                         <TableCell>
-                                            {course.isFeatured ? 
+                                            {course.isFeatured ?
                                                 <div className="rounded-full h-6 w-6 bg-green-100 p-1">
                                                     <Check className="h-4 w-4 text-green-600" />
                                                 </div> : <div className="rounded-full h-6 w-6 bg-red-100 p-1">

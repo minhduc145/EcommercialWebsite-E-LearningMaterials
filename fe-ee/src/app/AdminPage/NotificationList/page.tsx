@@ -25,7 +25,8 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 export default function MessageList() {
     const [data, setData] = useState<MessageModel[]>([])
     const [pageIndex, setPageIndex] = useState(0)
-    const [pageSize, setPageSize] = useState(10)
+    const [pageSize, setPageSize] = useState(0)
+
     const [totalPages, setTotalPages] = useState(0)
     const [totalElements, setTotalElements] = useState(0)
 
@@ -40,16 +41,17 @@ export default function MessageList() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
     useEffect(() => {
-        getAllMessages(pageIndex, pageSize, sorting?.[0]?.id, sorting?.[0]?.desc, keyWord?.trim()).then((res) => {
+        getAllMessages(pageIndex, sorting?.[0]?.id, sorting?.[0]?.desc, keyWord?.trim()).then((res) => {
             setData(res.data.content)
             setTotalPages(res.data.totalPages)
             setTotalElements(res.data.totalElements)
+            setPageSize(res.data.size)
         })
-    }, [pageIndex, pageSize, sorting, reset])
+    }, [pageIndex, sorting, reset])
 
     const onDelete = (id: number[]) => {
         deleteMessage(id)
-            .then(() => { setIsDeleteModalOpen(false); setReset(!reset); setRowSelection({})})
+            .then(() => { setIsDeleteModalOpen(false); setReset(!reset); setRowSelection({}) })
             .catch(() => { })
     }
 
@@ -170,7 +172,7 @@ export default function MessageList() {
                 <Button
                     variant={"destructive"}
                     onClick={() => {
-                        setSelectedId(row?.getValue("id"))
+                        setSelectedId([row?.getValue("id")])
                         setIsDeleteModalOpen(true)
                     }}
                 >

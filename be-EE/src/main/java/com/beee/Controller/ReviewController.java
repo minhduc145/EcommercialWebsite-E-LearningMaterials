@@ -76,7 +76,7 @@ public class ReviewController {
 	public ResponseEntity getReviewById(@PathVariable int id, Integer pageIndex) {
 		if (pageIndex == null || pageIndex < 1) pageIndex = 1;
 		pageIndex--;
-		PageRequest pr = PageRequest.of(pageIndex, Constants.PAGEABLE_PAGE_SIZE);
+		PageRequest pr = PageRequest.of(pageIndex, Constants.PAGEABLE_PAGE_SIZE_5);
 		Map<String, Object> map = new HashMap<>();
 		map.put("reviewPageable", reviewRepo.findCourseReviewModelsByCourse_IdOrderByCreatedAtDesc(id, pr));
 		map.put("starRateMeta", courseService.getStarRateCount(id));

@@ -1,5 +1,6 @@
 package com.beee.Controller;
 
+import com.beee.Common.Constants;
 import com.beee.Model.MessageModel;
 import com.beee.Repository.MessageRepo;
 import com.beee.Service.AccountService;
@@ -36,18 +37,19 @@ public class MessageController {
 
 	@GetMapping
 	public ResponseEntity getAllMessages(@CookieValue(name = "jwt") String userToken,
-	                                     @RequestParam int page, @RequestParam int size,
-	                                     @RequestParam(required = false) String sort,
-	                                     @RequestParam(required = false) Boolean descending,
-	                                     @RequestParam(required = false) String keyword) {
+	                                     @RequestParam Map<String, String> params) {
 		if (!accountService.isJwtOk(userToken)) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
+		Integer page = Integer.valueOf(params.getOrDefault("page", "0"));
+		String sort = params.getOrDefault("sort", "createdAt");
+		Boolean descending = Boolean.parseBoolean(params.getOrDefault("descending", "true"));
+		String keyword = params.getOrDefault("keyword", "");
 		Pageable pageable;
-		sort = sort != null ? ParsingUtils.reconcatenateCamelCase(sort, "_") : "created_at";
+		sort = ParsingUtils.reconcatenateCamelCase(sort, "_");
 		if (descending != null && descending)
-			pageable = PageRequest.of(page, size, Sort.by(sort).descending());
-		else pageable = PageRequest.of(page, size, Sort.by(sort).descending());
+			pageable = PageRequest.of(page, Constants.PAGEABLE_PAGE_SIZE_5, Sort.by(sort).descending());
+		else pageable = PageRequest.of(page, Constants.PAGEABLE_PAGE_SIZE_5, Sort.by(sort).ascending());
 		return ResponseEntity.ok(messageRepo.findByIdOrTitleOrMessageOrSenderId(keyword, pageable));
 	}
 

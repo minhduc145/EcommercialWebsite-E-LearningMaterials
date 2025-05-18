@@ -5,11 +5,10 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = url_backend_default;
 
-export async function getAllMessages(pageIndex: number, pageSize?: number | 5, sort?: string | undefined, descending?: boolean | false, keyword?: string) {
+export async function getAllMessages(pageIndex: number, sort?: string | undefined, descending?: boolean | false, keyword?: string) {
     return await axios.get("/api/messages", {
         params: {
             page: pageIndex,
-            size: pageSize,
             sort: sort,
             descending: descending,
             keyword: keyword

@@ -14,11 +14,13 @@ export async function getFeaturesSummary() {
 }
 
 
-export async function getSearchCourses(keyword: string, pageIndex: number) {
+export async function getSearchCourses(pageIndex: number, keyword: string, sort: string, descending: boolean) {
     return await axios.get("/api/courses/search", {
         params: {
-            pageIndex: pageIndex || 1,
-            keyWord: keyword
+            pageIndex: pageIndex,
+            keyword: keyword,
+            sort: sort,
+            descending: descending
         }
     })
 }
