@@ -6,7 +6,7 @@ import { deleteCourse, getAverageStarReview, getSearchCourses } from "@/app/api/
 import PaginationCluster from "@/components/ui/pagination-button-cluster"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import type { CourseModel } from "@/models/CourseModel"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -43,7 +43,13 @@ export default function Page() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [idForReview, setIdForReview] = useState("")
     const [averageStar, setAS] = useState(0)
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+    useEffect(() => {
+        requestAnimationFrame(() => {
+            setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 500);
+        });
+    }, [idForReview]);
 
     const fetcher = () => getSearchCourses(currentPage, searchInput, sortBy, descending).then(res => {
         setCourses(res?.data?.content)
@@ -52,11 +58,11 @@ export default function Page() {
     }).catch(() => { })
     const { data, error, isLoading, mutate } = useSWR<any>('admin-courses-list', fetcher)
 
-    useEffect(()=>{
-       if(idForReview) getAverageStarReview(idForReview).then(res=>{
-            setAS(res?.data)
-        }).catch(()=>{})
-    },[idForReview])
+    useEffect(() => {
+        if (idForReview) getAverageStarReview(idForReview).then(res => {
+            setAS(res?.data != 0 ? res?.data : 0)
+        }).catch(() => { })
+    }, [idForReview])
 
     useEffect(() => {
         mutate('admin-courses-lists')
@@ -300,7 +306,7 @@ export default function Page() {
                 <div>
                     {idForReview &&
                         <>
-                            <p className="font-bold mb-4">Trung bình: <i>{averageStar}</i></p>
+                            <p className="font-bold mb-4">Trung bình: <i>{Number(averageStar.toFixed(2))}</i></p>
 
                             <div className="flex justify-between">
                                 <p className="font-bold">Chi tiết đánh giá:</p>
@@ -308,8 +314,12 @@ export default function Page() {
                             </div>
 
                             <CommentLayout id={idForReview} forAdmin={true} />
+
+                            <div ref={messagesEndRef} />
+
                         </>
                     }
+
                 </div>
             </div>
             <DeleteModal isDeleteModalOpen={isDeleteModalOpen} handleDelete={handleDelete} id={deleteIds} setIsDeleteModalOpen={setIsDeleteModalOpen} />

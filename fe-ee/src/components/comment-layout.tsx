@@ -9,6 +9,7 @@ import { formatDateTime } from "@/lib/utils"
 import { useUserInfo } from "@/lib/user-info"
 import Image from "next/image"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import useSWR from "swr"
 
 interface CommentLayoutProps {
   id: string;
@@ -17,30 +18,35 @@ interface CommentLayoutProps {
 }
 
 export default function CommentLayout({ id, resetKey, forAdmin }: CommentLayoutProps) {
-  const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
+  const { user, isError, logout } = useUserInfo({ redirectToLogin: false })
 
   const [reviews, setReviews] = useState<CourseReviewModel[]>([])
   const [reviewLength, setReviewLength] = useState<number>(0)
   const [totalPages, setTotalPages] = useState<number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [starRateMeta, setStarRateMeta] = useState<[number, number][]>([])
+  const [reset, setreset] = useState(false)
+  const fetcher = () => getCourseReview(id, currentPage).then((response) => {
+    setReviews(response?.data.reviewPageable.content)
+    setReviewLength(response?.data.reviewPageable.totalElements)
+    setTotalPages(response?.data.reviewPageable.totalPages)
+    setStarRateMeta(response?.data.starRateMeta)
+  }).catch(() => { })
+  const { data, error, mutate, isLoading } = useSWR<any>('course-reviews', fetcher)
+
 
   const onPageChange = (page: number) => {
     setCurrentPage(page)
   }
-  const handleDeleteReview = (id:number) =>{
-    if(forAdmin){
+  const handleDeleteReview = (id: number) => {
+    if (forAdmin) {
       deleteReview(id)
+      setreset(!reset)
     }
   }
   useEffect(() => {
-    getCourseReview(id, currentPage).then((response) => {
-      setReviews(response?.data.reviewPageable.content)
-      setReviewLength(response?.data.reviewPageable.totalElements)
-      setTotalPages(response?.data.reviewPageable.totalPages)
-      setStarRateMeta(response?.data.starRateMeta)
-    })
-  }, [id, currentPage, resetKey])
+    mutate('course-review')
+  }, [id, currentPage, resetKey, reset])
 
   return (
     <>

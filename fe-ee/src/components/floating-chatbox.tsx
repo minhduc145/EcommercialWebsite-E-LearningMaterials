@@ -48,12 +48,10 @@ export default function ChatBox() {
         <div className="fixed bottom-4 right-4 z-50 flex flex-col ">
             {openBox &&
                 <div className="min-h-[50dvh] max-h-[50dvh] fixed bottom-20 right-4 w-80 bg-white border border-gray-300 rounded-xl shadow-xl z-50 flex flex-col overflow-hidden">
-                    {/* Header */}
                     <div className="bg-blue-600 text-white px-4 py-2 font-semibold flex justify-between">
                         Hỗ trợ <span className="hover:cursor-pointer" onClick={() => setOpenBox(!openBox)}>&times;</span>
                     </div>
 
-                    {/* Messages */}
                     <div className="flex-1 px-4 py-2 space-y-2 h-64 overflow-y-auto text-sm">
                         {messages.map((msg, index) => (
                             <div ref={msg.isLast ? messagesEndRef : null} key={index} className={`flex ${msg.from === 'You' ? 'justify-end' : 'justify-start'}`}>
@@ -74,7 +72,6 @@ export default function ChatBox() {
                         </>}
                     </div>
 
-                    {/* Input */}
                     <div className="flex items-center border-t px-2 py-2">
                         <input
                             className="flex-1 px-3 py-1 border border-gray-300 rounded-full text-sm outline-none focus:ring-2 focus:ring-blue-300"

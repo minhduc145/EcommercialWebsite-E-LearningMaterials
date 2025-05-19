@@ -53,8 +53,18 @@ public class ReviewController {
 	public ResponseEntity deleteReview(@CookieValue(name = "jwt") String userToken, @RequestBody Map<String, String> params) {
 		if (!accountService.isJwtOk(userToken))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		String username = jwtService.extractUsername(userToken);
-		boolean i = reviewRepo.deleteByUser_IdAndId(username, Integer.valueOf(params.getOrDefault("reviewId", "0"))) == 1 ? true : false;
+		boolean i = false;
+		if (accountService.isAdminJwtOk(userToken)) {
+			try {
+				reviewRepo.deleteById(Integer.valueOf(params.getOrDefault("reviewId", "0")));
+				i = true;
+			} catch (Exception e) {
+				i = false;
+			}
+		}else{
+			String username = jwtService.extractUsername(userToken);
+			i = reviewRepo.deleteByUser_IdAndId(username, Integer.valueOf(params.getOrDefault("reviewId", "0"))) == 1 ? true : false;
+		}
 		return ResponseEntity.ok(i);
 	}
 
