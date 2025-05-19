@@ -222,7 +222,7 @@ export default function Page() {
                 </div>
             </div>
             <DeleteModal isDeleteModalOpen={isDeleteModalOpen} handleDelete={handleDelete} id={onSelectedIds} setIsDeleteModalOpen={setIsDeleteModalOpen} />
-            <CategoryAddForm category={selectedCategory ?? undefined} onOpenChange={onOpenChange} open={isAddModalOpen} />
+            <CategoryAddForm category={selectedCategory ?? undefined} onOpenChange={onOpenChange} open={isAddModalOpen} rk={reloadKey} setRK={setReloadKey} />
         </>
     );
 }
@@ -265,7 +265,8 @@ function DeleteModal({ id, handleDelete, isDeleteModalOpen, setIsDeleteModalOpen
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
-export function CategoryAddForm({ category, open, onOpenChange }: { category?: CategoryModel, open: boolean | false, onOpenChange: (i: boolean) => void }) {
+export function CategoryAddForm({ category, open, onOpenChange, rk, setRK }: 
+    { category?: CategoryModel, open: boolean | false, onOpenChange: (i: boolean) => void,rk:boolean, setRK: (i: boolean) => void }) {
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
 
@@ -273,6 +274,9 @@ export function CategoryAddForm({ category, open, onOpenChange }: { category?: C
         if (category) {
             setName(category.name);
             setDescription(category?.description ?? "");
+        } else {
+            setName("");
+            setDescription("");
         }
     }, [category])
 
@@ -282,7 +286,11 @@ export function CategoryAddForm({ category, open, onOpenChange }: { category?: C
         const newCat: CategoryModel = {
             id, name, description, courseCount: 0
         }
-        addCategory(newCat)
+        addCategory(newCat).then(() => {
+            MyToaster("success")
+            onOpenChange(false)
+            setRK(!rk)
+        })
     }
 
     return (

@@ -97,7 +97,7 @@ export async function getCategories(keyword: string, sort: string, descending: b
 }
 
 export async function addCategory(category:CategoryModel) {
-    return await axios.post("/api/categories", {category})
+    return await axios.post("/api/categories", category)
 }
 
 export async function deleteCategories(id: string[]) {

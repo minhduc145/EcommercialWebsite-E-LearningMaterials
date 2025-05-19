@@ -49,6 +49,7 @@ public class CategoryController {
 		if(!accountService.isAdminJwtOk(userToken)) {
 			return new ResponseEntity(HttpStatus.UNAUTHORIZED);
 		}
+		System.out.println(category);
 		return new ResponseEntity(categoryRepo.save(category), HttpStatus.OK);
 	}
 
