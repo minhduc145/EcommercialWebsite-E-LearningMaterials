@@ -50,7 +50,10 @@ public class CourseController {
 	}
 
 	@GetMapping("/search")
-	public ResponseEntity searchCourses(@RequestParam Map<String, String> params) {
+	public ResponseEntity searchCourses(@CookieValue(name = "jwt", required = false) String userToken,@RequestParam Map<String, String> params) {
+		if (!accountService.isJwtOk(userToken)) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
 		Integer pageIndex = Integer.parseInt(params.getOrDefault("pageIndex", "1"));
 		pageIndex--;
 		String sort = params.getOrDefault("sort", "createdAt");

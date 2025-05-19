@@ -1,5 +1,5 @@
 "use client"
-import { getCategories } from "@/app/api/api-courses";
+import { deleteCategories, getCategories } from "@/app/api/api-courses";
 import { Button } from "@/components/ui/button";
 import PaginationCluster from "@/components/ui/pagination-button-cluster";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -15,28 +15,30 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Plus } from "lucide-react";
+import { MoreHorizontal, Plus, RefreshCcw, Search, SlidersHorizontalIcon, SortAsc, SortDesc } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import Link from "next/link";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 export default function Page() {
-    const [selectedRows, setSelectedRows] = useState<number[]>([])
+    const [selectedRows, setSelectedRows] = useState<string[]>([])
     const [data, setData] = useState<CategoryModel[]>([])
     const [reloadKey, setReloadKey] = useState(true)
-
-    const getCate = () => {
-        getCategories().then(res => {
-            setData(res.data)
-            setReloadKey(!reloadKey)
-        })
-    }
+    const [sortBy, setSortBy] = useState("name")
+    const [descending, setDescending] = useState(true)
+    const [searchInput, setSearchInput] = useState("")
+    const [deleteIds, setDeleteIds] = useState<string[]>([])
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
     useEffect(() => {
-        getCate();
-    }, [reloadKey])
+        getCategories(searchInput, sortBy, descending).then(res => {
+            setData(res.data)
+        })
+    }, [reloadKey, sortBy, descending])
 
-    const toggleRowSelection = (id: number) => {
+    const toggleRowSelection = (id: string) => {
         console.log(selectedRows)
         if (selectedRows.includes(id)) {
             setSelectedRows(selectedRows.filter((rowId) => rowId !== id))
@@ -48,40 +50,102 @@ export default function Page() {
         if (selectedRows.length === data.length) {
             setSelectedRows([])
         } else {
-            setSelectedRows(data.map((category) => category.id))
+            setSelectedRows(data.map((category) => String(category.id)))
         }
     }
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault()
+        setReloadKey(!reloadKey)
+    }
+
     function handleEdit(id: any): void {
         throw new Error("Function not implemented.");
     }
 
-    function handleDelete(arg0: any[]): void {
-        throw new Error("Function not implemented.");
+    function handleDelete(): void {
+        deleteCategories(deleteIds).then(() => {
+            MyToaster("success");
+            setDeleteIds([])
+            setSelectedRows([])
+            setIsDeleteModalOpen(false)
+            setReloadKey(!reloadKey)
+        }).catch(
+            error => {
+                MyToaster("error",error.response?.data?.details.join("\n"))
+            }
+        )
     }
 
     return (
         <>
             <ToastContainer />
             <div className="flex justify-between items-center mb-6">
-                    <Link href={"/AdminPage/Categories/Add"}>
-                        <Button className="flex items-center gap-2 hover:opacity-50">
-                            <Plus className="h-4 w-4" /> Thêm mới
-                        </Button>
-                    </Link>
+                <Link href={"/AdminPage/Categories/Add"}>
+                    <Button className="flex items-center gap-2 hover:opacity-50">
+                        <Plus className="h-4 w-4" /> Thêm mới
+                    </Button>
+                </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <form onSubmit={handleSearch} className="relative col-span-2">
+                    <Input
+                        type="text"
+                        placeholder="Tìm kiếm tên loại, mô tả"
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        className="pl-4"
+                    />
+                    <Button type="submit" variant="ghost" className="absolute right-0 top-0 h-full px-3">
+                        <Search className="h-4 w-4" />
+                    </Button>
+                </form>
 
+                <div className="flex gap-2">
+                    <Select value={sortBy} onValueChange={value => setSortBy(value)}>
+                        <SelectTrigger className="w-full">
+                            <div className="flex items-center gap-2">
+                                <SlidersHorizontalIcon className="h-4 w-4" />
+                                <SelectValue placeholder="Sắp xếp theo" />
+                            </div>
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="id">ID</SelectItem>
+                            <SelectItem value="name">Tên loại</SelectItem>
+                            <SelectItem value="description">Mô tả</SelectItem>
+                            <SelectItem value="courseCount">Số học liệu</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Select value={String(descending)} onValueChange={(v) => setDescending(v === "true")}>
+                        <SelectTrigger className="w-full">
+                            <div className="flex items-center gap-2">
+                                {descending ? <SortDesc className="h-4 w-4" /> : <SortAsc className="h-4 w-4" />}
+                                <SelectValue placeholder="Chiều sắp xếp" />
+                            </div>
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="true">Giảm dần</SelectItem>
+                            <SelectItem value="false">Tăng dần</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
+            </div>
             <div className="flex justify-between items-center mb-2">
                 <i>
                     <b>Danh sách gồm có:</b>&nbsp;{data.length} bản ghi
                 </i>
-                {selectedRows.length > 0 && (
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{selectedRows.length} đã chọn</span>
-                        <Button variant="outline" size="sm" onClick={() => handleDelete(selectedRows)}>
-                            Xóa đã chọn
-                        </Button>
-                    </div>
-                )}
+                <div className="flex gap-2">
+                    {selectedRows.length > 0 && (
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">{selectedRows.length} đã chọn</span>
+                            <Button variant="outline" size="sm" onClick={() => { setDeleteIds(selectedRows); setIsDeleteModalOpen(true) }}>
+                                Xóa đã chọn
+                            </Button>
+                        </div>
+                    )}
+                    <Button variant={"secondary"} className="bg-green-500 hover:bg-green-600 text-white" onClick={() => setReloadKey(!reloadKey)}>
+                        <RefreshCcw className="size-4" />
+                    </Button>
+                </div>
             </div>
 
             <div className="border rounded-md overflow-hidden">
@@ -108,8 +172,8 @@ export default function Page() {
                                 <TableRow key={category.id}>
                                     <TableCell>
                                         <Checkbox
-                                            checked={selectedRows.includes(category.id)}
-                                            onCheckedChange={() => toggleRowSelection(category.id)}
+                                            checked={selectedRows.includes(String(category.id))}
+                                            onCheckedChange={() => toggleRowSelection(String(category.id))}
                                         />
                                     </TableCell>
                                     <TableCell className="font-medium">{category.id}</TableCell>
@@ -135,7 +199,12 @@ export default function Page() {
                                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem onClick={() => handleEdit(category.id)}>Chỉnh sửa</DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleDelete([category.id])} className="text-red-600">
+                                                <DropdownMenuItem onClick={() => {
+                                                    setDeleteIds([String(category.id)]);
+                                                    requestAnimationFrame(() => {
+                                                        setTimeout(() => setIsDeleteModalOpen(true), 0);
+                                                    });
+                                                }} className="text-red-600">
                                                     Xóa
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
@@ -147,6 +216,43 @@ export default function Page() {
                     </Table>
                 </div>
             </div>
+            <DeleteModal isDeleteModalOpen={isDeleteModalOpen} handleDelete={handleDelete} id={deleteIds} setIsDeleteModalOpen={setIsDeleteModalOpen} />
+
         </>
     );
+}
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import MyToaster from "@/components/ui/toastify-template";
+
+interface DeleteModalProps {
+    id: string[];
+    handleDelete: () => void;
+    isDeleteModalOpen: boolean;
+    setIsDeleteModalOpen: (open: boolean) => void;
+};
+function DeleteModal({ id, handleDelete, isDeleteModalOpen, setIsDeleteModalOpen }: DeleteModalProps) {
+    return (
+        <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Xác nhận xóa Danh mục:</DialogTitle>
+                </DialogHeader>
+                <div className="py-4">
+                    <p>Bạn có chắc chắn muốn xóa Danh mục có id: {id.join(", ")}</p>
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="outline" onClick={() => { setIsDeleteModalOpen(false) }}>
+                            Hủy
+                        </Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                        <Button variant="destructive" onClick={() => handleDelete()}>
+                            Xóa
+                        </Button>
+                    </DialogClose>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
 }

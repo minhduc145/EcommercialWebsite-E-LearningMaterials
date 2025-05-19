@@ -21,6 +21,7 @@ import { deleteMessage, getAllMessages } from "@/app/api/api-messages"
 import type { MessageModel } from "@/models/MessageModel"
 import { formatDateTime } from "@/lib/utils"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import MyToaster from "@/components/ui/toastify-template"
 
 export default function MessageList() {
     const [data, setData] = useState<MessageModel[]>([])
@@ -52,7 +53,7 @@ export default function MessageList() {
     const onDelete = (id: number[]) => {
         deleteMessage(id)
             .then(() => { setIsDeleteModalOpen(false); setReset(!reset); setRowSelection({}) })
-            .catch(() => { })
+            .catch(()=>{})
     }
 
     const columns: ColumnDef<MessageModel>[] = [
@@ -232,7 +233,7 @@ export default function MessageList() {
                     {totalElements}
                 </p>
                 <div className="text-sm">
-                    {selectedIds.length > 0 ? <><span className="font-medium">{selectedIds.length} mục đã chọn</span>&nbsp;<Button onClick={() => { setSelectedId(selectedIds); setIsDeleteModalOpen(true) }} variant={"link"}>Xóa đã chọn</Button></> : null}
+                    {selectedIds.length > 0 ? <><span className="font-medium">{selectedIds.length} mục đã chọn</span>&nbsp;<Button onClick={() => { setSelectedId(selectedIds); setIsDeleteModalOpen(true) }} variant={"outline"}>Xóa đã chọn</Button></> : null}
                 </div>
             </div>
 

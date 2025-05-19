@@ -38,7 +38,7 @@ public class MessageController {
 	@GetMapping
 	public ResponseEntity getAllMessages(@CookieValue(name = "jwt") String userToken,
 	                                     @RequestParam Map<String, String> params) {
-		if (!accountService.isJwtOk(userToken)) {
+		if (!accountService.isAdminJwtOk(userToken)) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 		Integer page = Integer.valueOf(params.getOrDefault("page", "0"));
@@ -55,7 +55,7 @@ public class MessageController {
 
 	@DeleteMapping
 	public ResponseEntity deleteMsg(@CookieValue(name = "jwt") String userToken, @RequestBody Map<String, Object> params) {
-		if (!accountService.isJwtOk(userToken)) {
+		if (!accountService.isAdminJwtOk(userToken)) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 		if (params.get("id") != null) {

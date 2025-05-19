@@ -51,9 +51,14 @@ public class Utils {
 		return encoder.encode(rawPassword);
 	}
 
+	public static Sort setSort(String sortField, boolean isDescending) {
+		if (isDescending) return Sort.by(sortField).descending();
+		else return Sort.by(sortField).ascending();
+	}
+
 	public static Pageable setPageable(Integer pageIndex, Integer pageSize, String sortField, boolean isDescending) {
 		if (isDescending)
-			return PageRequest.of(pageIndex, pageSize, Sort.by(sortField).descending());
-		else return PageRequest.of(pageIndex, pageSize, Sort.by(sortField).ascending());
+			return PageRequest.of(pageIndex, pageSize, setSort(sortField, isDescending));
+		else return PageRequest.of(pageIndex, pageSize, setSort(sortField, isDescending));
 	}
 }

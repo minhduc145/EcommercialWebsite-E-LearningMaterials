@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { deleteCourse, getCourse, getSearchCourses } from "@/app/api/api-courses"
+import { deleteCourse, getAverageStarReview, getSearchCourses } from "@/app/api/api-courses"
 import PaginationCluster from "@/components/ui/pagination-button-cluster"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import type { CourseModel } from "@/models/CourseModel"
@@ -24,7 +24,10 @@ import MyToaster from "@/components/ui/toastify-template"
 import { formatDateTime } from "@/lib/utils"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import useSWR from "swr"
+import Loading from "@/app/loading"
+import CommentLayout from "@/components/comment-layout"
 
 export default function Page() {
     const [courses, setCourses] = useState<CourseModel[]>([])
@@ -33,14 +36,30 @@ export default function Page() {
     const [currentPage, setCurrentPage] = useState(1)
     const [searchInput, setSearchInput] = useState("")
     const [selectedRows, setSelectedRows] = useState<string[]>([])
+    const [deleteIds, setDeleteIds] = useState<string[]>([])
     const [sortBy, setSortBy] = useState("createdAt")
     const [descending, setDescending] = useState(true)
     const [reloadKey, setReloadKey] = useState(true)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-    const [deleteId, setDeleteId] = useState<string[]>([])
+    const [idForReview, setIdForReview] = useState("")
+    const [averageStar, setAS] = useState(0)
+
+
+    const fetcher = () => getSearchCourses(currentPage, searchInput, sortBy, descending).then(res => {
+        setCourses(res?.data?.content)
+        setTotalPages(res?.data?.totalPages)
+        settotalElements(res?.data?.totalElements)
+    }).catch(() => { })
+    const { data, error, isLoading, mutate } = useSWR<any>('admin-courses-list', fetcher)
+
+    useEffect(()=>{
+       if(idForReview) getAverageStarReview(idForReview).then(res=>{
+            setAS(res?.data)
+        }).catch(()=>{})
+    },[idForReview])
 
     useEffect(() => {
-        getCourse();
+        mutate('admin-courses-lists')
     }, [currentPage, reloadKey, sortBy, descending])
 
 
@@ -52,18 +71,6 @@ export default function Page() {
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault()
         setReloadKey(!reloadKey)
-    }
-
-    const handleSortChange = (value: string) => {
-        setSortBy(value)
-    }
-
-    const getCourse = () => {
-        getSearchCourses(currentPage, searchInput, sortBy, descending).then((response) => {
-            setCourses(response.data.content)
-            setTotalPages(response.data.totalPages)
-            settotalElements(response.data.totalElements)
-        })
     }
 
     const toggleRowSelection = (id: string) => {
@@ -87,7 +94,7 @@ export default function Page() {
         deleteCourse(id).then(() => {
             MyToaster("success")
             setSelectedRows([])
-            setIsDeleteModalOpen(false)
+            setDeleteIds([])
             setReloadKey(!reloadKey)
         })
     }
@@ -112,7 +119,7 @@ export default function Page() {
                             placeholder="Tìm kiếm theo tiêu đề, danh mục, người tạo..."
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
-                            className="pl-9"
+                            className="pl-4"
                         />
                         <Button type="submit" variant="ghost" className="absolute right-0 top-0 h-full px-3">
                             <Search className="h-4 w-4" />
@@ -120,7 +127,7 @@ export default function Page() {
                     </form>
 
                     <div className="flex gap-2">
-                        <Select value={sortBy} onValueChange={handleSortChange}>
+                        <Select value={sortBy} onValueChange={(value => setSortBy(value))}>
                             <SelectTrigger className="w-full">
                                 <div className="flex items-center gap-2">
                                     <SlidersHorizontalIcon className="h-4 w-4" />
@@ -162,7 +169,7 @@ export default function Page() {
                             {selectedRows.length > 0 && (
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm font-medium">{selectedRows.length} đã chọn</span>
-                                    <Button variant="outline" size="sm" onClick={() => { setIsDeleteModalOpen(true); setDeleteId(selectedRows) }}>
+                                    <Button variant="outline" size="sm" onClick={() => { setDeleteIds(selectedRows); setIsDeleteModalOpen(true); }}>
                                         Xóa đã chọn
                                     </Button>
                                 </div>
@@ -184,7 +191,7 @@ export default function Page() {
                                 <TableRow>
                                     <TableHead className="w-[50px] ">
                                         <Checkbox
-                                            checked={selectedRows.length === courses.length && courses.length > 0}
+                                            checked={selectedRows.length === courses?.length && courses?.length > 0}
                                             onCheckedChange={toggleAllRows}
                                         />
                                     </TableHead>
@@ -202,7 +209,7 @@ export default function Page() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {courses.map((course) => (
+                                {courses?.map((course) => (
                                     <TableRow key={course.id}>
                                         <TableCell>
                                             <Checkbox
@@ -253,7 +260,7 @@ export default function Page() {
                                         <TableCell className="text-right">{formatDateTime(course.createdAt)}</TableCell>
                                         <TableCell>
                                             <img
-                                                src={course.thumbnailUrl || "/placeholder.svg?height=40&width=56"}
+                                                src={course.thumbnailUrl}
                                                 alt="Thumbnail"
                                                 className="w-14 h-10 object-cover rounded-md"
                                             />
@@ -266,11 +273,15 @@ export default function Page() {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="w-[150px]">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuSeparator />
                                                     <a href={`/Courses/${course.id}`} target="_blank"> <DropdownMenuItem>Xem chi tiết</DropdownMenuItem></a>
+                                                    <DropdownMenuItem className="hover:cursor-pointer" onClick={() => setIdForReview(course.id)}>Xem đánh giá</DropdownMenuItem>
                                                     <Link href={`/AdminPage/Courses/Edit/${course.id}`}> <DropdownMenuItem className="hover:cursor-pointer">Chỉnh sửa</DropdownMenuItem></Link>
-                                                    <DropdownMenuItem className="hover:cursor-pointer text-red-600" onClick={() => { setIsDeleteModalOpen(true); setDeleteId([course.id]) }}>
+                                                    <DropdownMenuItem className="hover:cursor-pointer text-red-600" onClick={() => {
+                                                        setDeleteIds([course.id]);
+                                                        requestAnimationFrame(() => {
+                                                            setTimeout(() => setIsDeleteModalOpen(true), 0);
+                                                        });
+                                                    }}>
                                                         Xóa
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -285,8 +296,23 @@ export default function Page() {
                 <div className="mt-4">
                     <PaginationCluster totalPages={totalPages} initialPage={currentPage} onPageChange={onPageChange} />
                 </div>
+                <hr className="m-10" />
+                <div>
+                    {idForReview &&
+                        <>
+                            <p className="font-bold mb-4">Trung bình: <i>{averageStar}</i></p>
+
+                            <div className="flex justify-between">
+                                <p className="font-bold">Chi tiết đánh giá:</p>
+                                <Button variant={"destructive"} onClick={() => setIdForReview("")}><X className="h-4 w-4" /></Button>
+                            </div>
+
+                            <CommentLayout id={idForReview} forAdmin={true} />
+                        </>
+                    }
+                </div>
             </div>
-            <DeleteModal isDeleteModalOpen={isDeleteModalOpen} handleDelete={handleDelete} id={deleteId} setIsDeleteModalOpen={setIsDeleteModalOpen} />
+            <DeleteModal isDeleteModalOpen={isDeleteModalOpen} handleDelete={handleDelete} id={deleteIds} setIsDeleteModalOpen={setIsDeleteModalOpen} />
         </>
     )
 }
@@ -305,15 +331,19 @@ function DeleteModal({ id, handleDelete, isDeleteModalOpen, setIsDeleteModalOpen
                     <DialogTitle>Xác nhận xóa Học liệu:</DialogTitle>
                 </DialogHeader>
                 <div className="py-4">
-                    <p>Bạn có chắc chắn muốn xóa học liệu có id: {id.join(", ")}</p>
+                    <p>Bạn có chắc chắn muốn xóa học liệu có id: {id.length > 1 ? id.join(", ") : id}</p>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
-                        Hủy
-                    </Button>
-                    <Button variant="destructive" onClick={() => handleDelete(id)}>
-                        Xóa
-                    </Button>
+                    <DialogClose asChild>
+                        <Button variant="outline" onClick={() => { setIsDeleteModalOpen(false) }}>
+                            Hủy
+                        </Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                        <Button variant="destructive" onClick={() => handleDelete(id)}>
+                            Xóa
+                        </Button>
+                    </DialogClose>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

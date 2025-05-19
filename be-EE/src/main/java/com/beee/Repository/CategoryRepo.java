@@ -1,6 +1,8 @@
 package com.beee.Repository;
 
 import com.beee.Model.CategoryModel;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -12,15 +14,14 @@ import java.util.List;
 @Repository
 public interface CategoryRepo extends JpaRepository<CategoryModel, Integer> {
 	@Query(value = "SELECT \n" +
-			"    categories.id,\n" +
-			"    categories.name,\n" +
-			"    categories.description,\n" +
+			"    categories.id as id,\n" +
+			"    categories.name as name,\n" +
+			"    categories.description as description,\n" +
 			"    COUNT(courses.id) AS course_count\n" +
-			"FROM \n" +
-			"    categories\n" +
-			"LEFT JOIN \n" +
-			"    courses ON categories.id = courses.category_id\n" +
-			"GROUP BY \n" +
-			"    categories.id, categories.name", nativeQuery = true)
-	List<ArrayList<String>> getCategoriesAndCourseCount();
+			"FROM categories\n" +
+			"LEFT JOIN courses ON categories.id = courses.category_id\n" +
+			"WHERE unaccent(categories.name) ILIKE unaccent(CONCAT('%', :keyword, '%'))\n" +
+			"      OR unaccent(categories.description) ILIKE unaccent(CONCAT('%', :keyword, '%'))\n" +
+			"GROUP BY categories.id, categories.name", nativeQuery = true)
+	List<ArrayList<String>> getCategoriesAndCourseCount(String keyword, Sort sort);
 }

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { toast, ToastContainer, Zoom } from "react-toastify";
 
 
-export default function MyToaster(variant: string | undefined, message?: string) {
+export default function MyToaster(variant?: string | undefined, message?: string) {
     if (!variant || variant === "info") {
         toast.info(
             <div className="max-w-full">
@@ -22,7 +22,7 @@ export default function MyToaster(variant: string | undefined, message?: string)
             });
     }
     else if (variant === "error") {
-        toast.error(<div>
+        toast.error(<div className="white-space: pre-line;">
             Thất bại
             <br />
             {message && message}

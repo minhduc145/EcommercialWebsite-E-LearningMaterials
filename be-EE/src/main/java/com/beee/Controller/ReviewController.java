@@ -5,6 +5,7 @@ import com.beee.Model.CourseModel;
 import com.beee.Model.CourseReviewModel;
 import com.beee.Model.UserModel;
 import com.beee.Repository.*;
+import com.beee.Service.AccountService;
 import com.beee.Service.CourseService;
 import com.beee.Service.Impl.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,12 @@ public class ReviewController {
 	private JwtService jwtService;
 	@Autowired
 	private CourseService courseService;
+	@Autowired
+	private AccountService accountService;
 
 	@PostMapping("/add")
 	public ResponseEntity addReview(@CookieValue(name = "jwt") String userToken, @RequestBody Map<String, String> params) {
-		if (userToken == null || jwtService.isTokenExpired(userToken))
+		if (!accountService.isJwtOk(userToken))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		String username = jwtService.extractUsername(userToken);
 		CourseReviewModel courseReviewModel;
@@ -47,11 +50,11 @@ public class ReviewController {
 	}
 
 	@PostMapping("/delete")
-	public ResponseEntity deleteReview(@CookieValue(name = "jwt") String userToken,@RequestBody Map<String, String> params) {
-		if (userToken == null || jwtService.isTokenExpired(userToken))
+	public ResponseEntity deleteReview(@CookieValue(name = "jwt") String userToken, @RequestBody Map<String, String> params) {
+		if (!accountService.isJwtOk(userToken))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		String username = jwtService.extractUsername(userToken);
-		boolean i = reviewRepo.deleteByUser_IdAndId(username, Integer.valueOf(params.getOrDefault("reviewId","0"))) == 1 ? true : false;
+		boolean i = reviewRepo.deleteByUser_IdAndId(username, Integer.valueOf(params.getOrDefault("reviewId", "0"))) == 1 ? true : false;
 		return ResponseEntity.ok(i);
 	}
 
@@ -63,7 +66,7 @@ public class ReviewController {
 	@GetMapping("/get")
 	public ResponseEntity getSingleReview(@RequestParam Integer courseId, @RequestParam String username) {
 		CourseReviewModel review = reviewRepo.getFirstByCourseIdAndUserId(courseId, username);
-		if(review == null) return ResponseEntity.notFound().build();
+		if (review == null) return ResponseEntity.notFound().build();
 		return ResponseEntity.ok(review);
 	}
 
