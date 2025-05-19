@@ -1,4 +1,5 @@
 import { url_backend_default } from "@/lib/public-var";
+import { CategoryModel } from "@/models/CategoryModel";
 import { CourseContainerModel } from "@/models/CourseContainerModel";
 import { CourseFileModel } from "@/models/CourseFileModel";
 import axios from "axios";
@@ -93,6 +94,10 @@ export async function getCategories(keyword: string, sort: string, descending: b
             descending
         }
     })
+}
+
+export async function addCategory(category:CategoryModel) {
+    return await axios.post("/api/categories", {category})
 }
 
 export async function deleteCategories(id: string[]) {

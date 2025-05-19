@@ -1,5 +1,5 @@
 "use client"
-import { deleteCategories, getCategories } from "@/app/api/api-courses";
+import { addCategory, deleteCategories, getCategories } from "@/app/api/api-courses";
 import { Button } from "@/components/ui/button";
 import PaginationCluster from "@/components/ui/pagination-button-cluster";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -16,7 +16,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal, Plus, RefreshCcw, Search, SlidersHorizontalIcon, SortAsc, SortDesc } from "lucide-react";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import Link from "next/link";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -29,14 +29,20 @@ export default function Page() {
     const [sortBy, setSortBy] = useState("name")
     const [descending, setDescending] = useState(true)
     const [searchInput, setSearchInput] = useState("")
-    const [deleteIds, setDeleteIds] = useState<string[]>([])
+    const [onSelectedIds, setOnSelectedIds] = useState<string[]>([])
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+    const [selectedCategory, setSC] = useState<CategoryModel | null>()
     useEffect(() => {
         getCategories(searchInput, sortBy, descending).then(res => {
             setData(res.data)
         })
     }, [reloadKey, sortBy, descending])
+
+    const onOpenChange = (v: boolean) => {
+        setIsAddModalOpen(false);
+        setSC(null)
+    }
 
     const toggleRowSelection = (id: string) => {
         console.log(selectedRows)
@@ -58,20 +64,23 @@ export default function Page() {
         setReloadKey(!reloadKey)
     }
 
-    function handleEdit(id: any): void {
-        throw new Error("Function not implemented.");
+    function handleEdit(category: CategoryModel): void {
+        setSC(category);
+        requestAnimationFrame(() => {
+            setTimeout(() => setIsAddModalOpen(true), 100);
+        });
     }
 
     function handleDelete(): void {
-        deleteCategories(deleteIds).then(() => {
+        deleteCategories(onSelectedIds).then(() => {
             MyToaster("success");
-            setDeleteIds([])
+            setOnSelectedIds([])
             setSelectedRows([])
             setIsDeleteModalOpen(false)
             setReloadKey(!reloadKey)
         }).catch(
             error => {
-                MyToaster("error",error.response?.data?.details.join("\n"))
+                MyToaster("error", error.response?.data?.details.join("\n"))
             }
         )
     }
@@ -80,11 +89,9 @@ export default function Page() {
         <>
             <ToastContainer />
             <div className="flex justify-between items-center mb-6">
-                <Link href={"/AdminPage/Categories/Add"}>
-                    <Button className="flex items-center gap-2 hover:opacity-50">
-                        <Plus className="h-4 w-4" /> Thêm mới
-                    </Button>
-                </Link>
+                <Button className="flex items-center gap-2 hover:opacity-50" onClick={() => setIsAddModalOpen(true)}>
+                    <Plus className="h-4 w-4" /> Thêm mới
+                </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <form onSubmit={handleSearch} className="relative col-span-2">
@@ -137,7 +144,7 @@ export default function Page() {
                     {selectedRows.length > 0 && (
                         <div className="flex items-center gap-2">
                             <span className="text-sm font-medium">{selectedRows.length} đã chọn</span>
-                            <Button variant="outline" size="sm" onClick={() => { setDeleteIds(selectedRows); setIsDeleteModalOpen(true) }}>
+                            <Button variant="outline" size="sm" onClick={() => { setOnSelectedIds(selectedRows); setIsDeleteModalOpen(true) }}>
                                 Xóa đã chọn
                             </Button>
                         </div>
@@ -196,11 +203,9 @@ export default function Page() {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-[150px]">
-                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem onClick={() => handleEdit(category.id)}>Chỉnh sửa</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleEdit(category)}>Chỉnh sửa</DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => {
-                                                    setDeleteIds([String(category.id)]);
+                                                    setOnSelectedIds([String(category.id)]);
                                                     requestAnimationFrame(() => {
                                                         setTimeout(() => setIsDeleteModalOpen(true), 0);
                                                     });
@@ -216,8 +221,8 @@ export default function Page() {
                     </Table>
                 </div>
             </div>
-            <DeleteModal isDeleteModalOpen={isDeleteModalOpen} handleDelete={handleDelete} id={deleteIds} setIsDeleteModalOpen={setIsDeleteModalOpen} />
-
+            <DeleteModal isDeleteModalOpen={isDeleteModalOpen} handleDelete={handleDelete} id={onSelectedIds} setIsDeleteModalOpen={setIsDeleteModalOpen} />
+            <CategoryAddForm category={selectedCategory ?? undefined} onOpenChange={onOpenChange} open={isAddModalOpen} />
         </>
     );
 }
@@ -252,6 +257,72 @@ function DeleteModal({ id, handleDelete, isDeleteModalOpen, setIsDeleteModalOpen
                         </Button>
                     </DialogClose>
                 </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+
+export function CategoryAddForm({ category, open, onOpenChange }: { category?: CategoryModel, open: boolean | false, onOpenChange: (i: boolean) => void }) {
+    const [name, setName] = useState("")
+    const [description, setDescription] = useState("")
+
+    useEffect(() => {
+        if (category) {
+            setName(category.name);
+            setDescription(category?.description ?? "");
+        }
+    }, [category])
+
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault()
+        const id: number = Number(category?.id) ?? undefined
+        const newCat: CategoryModel = {
+            id, name, description, courseCount: 0
+        }
+        addCategory(newCat)
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>{!category ? 'Tạo Danh Mục' : 'Sửa Danh mục'}</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit}>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="name">Tên</Label>
+                            <Input
+                                id="name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Nhập tên danh mục"
+                                required
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="description">Mô Tả</Label>
+                            <Textarea
+                                id="description"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="Nhập mô tả danh mục"
+                                rows={3}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="outline">
+                                Hủy
+                            </Button>
+                        </DialogClose>
+                        <Button type="submit">Lưu</Button>
+                    </DialogFooter>
+                </form>
             </DialogContent>
         </Dialog>
     )

@@ -4,12 +4,13 @@ import { CircleX, Star } from "lucide-react"
 import { ProgressBar } from "@/components/ui/progress"
 import PaginationCluster from "@/components/ui/pagination-button-cluster"
 import type { CourseReviewModel } from "@/models/CourseReviewModel"
-import { deleteReview, getCourseReview } from "@/app/api/api-courses"
+import { deleteReview, getAverageStarReview, getCourseReview } from "@/app/api/api-courses"
 import { formatDateTime } from "@/lib/utils"
 import { useUserInfo } from "@/lib/user-info"
 import Image from "next/image"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import useSWR from "swr"
+import { isAdmin } from "@/app/api/api-account"
 
 interface CommentLayoutProps {
   id: string;
@@ -25,6 +26,8 @@ export default function CommentLayout({ id, resetKey, forAdmin }: CommentLayoutP
   const [totalPages, setTotalPages] = useState<number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [starRateMeta, setStarRateMeta] = useState<[number, number][]>([])
+  const [averageStar, setAS] = useState(0)
+
   const [reset, setreset] = useState(false)
   const fetcher = () => getCourseReview(id, currentPage).then((response) => {
     setReviews(response?.data.reviewPageable.content)
@@ -33,7 +36,6 @@ export default function CommentLayout({ id, resetKey, forAdmin }: CommentLayoutP
     setStarRateMeta(response?.data.starRateMeta)
   }).catch(() => { })
   const { data, error, mutate, isLoading } = useSWR<any>('course-reviews', fetcher)
-
 
   const onPageChange = (page: number) => {
     setCurrentPage(page)
@@ -46,10 +48,15 @@ export default function CommentLayout({ id, resetKey, forAdmin }: CommentLayoutP
   }
   useEffect(() => {
     mutate('course-review')
-  }, [id, currentPage, resetKey, reset])
+    if (id) getAverageStarReview(id).then(res => {
+      setAS(res?.data != 0 ? res?.data : 0)
+    }).catch(() => { })
+  }, [currentPage, resetKey, reset])
 
   return (
     <>
+      {forAdmin && <p className="font-bold mb-4">Trung bình: <i>{Number(averageStar.toFixed(2))}</i></p>}
+
       <div className="flex flex-col items-center justify-center-safe gap-5 md:gap-20 mb-5 md:mb-0 lg:flex-row">
         <div className="flex flex-col items-center gap-2">
           <p className="font-medium text-7xl">{reviewLength}</p>
