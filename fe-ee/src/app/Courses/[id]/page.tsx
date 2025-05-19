@@ -2,8 +2,6 @@
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import SockJS from "sockjs-client"
-import { Client, type IMessage } from "@stomp/stompjs"
 import axios from "axios"
 import {
   Breadcrumb,
@@ -17,10 +15,9 @@ import MainTabs from "./components/main-tabs"
 import SubscriptionCard from "./components/subscription-card"
 import CourseHeader from "./components/course-header"
 import type { CourseModel } from "@/models/CourseModel"
-import { getAverageStarReview, getCourse } from "@/app/api/api-courses"
+import { getCourse } from "@/app/api/api-courses"
 import { url_backend_default } from "@/lib/public-var"
 import { useUserInfo } from "@/lib/user-info"
-import { toast, ToastContainer } from "react-toastify"
 axios.defaults.withCredentials = true
 axios.defaults.baseURL = url_backend_default
 

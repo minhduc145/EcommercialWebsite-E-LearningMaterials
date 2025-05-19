@@ -14,7 +14,7 @@ import { UserModel } from "@/models/UserModel"
 import { editProfile } from "@/app/api/api-account"
 import MyToaster from "./ui/toastify-template"
 
-export default function EditProfilePage({ currentUser, isForAdmin = false }: { currentUser: UserModel, isForAdmin?:boolean }) {
+export default function EditProfilePage({ currentUser, isForAdmin = false }: { currentUser: UserModel, isForAdmin?: boolean }) {
   const [user, setUser] = useState<UserModel>(currentUser)
   const [file, setFile] = useState<File | null>(null)
 
@@ -34,8 +34,9 @@ export default function EditProfilePage({ currentUser, isForAdmin = false }: { c
         }
       })
       .catch(error => {
-        const message = error.response?.data?.details || "Lỗi không xác định";
-        MyToaster("error", JSON.stringify(message));
+        const messages: string[] = Object.values(error?.response?.data?.details) || ["Lỗi không xác định"];
+        MyToaster("error", undefined, messages);
+
       });
   }
 
@@ -43,7 +44,7 @@ export default function EditProfilePage({ currentUser, isForAdmin = false }: { c
     const file = e.target.files?.[0]
     if (file) {
       const tempUrl = URL.createObjectURL(file)
-          setUser((prev) => ({ ...prev, ["avatarUrl"]: tempUrl }))
+      setUser((prev) => ({ ...prev, ["avatarUrl"]: tempUrl }))
       setFile(file)
     }
   }

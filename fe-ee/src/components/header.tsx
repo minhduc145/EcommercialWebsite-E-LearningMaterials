@@ -36,7 +36,6 @@ import {
 import SockJS from "sockjs-client";
 import { Client, IMessage } from "@stomp/stompjs";
 import MyToaster from "./ui/toastify-template";
-import { ToastContainer } from "react-toastify";
 import { url_backend_default } from "@/lib/public-var";
 import { useUserInfo } from "@/lib/user-info";
 
@@ -287,10 +286,6 @@ export default function Header(props: IHeaderProps) {
         </div>
 
       </nav>
-
-      <div>
-        <ToastContainer />
-      </div>
     </header>
   );
 }

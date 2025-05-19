@@ -1,24 +1,17 @@
 "use client"
 import { addCategory, deleteCategories, getCategories } from "@/app/api/api-courses";
 import { Button } from "@/components/ui/button";
-import PaginationCluster from "@/components/ui/pagination-button-cluster";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { formatDateTime } from "@/lib/utils";
 import { CategoryModel } from "@/models/CategoryModel";
-import { CourseModel } from "@/models/CourseModel";
 import { Checkbox } from "@/components/ui/checkbox"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal, Plus, RefreshCcw, Search, SlidersHorizontalIcon, SortAsc, SortDesc } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
-import { ToastContainer } from "react-toastify";
-import Link from "next/link";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
@@ -87,7 +80,6 @@ export default function Page() {
 
     return (
         <>
-            <ToastContainer />
             <div className="flex justify-between items-center mb-6">
                 <Button className="flex items-center gap-2 hover:opacity-50" onClick={() => setIsAddModalOpen(true)}>
                     <Plus className="h-4 w-4" /> Thêm mới

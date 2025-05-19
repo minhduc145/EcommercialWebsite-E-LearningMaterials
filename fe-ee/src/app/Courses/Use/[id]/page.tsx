@@ -162,7 +162,7 @@ function FileContentView({ file }: { file: CourseFileModel | undefined }) {
         var embeddedUrl = "";
         switch (file?.type) {
             case "document": {
-                if (file.extension === "pdf") embeddedUrl = r2BaseUrl + rawUrl
+                if (file.extension === "pdf" || file.extension === "txt") embeddedUrl = r2BaseUrl + rawUrl
                 else embeddedUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURI(r2BaseUrl + rawUrl)}`
                 return (
                     <iframe
