@@ -45,15 +45,18 @@ export default function SignUpForm() {
 
         submitSignUp(data).then(res => {
             const resData = res?.data
-            if (resData.result == 1) {
+            if (resData.result === 1) {
                 MyToaster("success", "Đăng ký thành công")
                 setTimeout(() => {
                     location.href = "/User/Login"
                 }, 1000)
             } else {
-                MyToaster("error",res?.data.details)
+                MyToaster("error",undefined,res?.data.details)
             }
 
+        }).catch(error=>{
+                    const messages: string[] = Object.values(error?.response?.data?.details) || ["Lỗi không xác định"];
+            MyToaster("error",undefined,messages)
         })
     }
 

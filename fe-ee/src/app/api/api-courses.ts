@@ -86,12 +86,12 @@ export async function deleteCourse(idSet: string[] | []) {
     })
 }
 
-export async function getCategories(keyword: string, sort: string, descending: boolean) {
+export async function getCategories(keyword?: string, sort?: string, descending?: boolean) {
     return await axios.get("/api/categories", {
         params: {
-            keyword,
-            sort,
-            descending
+            keyword:keyword||"",
+            sort:sort||"id",
+            descending:descending||true
         }
     })
 }

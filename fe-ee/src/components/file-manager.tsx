@@ -26,7 +26,7 @@ export interface UploadingFile {
 
 const myUploadMap = new Map<string, AbortController>()
 
-export function FileExplorer({courseId}:{courseId:string}) {
+export function FileExplorer({ courseId }: { courseId: string }) {
   const [resetKey, setResetKey] = useState(false)
   // State management
   const [folders, setFolders] = useState<CourseContainerModel[]>([])
@@ -50,6 +50,7 @@ export function FileExplorer({courseId}:{courseId:string}) {
   const [fileToDelete, setFileToDelete] = useState<string>("")
   const [editingFolder, setEditingFolder] = useState<CourseContainerModel | null>(null)
   const [editingFile, setEditingFile] = useState<CourseFileModel | null>(null)
+  const [readyToUpload, setRTU] = useState(true)
 
   // Upload state
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([])
@@ -65,24 +66,28 @@ export function FileExplorer({courseId}:{courseId:string}) {
     e?.stopPropagation()
     setEditingFolder(folder)
     setNewFolderName(folder?.name || "")
+    setRTU(true)
     setIsFolderModalOpen(true)
   }
 
   const openMediaModal = (file: CourseFileModel | null = null) => {
     setEditingFile(file)
     setNewFileName(file?.name || "")
+    setRTU(true)
     setIsMediaModalOpen(true)
   }
 
   const openScormModal = (file: CourseFileModel | null = null) => {
     setEditingFile(file)
     setNewFileName(file?.name || "")
+    setRTU(true)
     setIsScormModalOpen(true)
   }
 
   const openDocumentModal = (file: CourseFileModel | null = null) => {
     setEditingFile(file)
     setNewFileName(file?.name || "")
+    setRTU(true)
     setIsDocumentModalOpen(true)
   }
 
@@ -90,6 +95,7 @@ export function FileExplorer({courseId}:{courseId:string}) {
     setEditingFile(file)
     setNewFileName(file?.name || "")
     setLinkUrl(file?.url || "")
+    setRTU(true)
     setIsLinkModalOpen(true)
   }
 
@@ -97,6 +103,7 @@ export function FileExplorer({courseId}:{courseId:string}) {
     setEditingFile(file)
     setNewFileName(file?.name || "")
     setIframeCode(file?.url || "")
+    setRTU(true)
     setIsIframeModalOpen(true)
   }
 
@@ -104,6 +111,7 @@ export function FileExplorer({courseId}:{courseId:string}) {
     switch (file.type) {
       case "media":
         openMediaModal(file)
+        setRTU(true)
         break
       case "scorm":
         openScormModal(file)
@@ -124,16 +132,21 @@ export function FileExplorer({courseId}:{courseId:string}) {
 
   const handleFileChange = async (file: any) => {
     if (!file) return
+    if (!isScormModalOpen) {
+      setRTU(true)
+      return
+    }
     const fileType = file.type
-    if (fileType.includes("zip") || fileType.includes("rar") || fileType.includes("compressed")) {
+    if (fileType.includes("zip") || fileType.includes("compressed")) {
       const zip = new JSZip()
       try {
         const zipData = await zip.loadAsync(file, { createFolders: false })
         const fileNames = Object.keys(zipData.files).map((name) => name.toLowerCase())
         const hasManifest = fileNames.includes("imsmanifest.xml") || fileNames.includes("./imsmanifest.xml")
-        console.log(hasManifest)
+        if (hasManifest) setRTU(true);
+        else setRTU(false)
       } catch (err) {
-        console.error("Lỗi khi đọc file zip:", err)
+        setRTU(false)
       } finally {
       }
     }
@@ -203,7 +216,7 @@ export function FileExplorer({courseId}:{courseId:string}) {
       return
     }
 
-    if (!file) return
+    if (!file || !readyToUpload) return
     const fileId = uuidv4()
 
     setIsMediaModalOpen(false)
@@ -582,6 +595,7 @@ export function FileExplorer({courseId}:{courseId:string}) {
               {!editingFile && (
                 <div>
                   <Label htmlFor="scorm-file-input">Tải lên tệp</Label>
+                  {!readyToUpload && <i className="text-sm text-red-600">Kiểm tra lại file zip có phải là file scorm không</i>}
                   <div className="mt-2">
                     <Input
                       id="scorm-file-input"
@@ -601,7 +615,7 @@ export function FileExplorer({courseId}:{courseId:string}) {
               <Button variant="outline" onClick={() => setIsScormModalOpen(false)}>
                 Hủy
               </Button>
-              <Button onClick={() => handleSaveFile("scorm")}>{editingFile ? "Lưu" : "Tạo mới"}</Button>
+              <Button disabled={!readyToUpload} onClick={() => handleSaveFile("scorm")}>{editingFile ? "Lưu" : "Tạo mới"}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

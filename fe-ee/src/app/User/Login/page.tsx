@@ -46,13 +46,17 @@ export default function LoginPage() {
 	}
 	const searchParams = useSearchParams()
 	const isSuccess = searchParams.has('success')
-		const isFailed = searchParams.has('fail')
+	const isFailed = searchParams.has('fail')
+	const isLocked = searchParams.has('isLocked')
+
 	useEffect(() => {
 		if (isSuccess) {
 			MyToaster("success", "");
 			window.location.href = "/"
-		} else if(isFailed) {
-			MyToaster("error", "");
+		} else if (isFailed) {
+			var msg = "";
+			if (isLocked) msg = "Tài khoản đang tạm khóa"
+			MyToaster("error", msg);
 		}
 	}, [])
 
@@ -88,7 +92,7 @@ export default function LoginPage() {
 											<div className="grid gap-3">
 												<div className="flex items-center">
 													<Label htmlFor="password">Mật khẩu</Label>
-													
+
 												</div>
 												<Input id="password" {...register("password")}
 													name="password"
@@ -120,9 +124,9 @@ export default function LoginPage() {
 									</div>
 									<div className="text-center text-sm">
 										Chưa có tài khoản?{" "}
-										<Link href="/User/Signup" className="underline underline-offset-4">
+										<a href="/User/Signup" className="underline underline-offset-4">
 											Đăng ký
-										</Link>
+										</a>
 									</div>
 								</div>
 							</div>
