@@ -28,6 +28,9 @@ public class AccountModel {
 	@Column(name = "provider")
 	private String provider;
 
+	@Column(name="is_locked")
+	private Boolean isLocked;
+
 	@OneToOne
 	@JoinColumn(name = "id")
 	@MapsId

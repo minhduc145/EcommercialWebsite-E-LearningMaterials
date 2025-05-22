@@ -9,6 +9,8 @@ import com.beee.Service.Impl.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -50,7 +52,8 @@ public class UserLoginService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		AccountModel accountModel = accountRepo.findByIdOrUser_Email(username, username);
-		if (accountModel == null) throw new UsernameNotFoundException("User not found");
+		if (accountModel == null) throw new AuthenticationServiceException("Tài khoản không tồn tại");
+		if (accountModel.getIsLocked()) throw new AuthenticationServiceException("Tài khoản bị tạm khóa");
 		UserDetails user = User.builder()
 				.username(accountModel.getId())
 				.password(accountModel.getPassword())
@@ -64,8 +67,11 @@ public class UserLoginService implements UserDetailsService {
 		OAuth2User principal = (OAuth2User) authentication.getPrincipal();
 		AccountModel accountModel = accountRepo.findAccountModelByUser_Email(principal.getAttribute("email"));
 		if (accountModel != null) {
-			responseService.addCookie(response, "jwt", jwtService.generateToken(accountModel.getId()));
-			response.sendRedirect(Constants.URL_FE_LOGIN_SUCCESS);
+			if (accountModel.getIsLocked()) response.sendRedirect(Constants.URL_FE_LOGIN_FAIL);
+			else {
+				responseService.addCookie(response, "jwt", jwtService.generateToken(accountModel.getId()));
+				response.sendRedirect(Constants.URL_FE_LOGIN_SUCCESS);
+			}
 		} else {
 			UserModel newUserModel = new UserModel().builder()
 					.id(principal.getAttribute("sub"))

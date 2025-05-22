@@ -61,11 +61,14 @@ public class AccountController {
 					new UsernamePasswordAuthenticationToken(loginFormDTO.getId().toLowerCase().trim(), loginFormDTO.getPassword())
 			);
 			User user = (User) auth.getPrincipal();
-			String token = jwtService.generateToken(user.getUsername());
-			responseService.addCookie(response, "jwt", token);
-			return ResponseEntity.ok(Utils.mapOfResponse(Constants.RESULT_SUCCESS, "Đăng nhập thành công", null));
+			if (user != null) {
+				String token = jwtService.generateToken(user.getUsername());
+				responseService.addCookie(response, "jwt", token);
+				return ResponseEntity.ok(Utils.mapOfResponse(Constants.RESULT_SUCCESS, "Đăng nhập thành công", null));
+			}
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, "Lỗi", null));
 		} catch (AuthenticationException e) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, "Sai tài khoản/ mật khẩu", null));
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, e.getMessage(), null));
 		}
 	}
 
@@ -104,7 +107,7 @@ public class AccountController {
 			}
 			String username = jwtService.extractUsername(token);
 			UserModel user = userRepo.findUserModelById(username);
-			UserDTO userDTO = new UserDTO().toDto(user,true);
+			UserDTO userDTO = new UserDTO().toDto(user, true);
 			System.out.println(userDTO);
 			return ResponseEntity.ok(userDTO);
 		}
@@ -186,7 +189,7 @@ public class AccountController {
 
 	@GetMapping("/users")
 	public ResponseEntity listUsers(@CookieValue(name = "jwt") String userToken) {
-		if(!accountService.isAdminJwtOk(userToken)) {
+		if (!accountService.isAdminJwtOk(userToken)) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 		return ResponseEntity.ok().body(userRepo.findAll());
