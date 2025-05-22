@@ -42,9 +42,7 @@ export default function Page() {
     const [reloadKey, setReloadKey] = useState(true)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [idForReview, setIdForReview] = useState("")
-    const [averageStar, setAS] = useState(0)
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
     useEffect(() => {
         requestAnimationFrame(() => {
             setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 500);
@@ -58,11 +56,6 @@ export default function Page() {
     }).catch(() => { })
     const { data, error, isLoading, mutate } = useSWR<any>('admin-courses-list', fetcher)
 
-    useEffect(() => {
-        if (idForReview) getAverageStarReview(idForReview).then(res => {
-            setAS(res?.data != 0 ? res?.data : 0)
-        }).catch(() => { })
-    }, [idForReview])
 
     useEffect(() => {
         mutate('admin-courses-lists')
@@ -306,7 +299,6 @@ export default function Page() {
                 <div>
                     {idForReview &&
                         <>
-                            <p className="font-bold mb-4">Trung bình: <i>{Number(averageStar.toFixed(2))}</i></p>
 
                             <div className="flex justify-between">
                                 <p className="font-bold">Chi tiết đánh giá:</p>

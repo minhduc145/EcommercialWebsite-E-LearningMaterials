@@ -44,6 +44,15 @@ public class CategoryController {
 		return ResponseEntity.ok(lst);
 	}
 
+	@PostMapping
+	public ResponseEntity addCategory(@CookieValue(name = "jwt") String userToken, @RequestBody CategoryModel category) {
+		if(!accountService.isAdminJwtOk(userToken)) {
+			return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+		}
+		System.out.println(category);
+		return new ResponseEntity(categoryRepo.save(category), HttpStatus.OK);
+	}
+
 	@DeleteMapping
 	public ResponseEntity deleteCatgories(@CookieValue(name = "jwt") String userToken, @RequestBody Map<String, Object> params) {
 		if (!accountService.isAdminJwtOk(userToken)) {

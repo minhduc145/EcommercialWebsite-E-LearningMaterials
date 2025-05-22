@@ -22,6 +22,7 @@ import type { MessageModel } from "@/models/MessageModel"
 import { formatDateTime } from "@/lib/utils"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import MyToaster from "@/components/ui/toastify-template"
+import useSWR from "swr"
 
 export default function MessageList() {
     const [data, setData] = useState<MessageModel[]>([])
@@ -41,18 +42,25 @@ export default function MessageList() {
 
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
+    const fetcher = () =>  getAllMessages(pageIndex, sorting?.[0]?.id, sorting?.[0]?.desc, keyWord?.trim()).then((res) => {
+        setData(res.data.content)
+        setTotalPages(res.data.totalPages)
+        setTotalElements(res.data.totalElements)
+        setPageSize(res.data.size)
+    }).catch(() => { })
+      const { error, mutate, isLoading } = useSWR<any>('admin-noti-list', fetcher)
+
     useEffect(() => {
-        getAllMessages(pageIndex, sorting?.[0]?.id, sorting?.[0]?.desc, keyWord?.trim()).then((res) => {
-            setData(res.data.content)
-            setTotalPages(res.data.totalPages)
-            setTotalElements(res.data.totalElements)
-            setPageSize(res.data.size)
-        })
+       mutate('admin-noti-list')
     }, [pageIndex, sorting, reset])
 
     const onDelete = (id: number[]) => {
         deleteMessage(id)
-            .then(() => { setIsDeleteModalOpen(false); setReset(!reset); setRowSelection({}) })
+            .then(() => { 
+                setIsDeleteModalOpen(false); 
+                setReset(!reset); setRowSelection({});
+                MyToaster("success")
+            })
             .catch(()=>{})
     }
 

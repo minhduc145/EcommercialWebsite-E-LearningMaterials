@@ -1,7 +1,6 @@
 'use client'
 import '@/app/assets/css/products/products.css'
 import '@/app/assets/js/globals.js'
-import { CourseModel } from "../../models/CourseModel"
 import {
   Carousel,
   CarouselContent,
@@ -9,9 +8,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
-import getAllCourses, { getFeaturesSummary } from '../api/api-courses';
+import { getFeaturesSummary } from '../api/api-courses';
 
 export default function Courses() {
 

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { toast, ToastContainer, Zoom } from "react-toastify";
 
 
-export default function MyToaster(variant?: string | undefined, message?: string) {
+export default function MyToaster(variant?: string | undefined, message?: string, messages?: string[] | undefined) {
     if (!variant || variant === "info") {
         toast.info(
             <div className="max-w-full">
@@ -26,6 +26,7 @@ export default function MyToaster(variant?: string | undefined, message?: string
             Thất bại
             <br />
             {message && message}
+           <div dangerouslySetInnerHTML={{ __html: messages?.join("<br/>")??"" }} />
         </div>, {
             position: "top-right",
             autoClose: 5000,

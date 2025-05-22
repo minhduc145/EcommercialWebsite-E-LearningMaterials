@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { ToastContainer } from 'react-toastify';
 import * as yup from "yup";
 import axios from "axios";
 import { useSearchParams } from "next/navigation"
@@ -59,8 +58,6 @@ export default function LoginPage() {
 
 	return (
 		<>
-		        <ToastContainer />
-
 			<a className="absolute p-5 float-left" href="/">
 				<House aria-hidden className="size-6" />
 			</a>
