@@ -1,8 +1,10 @@
 package com.beee.Controller;
 
 import com.beee.Common.Constants;
-import com.beee.Model.MessageModel;
-import com.beee.Repository.MessageRepo;
+import com.beee.Model.AccountModel;
+import com.beee.Model.NotificationModel;
+import com.beee.Repository.AccountRepo;
+import com.beee.Repository.NotificationRepo;
 import com.beee.Service.AccountService;
 import com.beee.Service.JwtService;
 import com.beee.Service.RabbitMQProducer;
@@ -12,27 +14,27 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.util.ParsingUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/messages")
-public class MessageController {
+public class NotificationController {
 	private final AccountService accountService;
-	private final MessageRepo messageRepo;
+	private final NotificationRepo notificationRepo;
 	private final RabbitMQProducer rabbitMQProducer;
 	private final JwtService jwtService;
+	private final AccountRepo accountRepo;
 
-	public MessageController(AccountService accountService, MessageRepo messageRepo, RabbitMQProducer rabbitMQProducer, JwtService jwtService) {
+	public NotificationController(AccountService accountService, NotificationRepo notificationRepo, RabbitMQProducer rabbitMQProducer, JwtService jwtService, AccountRepo accountRepo) {
 		this.accountService = accountService;
-		this.messageRepo = messageRepo;
+		this.notificationRepo = notificationRepo;
 		this.rabbitMQProducer = rabbitMQProducer;
 		this.jwtService = jwtService;
+		this.accountRepo = accountRepo;
 	}
 
 	@GetMapping
@@ -50,7 +52,7 @@ public class MessageController {
 		if (descending != null && descending)
 			pageable = PageRequest.of(page, Constants.PAGEABLE_PAGE_SIZE_5, Sort.by(sort).descending());
 		else pageable = PageRequest.of(page, Constants.PAGEABLE_PAGE_SIZE_5, Sort.by(sort).ascending());
-		return ResponseEntity.ok(messageRepo.findByIdOrTitleOrMessageOrSenderId(keyword, pageable));
+		return ResponseEntity.ok(notificationRepo.findByIdOrTitleOrMessageOrSenderId(keyword, pageable));
 	}
 
 	@DeleteMapping
@@ -61,7 +63,7 @@ public class MessageController {
 		if (params.get("id") != null) {
 			List<Integer> ids = (ArrayList<Integer>) params.get("id");
 			for (Integer id : ids) {
-				messageRepo.deleteById(id);
+				notificationRepo.deleteById(id);
 			}
 		}
 		return ResponseEntity.ok().build();
@@ -73,8 +75,9 @@ public class MessageController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 		String username = jwtService.extractUsername(userToken);
-		List<MessageModel> msgs = messageRepo.findTop10ByReceiver_IdOrIsForEveryoneTrueOrderByCreatedAtDesc(username);
-		Long count = messageRepo.countAllByReceiver_IdOrIsForEveryoneTrue(username);
+		AccountModel accountModel = accountRepo.findAccountModelById(username);
+		List<NotificationModel> msgs = notificationRepo.findTop10ByReceiver_IdOrIsForEveryoneTrueAndCreatedAtAfter(username, accountModel.getCreatedAt());
+		Long count = notificationRepo.countAllByReceiver_IdOrIsForEveryoneTrueAndCreatedAtAfter(username, accountModel.getCreatedAt());
 		return ResponseEntity.ok(Map.of("messages", msgs, "count", count));
 	}
 

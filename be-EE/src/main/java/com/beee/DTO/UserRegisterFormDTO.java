@@ -7,10 +7,18 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.ToString;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Data
 @ToString
 public class UserRegisterFormDTO {
-	@NotBlank(message = "Username không được để trống")
+	@NotBlank(message = "Vui lòng nhập Username")
+	@Size(min = 3, message = "Username phải có ít nhất 3 ký tự")
+	@Pattern(
+			regexp = "^(?=.*[A-Za-z])(?=.*\\d).{3,}$",
+			message = "Username phải chứa ít nhất một chữ cái và một số"
+	)
 	private String username;
 
 	@NotBlank(message = "Họ tên không được để trống")
@@ -36,4 +44,7 @@ public class UserRegisterFormDTO {
 	@NotBlank(message = "Xác nhận mật khẩu không được để trống")
 	@Size(min = 3, message = "Xác nhận mật khẩu ít nhất 3 ký tự")
 	private String confirmPassword;
+
+	private LocalDate birthdate;
+	private String isMale;
 }

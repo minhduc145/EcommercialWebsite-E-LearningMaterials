@@ -53,7 +53,7 @@ const options = [
   {
     name: "Tìm kiếm học liệu",
     description: "Đến trang tìm kiếm và lọc học liệu theo từ khóa",
-    href: "#",
+    href: "/Search",
     icon: Search,
   },
   {
@@ -254,13 +254,13 @@ export default function Header(props: IHeaderProps) {
                         <item.icon className="h-6 w-6 text-gray-600 group-hover:text-primary" />
                       </div>
                       <div>
-                        <a
+                        <Link
                           href={item.href}
                           className="font-semibold text-gray-900"
                         >
                           {item.name}
                           <span className="absolute inset-0" />
-                        </a>
+                        </Link>
                         <p className="mt-1 text-gray-600">{item.description}</p>
                       </div>
                     </div>
@@ -375,7 +375,7 @@ function NotificationButton({ userId = undefined }: { userId?: string }) {
                   {/* <p className="text-sm break-words line-clamp-3 text-start" dangerouslySetInnerHTML={{
                 __html: m.message ? m.message : "<p class='text-center font-light'><i class='mx-auto'>Không có dữ liệu</i><p>",
               }}/> */}
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{formatDateTime(m.createdAt ?? "")}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{m.createdAt ? formatDateTime(m.createdAt) : "0"}</p>
                 </div>
                 <Button variant={"link"}>...</Button>
               </div>

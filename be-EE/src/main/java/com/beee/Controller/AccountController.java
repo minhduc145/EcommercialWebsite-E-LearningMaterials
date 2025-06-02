@@ -76,11 +76,14 @@ public class AccountController {
 	public ResponseEntity signup(@Valid @RequestBody UserRegisterFormDTO formBody) {
 		if (userRepo.existsByIdOrEmail(formBody.getUsername(), formBody.getEmail())) {
 			return ResponseEntity.of(Optional.of(Utils.mapOfResponse(Constants.RESULT_FAIL, "failed", "Username hoặc Email đã được sử dụng")));
+		} else if (userRepo.existsByPhone(formBody.getPhone())) {
+			return ResponseEntity.of(Optional.of(Utils.mapOfResponse(Constants.RESULT_FAIL, "failed", "SĐT đã được sử dụng")));
 		} else {
 			AccountModel account = AccountModel.builder()
 					.password(passwordEncoder.encode(formBody.getPassword()))
 					.provider("default")
 					.role("USER")
+					.isLocked(false)
 					.build();
 
 			UserModel user = UserModel.builder()
@@ -89,6 +92,8 @@ public class AccountController {
 					.lastName(formBody.getLastName())
 					.email(formBody.getEmail())
 					.phone(formBody.getPhone())
+					.birthdate(formBody.getBirthdate())
+					.isMale(formBody.getIsMale().equals("true"))
 					.account(account)
 					.build();
 

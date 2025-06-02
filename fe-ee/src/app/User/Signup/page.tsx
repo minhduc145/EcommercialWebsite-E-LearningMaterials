@@ -3,7 +3,7 @@
 import type React from "react"
 
 import Link from "next/link"
-import { House } from "lucide-react"
+import { CalendarIcon, House } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,18 +17,32 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import { submitSignUp } from "@/app/api/api-account"
 import MyToaster from "@/components/ui/toastify-template"
 import { setTimeout } from "timers"
+import { useState } from "react"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { format } from "date-fns"
+import { vi } from 'date-fns/locale';
+import { cn } from "@/lib/utils"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = url_backend_default;
 const schema = yup.object({
     firstName: yup.string().required("Vui lòng nhập Họ"),
     lastName: yup.string().required("Vui lòng nhập Tên"),
-    username: yup.string().required('Vui lòng nhập Username'),
+    username: yup
+        .string()
+        .required('Vui lòng nhập Username')
+        .min(3, 'Username phải có ít nhất 3 ký tự')
+        .matches(/[a-zA-Z]/, 'Username phải chứa ít nhất một chữ cái')
+        .matches(/[0-9]/, 'Username phải chứa ít nhất một số'),
     phone: yup
         .string()
         .matches(/^\d{10}$/, 'Vui lòng nhập SĐT (10 chữ số)')
         .required('Vui lòng nhập SĐT'),
     email: yup.string().email('Email không hợp lệ').required('Vui lòng nhập Email'),
+    birthdate: yup.date().required('Vui lòng chọn ngày sinh'),
     password: yup.string().min(3, 'Mật khẩu ít nhất 3 ký tự').required('Vui lòng nhập mật khẩu'),
+    isMale: yup.string(),
     confirmPassword: yup
         .string()
         .oneOf([yup.ref('password')], 'Mật khẩu không khớp')
@@ -37,12 +51,14 @@ const schema = yup.object({
 
 
 export default function SignUpForm() {
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
         resolver: yupResolver(schema),
     });
 
     const onSubmit = (data: any) => {
-
+        if (data) {
+            data.isMale = isMale;
+        }
         submitSignUp(data).then(res => {
             const resData = res?.data
             if (resData.result === 1) {
@@ -51,15 +67,16 @@ export default function SignUpForm() {
                     location.href = "/User/Login"
                 }, 1000)
             } else {
-                MyToaster("error",undefined,res?.data.details)
+                MyToaster("error", res?.data?.details, undefined)
             }
 
-        }).catch(error=>{
-                    const messages: string[] = Object.values(error?.response?.data?.details) || ["Lỗi không xác định"];
-            MyToaster("error",undefined,messages)
+        }).catch(error => {
+            const messages: string[] = Object.values(error?.response?.data?.details) || ["Lỗi không xác định"];
+            MyToaster("error", undefined, messages)
         })
     }
-
+    const date = watch('birthdate');
+    const [isMale, setIsMale] = useState("true")
     return (
         <>
             <a className="absolute p-5 float-left" href="/">
@@ -134,7 +151,53 @@ export default function SignUpForm() {
                                     <p className="text-red-500 text-[12px]">{errors.email.message}</p>
                                 )}
                             </div>
-
+                            <div className="flex gap-5">
+                                <Label htmlFor="" className="">Giới tính</Label>
+                                <RadioGroup defaultValue={isMale} className="flex " onValueChange={v => setIsMale(v)}>
+                                    <div className="flex items-center gap-3">
+                                        <RadioGroupItem value="true" id="r1" />
+                                        <Label htmlFor="r1">Nam</Label>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <RadioGroupItem value="false" id="r2" />
+                                        <Label htmlFor="r2">Nữ</Label>
+                                    </div>
+                                </RadioGroup>
+                            </div>
+                            <div>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-[240px] justify-start text-left font-normal",
+                                                !date && "text-muted-foreground"
+                                            )}
+                                        >
+                                            <CalendarIcon />
+                                            {date ? format(date, "PPP", { locale: vi }) : <span>Chọn ngày sinh</span>}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            captionLayout="dropdown"
+                                            fromYear={1900}
+                                            toYear={new Date().getFullYear()}
+                                            locale={vi}
+                                            mode="single"
+                                            selected={date}
+                                            onSelect={(selectedDate) => {
+                                                selectedDate && setValue('birthdate', selectedDate, { shouldValidate: true });
+                                            }}
+                                            disabled={(date) => date > new Date()}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                                {errors.birthdate && (
+                                    <p className="text-red-500 text-[12px]">{errors.birthdate.message}</p>
+                                )}
+                            </div>
                             <div className="">
                                 <Label htmlFor="password">Mật khẩu</Label>
                                 <Input

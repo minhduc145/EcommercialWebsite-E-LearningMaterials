@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.sql.Timestamp;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -30,6 +32,8 @@ public class AccountModel {
 
 	@Column(name="is_locked")
 	private Boolean isLocked;
+	@Column(name = "created_at", updatable = false, insertable = false)
+	private Timestamp createdAt;
 
 	@OneToOne
 	@JoinColumn(name = "id")

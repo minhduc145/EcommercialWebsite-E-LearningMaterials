@@ -12,8 +12,8 @@ import java.sql.Timestamp;
 @ToString
 @Builder
 @Entity
-@Table(name = "messages")
-public class MessageModel {
+@Table(name = "notifications")
+public class NotificationModel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;

@@ -8,6 +8,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -35,6 +39,13 @@ public class UserModel {
 
 	@Column(name = "avatar_url")
 	private String avatarUrl;
+
+	@Column(name = "birthdate")
+	private LocalDate birthdate;
+
+	@Column(name = "is_male")
+	private boolean isMale;
+
 
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Pattern(regexp = "^\\d{10}$", message = "Số điện thoại phải 10 chữ số")

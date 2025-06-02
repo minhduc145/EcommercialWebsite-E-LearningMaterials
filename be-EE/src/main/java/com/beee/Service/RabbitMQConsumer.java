@@ -3,16 +3,14 @@ package com.beee.Service;
 import com.beee.Common.Constants;
 import com.beee.Config.RabbitMQConfig;
 import com.beee.Model.CourseFileModel;
-import com.beee.Model.MessageModel;
+import com.beee.Model.NotificationModel;
 import com.beee.Model.UserModel;
-import com.beee.Repository.MessageRepo;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.beee.Repository.NotificationRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +24,7 @@ public class RabbitMQConsumer {
 	@Autowired
 	private QueueService queueService;
 	@Autowired
-	private MessageRepo messageRepo;
+	private NotificationRepo notificationRepo;
 
 	//notification
 	@RabbitListener(queues = "queue1")
@@ -34,17 +32,17 @@ public class RabbitMQConsumer {
 		String message = (String) map.get("message");
 		String title = (String) map.get("title");
 		String senderId = (String) map.get("senderId");
-		MessageModel messageModel = MessageModel.builder().title(title).message(message).sender(UserModel.builder().id(senderId).build()).build();
+		NotificationModel notificationModel = NotificationModel.builder().title(title).message(message).sender(UserModel.builder().id(senderId).build()).build();
 		if ((Boolean) map.getOrDefault("isForEveryone", "false") == true) {
-			messageModel.setIsForEveryone(true);
-			messageRepo.save(messageModel);
+			notificationModel.setIsForEveryone(true);
+			notificationRepo.save(notificationModel);
 			template.convertAndSend("/topic/receive", title);
 		} else {
 			List<String> ids = (ArrayList<String>) map.get("id");
 			for (String id : ids) {
-				messageModel.setIsForEveryone(false);
-				messageModel.setReceiver(UserModel.builder().id(id).build());
-				messageRepo.save(messageModel);
+				notificationModel.setIsForEveryone(false);
+				notificationModel.setReceiver(UserModel.builder().id(id).build());
+				notificationRepo.save(notificationModel);
 				template.convertAndSend("/topic/receive/" + id, title);
 			}
 		}
