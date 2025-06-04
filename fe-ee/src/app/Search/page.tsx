@@ -229,7 +229,7 @@ export default function Component() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
-                    <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 ">
+                    <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
                         {isLoading ?
                             (
                                 <>
@@ -267,9 +267,9 @@ function ResultPanel({ result }: { result: CourseBasicDTO[] }) {
                         src={course.thumbnailUrl}
                         alt="Product Image"
                         width={400}
-                        height={300}
-                        className="w-full h-48 object-cover"
-                        style={{ aspectRatio: "400/300", objectFit: "cover" }}
+                        height={200}
+                        className="w-full h-35 object-cover"
+                        style={{ aspectRatio: "400/200", objectFit: "cover" }}
                     />
                     <div className="p-4">
                         <h3 className="text-lg font-semibold truncate">{course.title}</h3>

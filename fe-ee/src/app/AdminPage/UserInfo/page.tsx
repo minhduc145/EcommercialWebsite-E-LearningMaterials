@@ -7,16 +7,12 @@ import { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 
 export default function Page() {
-    const { user, isLoading, isError, logout, refresh } = useUserInfo({ redirectToLogin: false })
-    useEffect(()=>{
-        refresh()
-    },[user])
-
+    const { user, isLoading, isError, logout, refreshUser } = useUserInfo({ redirectToLogin: false })
     if(user)
     return (
         <div>
             <Card className="p-10">
-                <EditProfilePage currentUser={user} mutate={refresh}/>
+                <EditProfilePage currentUser={user} mutate={refreshUser}/>
                 <hr />
                 <EditUserPassword currentUser={user}/>
             </Card>

@@ -38,7 +38,7 @@ import { Client, IMessage } from "@stomp/stompjs";
 import MyToaster from "./ui/toastify-template";
 import { url_backend_default } from "@/lib/public-var";
 import { useUserInfo } from "@/lib/user-info";
-import { useDefaultWebSocket} from "@/lib/websocket";
+import { useDefaultWebSocket } from "@/lib/websocket";
 
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = url_backend_default;
@@ -88,10 +88,10 @@ export default function Header(props: IHeaderProps) {
       mutate('messages-by-cookie');
     },
     onConnect: () => {
-      console.log("Custom connect logic if needed");
+      console.log("Connected");
     },
     onError: (error) => {
-      console.error("Custom error handling", error);
+      console.error(error);
     }
   })
 
@@ -293,7 +293,7 @@ export function UserDropDown(props: IUserDropDownProps) {
             </span>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Cài đặt tài khoản</DropdownMenuItem>
+          <Link href="/User/Details/Info"><DropdownMenuItem>Cài đặt tài khoản</DropdownMenuItem></Link>
           <DropdownMenuItem>Yêu cầu hoàn tiền</DropdownMenuItem>
           <DropdownMenuSeparator />
           {userModel?.account.role.toLowerCase() === "admin" && <>

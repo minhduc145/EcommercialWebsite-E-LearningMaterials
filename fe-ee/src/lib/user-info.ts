@@ -28,6 +28,7 @@ export function useUserInfo(options?: { redirectToLogin?: boolean }) {
     isLoading,
     isError: !!error,
     refresh: mutate,
+    refreshUser:(user?:UserModel|undefined)=>{user&&mutate(user)},
     logout: () => mutate(undefined)
   }
 }

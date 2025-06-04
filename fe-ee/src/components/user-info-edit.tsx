@@ -20,20 +20,17 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 import { cn } from "@/lib/utils"
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
 
-export default function EditProfilePage({ currentUser, isForAdmin = false,mutate }: { currentUser: UserModel, isForAdmin?: boolean,mutate?:()=>void }) {
+export default function EditProfilePage({ currentUser, isForAdmin = false, mutate }: { currentUser: UserModel, isForAdmin?: boolean, mutate?: (user: UserModel) => void }) {
   const [user, setUser] = useState<UserModel>(currentUser)
   const [file, setFile] = useState<File | null>(null)
 
-  const handleChange = (e?: React.ChangeEvent<HTMLInputElement>, d?: Date,g?:boolean) => {
+  const handleChange = (e?: React.ChangeEvent<HTMLInputElement>, d?: Date, g?: boolean) => {
     if (e) {
-      console.log(e)
       const { name, value } = e.target
       setUser((prev) => ({ ...prev, [name]: value }))
     } else if (d) {
-      console.log(d)
       setUser((prev) => ({ ...prev, ['birthDate']: d }))
-    }else if(g!=null){
-      console.log(g)
+    } else if (g != null) {
       setUser((prev) => ({ ...prev, ['isMale']: g }))
     }
   }
@@ -44,7 +41,7 @@ export default function EditProfilePage({ currentUser, isForAdmin = false,mutate
       .then(res => {
         if (res?.data?.result === 1) {
           MyToaster("success", "Thay đổi thông tin thành công")
-          mutate
+          try { mutate?.(user); } catch { }
         } else if (res?.data?.result === 0) {
           MyToaster("error", JSON.stringify(res.data?.details))
         }
@@ -127,7 +124,7 @@ export default function EditProfilePage({ currentUser, isForAdmin = false,mutate
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Giới tính</Label>
-                        <RadioGroup defaultValue={String(user.isMale)} className="flex" name="isMale" onValueChange={g => handleChange(undefined,undefined,g==="true")}>
+                        <RadioGroup defaultValue={String(user.isMale)} className="flex" name="isMale" onValueChange={g => handleChange(undefined, undefined, g === "true")}>
                           <div className="flex items-center gap-3">
                             <RadioGroupItem value="true" id="r1" />
                             <Label htmlFor="r1">Nam</Label>
