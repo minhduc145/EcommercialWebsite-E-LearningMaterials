@@ -5,8 +5,12 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = url_backend_default;
 
+export async function getPreviewByCookie() {
+    return await axios.get("/api/notifications/getPreviewByCookie",);
+}
+
 export async function getAllMessages(pageIndex: number, sort?: string | undefined, descending?: boolean | false, keyword?: string) {
-    return await axios.get("/api/messages", {
+    return await axios.get("/api/admin/notifications", {
         params: {
             page: pageIndex,
             sort: sort,
@@ -16,8 +20,8 @@ export async function getAllMessages(pageIndex: number, sort?: string | undefine
     });
 }
 
-export async function deleteMessage(id:number[]) {
-    return await axios.delete("/api/messages", {
+export async function deleteMessage(id: number[]) {
+    return await axios.delete("/api/admin/notifications", {
         data: {
             id
         }
@@ -25,11 +29,8 @@ export async function deleteMessage(id:number[]) {
     );
 }
 
-
-export async function getPreviewByCookie() {
-    return await axios.get("/api/messages/getPreviewByCookie",);
-}
-
 export async function sendMessage(messageBody: any) {
-    return await axios.post("/api/messages", messageBody);
+    return await axios.post("/api/admin/notifications", messageBody);
 }
+
+

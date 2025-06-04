@@ -6,5 +6,5 @@ axios.defaults.withCredentials = true;
 axios.defaults.baseURL = url_backend_default;
 
 export async function getUsers() {
-    return await axios.get("/api/accounts/users");
+    return await axios.get("/api/admin/accounts/users");
 }

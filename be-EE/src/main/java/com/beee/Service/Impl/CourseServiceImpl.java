@@ -140,12 +140,11 @@ public class CourseServiceImpl implements CourseService {
 		}
 	}
 
-	public ResponseEntity deleteCourses(String userToken, List<String> params) {
-		if (!accountService.isAdminJwtOk(userToken))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	public ResponseEntity deleteCourses(List<String> params) {
 		try {
 			for (String id : params) {
 				courseRepo.deleteById(Integer.parseInt(id));
+				fileService.deleteFileInQueue(id);
 			}
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
@@ -153,9 +152,7 @@ public class CourseServiceImpl implements CourseService {
 		return ResponseEntity.ok(1);
 	}
 
-	public ResponseEntity addCourseDataContainer(String userToken, CourseContainerRequestDTO courseContainerRequestDTO) {
-		if (!accountService.isAdminJwtOk(userToken))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	public ResponseEntity addCourseDataContainer(CourseContainerRequestDTO courseContainerRequestDTO) {
 		CourseContainerModel container;
 		if (courseContainerRequestDTO.getContainer().getId() == null) {
 			container = courseContainerRequestDTO.getContainer();

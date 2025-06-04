@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from 'react';
 import { Send } from 'lucide-react';
 import MarkdownRenderer from "./ui/MarkdownRenderer";
+import { askAI } from "@/app/api/api-ai";
 export default function ChatBox() {
     const [openBox, setOpenBox] = useState(false)
     const [messages, setMessages] = useState<{ from: string; text: string; isLast: boolean }[]>([]);
@@ -27,21 +28,13 @@ export default function ChatBox() {
 
     const getAnswer = async (userText: string) => {
         setIsTyping(true);
-        const result = await handleSubmit(userText);
-        setMessages((prev) => [...prev, { from: 'Bot', text: result, isLast: true }]);
-        setIsTyping(false);
-    };
-
-    const handleSubmit = async (message: string) => {
-        const res = await fetch("/api/groq", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ message: message, model: "meta-llama/llama-4-maverick-17b-128e-instruct" }),
-        });
-        const data = await res.json();
-        return (data.content);
+        askAI(userText, "meta-llama/llama-4-maverick-17b-128e-instruct").then(res => {
+            setMessages((prev) => [...prev, { from: 'Bot', text: res?.data?.content, isLast: true }]);
+            setIsTyping(false);
+        }).catch(()=>{
+             setMessages((prev) => [...prev, { from: 'Bot', text: " ", isLast: true }]);
+            setIsTyping(false);
+        })
     };
 
     return (
@@ -64,7 +57,7 @@ export default function ChatBox() {
                             </div>
                         ))}
                         {isTyping && <>
-                            <div ref={messagesEndRef}  className="flex items-center space-x-2">
+                            <div ref={messagesEndRef} className="flex items-center space-x-2">
                                 <div className="w-2 h-2 rounded-full bg-gray-200 border border-gray-300 sh-ani-typing-1 dark:bg-gray-800  animate-bounce float-left" />
                                 <div className="w-2 h-2 rounded-full bg-gray-200 border border-gray-300 sh-ani-typing-2 dark:bg-gray-800 animate-bounce float-left" />
                                 <div className="w-2 h-2 rounded-full bg-gray-200 border border-gray-300 sh-ani-typing-3 dark:bg-gray-800 animate-bounce float-left" />

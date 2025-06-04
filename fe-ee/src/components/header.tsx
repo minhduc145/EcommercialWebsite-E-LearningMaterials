@@ -38,6 +38,7 @@ import { Client, IMessage } from "@stomp/stompjs";
 import MyToaster from "./ui/toastify-template";
 import { url_backend_default } from "@/lib/public-var";
 import { useUserInfo } from "@/lib/user-info";
+import { useDefaultWebSocket} from "@/lib/websocket";
 
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = url_backend_default;
@@ -45,17 +46,12 @@ axios.defaults.baseURL = url_backend_default;
 const navigation = [
   { name: "Trang chủ", href: "/" },
   { name: "Khám phá", href: "/Courses" },
+  { name: "Tìm kiếm", href: "/Search" },
   { name: "Xem thông báo", href: "/", className: "inline-block md:hidden" },
 
 ];
 
 const options = [
-  {
-    name: "Tìm kiếm học liệu",
-    description: "Đến trang tìm kiếm và lọc học liệu theo từ khóa",
-    href: "/Search",
-    icon: Search,
-  },
   {
     name: "Đã đăng ký",
     description: "Đến danh sách các khóa học đã đăng ký",
@@ -78,48 +74,26 @@ export default function Header(props: IHeaderProps) {
   const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const bgColor = props.color === "blue" ? "bg-[#001d74]" : "border-b  supports-[backdrop-filter]:bg-background/60";
-
   const txtColor = props.color === "blue" ? "text-white" : "text-gray-900";
 
-
-
-  useEffect(() => {
-    if (!user) return
-    const newMessageSocket = new SockJS(
-      url_backend_default + "/ws/notification"
-    );
-    const newMessageClient = new Client({
-      webSocketFactory: () => newMessageSocket,
-      reconnectDelay: 5000,
-      onConnect: () => {
-        console.log("✅ Connected to WebSocket");
-        newMessageClient.subscribe(
-          `/topic/receive/${user?.id}`,
-          (message: IMessage) => {
-            console.log("📩 Message for user:", message.body);
-            MyToaster("info", message.body);
-            mutate('messages-by-cookie')
-          }
-        );
-
-        newMessageClient.subscribe(
-          `/topic/receive`,
-          (message: IMessage) => {
-            console.log("📢 Broadcast message:", message.body);
-            MyToaster("info", message.body);
-            mutate('messages-by-cookie')
-          }
-        );
-      },
-      onStompError: (frame) => {
-        console.error("❌ Broker error:", frame.headers["message"]);
-      },
-    });
-    newMessageClient.activate();
-    return () => {
-      newMessageClient.deactivate();
-    };
-  }, [user]);
+  const { isConnected } = useDefaultWebSocket({
+    url: `${url_backend_default}/ws/notification`,
+    userId: user?.id,
+    onUserMessage: (message) => {
+      MyToaster("info", message.body);
+      mutate('messages-by-cookie');
+    },
+    onBroadcastMessage: (message) => {
+      MyToaster("info", message.body);
+      mutate('messages-by-cookie');
+    },
+    onConnect: () => {
+      console.log("Custom connect logic if needed");
+    },
+    onError: (error) => {
+      console.error("Custom error handling", error);
+    }
+  })
 
   return (
     <header className={`z-50 px-5 md:px-20 sticky top-0 w-full ${bgColor}`}>

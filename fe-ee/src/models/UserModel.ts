@@ -7,5 +7,7 @@ export interface UserModel {
     email: string;
     avatarUrl: string,
     phone:string,
-    account: AccountModel
+    account: AccountModel,
+    birthDate:Date,
+    isMale:boolean|true
 }

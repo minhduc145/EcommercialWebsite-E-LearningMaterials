@@ -3,8 +3,9 @@ import axios from "axios"
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { UserModel } from "@/models/UserModel"
+import { getAccountInfo } from "@/app/api/api-account"
 
-const fetcher = (url: string) => axios.post(url).then(res => res.data)
+const fetcher = (url: string) => getAccountInfo().then(res => res.data)
 
 export function useUserInfo(options?: { redirectToLogin?: boolean }) {
   const router = useRouter()
@@ -27,6 +28,6 @@ export function useUserInfo(options?: { redirectToLogin?: boolean }) {
     isLoading,
     isError: !!error,
     refresh: mutate,
-    logout: () => mutate(undefined), 
+    logout: () => mutate(undefined)
   }
 }

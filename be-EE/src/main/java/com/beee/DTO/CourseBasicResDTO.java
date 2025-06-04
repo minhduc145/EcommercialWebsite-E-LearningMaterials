@@ -2,10 +2,7 @@ package com.beee.DTO;
 
 import com.beee.Model.CategoryModel;
 import jakarta.persistence.ConstructorResult;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 
 import java.math.BigDecimal;
@@ -15,6 +12,7 @@ import java.sql.Timestamp;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class CourseBasicResDTO {
 	private Integer id;
 	private String title;
@@ -22,5 +20,6 @@ public class CourseBasicResDTO {
 	private String thumbnailUrl;
 	private String categoryName;
 	private Long commentCount = 0L;
-	private Float averageRating = 0F;
+	private BigDecimal averageRating;
+	private Boolean isFeatured = false;
 }

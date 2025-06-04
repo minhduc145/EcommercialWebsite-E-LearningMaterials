@@ -14,18 +14,6 @@ export async function getFeaturesSummary() {
     return await axios.get("/api/courses/getFeatures")
 }
 
-
-export async function getSearchCourses(pageIndex: number, keyword: string, sort: string, descending: boolean) {
-    return await axios.get("/api/courses/search", {
-        params: {
-            pageIndex: pageIndex,
-            keyword: keyword,
-            sort: sort,
-            descending: descending
-        }
-    })
-}
-
 export async function getCourse(id: string | null) {
     return await axios.get("/api/courses/get/" + id)
 }
@@ -49,9 +37,11 @@ export async function getAverageStarReview(id: string | null) {
 export async function getCourseData(id: string | null) {
     return await axios.get("/api/courses/getCourseData/" + id)
 }
+
 export async function getCourseDataWithUrl(id: string | null) {
     return await axios.get("/api/courses/getCourseDataWithUrl/" + id)
 }
+
 export async function getReviewByUserAndCourse(courseId: string, username: string) {
     return await axios.get("/api/courses/review/get", {
         params: {
@@ -60,6 +50,7 @@ export async function getReviewByUserAndCourse(courseId: string, username: strin
         }
     })
 }
+
 export async function submitReview(reviewId: number | undefined, courseId: string, comment: string, star: number) {
     return await axios.post("/api/courses/review/add", { reviewId, courseId, comment, star })
 }
@@ -73,15 +64,29 @@ export async function getSubscriptionCardSummary(username: string, courseId: str
     })
 }
 
-
 export async function deleteReview(reviewId: number) {
     return await axios.post("/api/courses/review/delete", { reviewId })
 }
 
+export async function isSubscribedByUser(courseId: string | undefined) {
+    return await axios.get("/api/courses/isSubscribedByUser", {
+        params: { courseId },
+    });
+}
+
+export async function getSearchCourses(pageIndex: number, keyword: string, sort: string, descending: boolean) {
+    return await axios.get("/api/admin/courses/search", {
+        params: {
+            pageIndex: pageIndex,
+            keyword: keyword,
+            sort: sort,
+            descending: descending
+        }
+    })
+}
+
 export async function deleteCourse(idSet: string[] | []) {
-    const params = new URLSearchParams();
-    idSet.forEach(id => params.append('idSet', id));
-    return await axios.delete("/api/courses/delete", {
+    return await axios.delete("/api/admin/courses/delete", {
         data: idSet
     })
 }
@@ -89,22 +94,22 @@ export async function deleteCourse(idSet: string[] | []) {
 export async function getCategories(keyword?: string, sort?: string, descending?: boolean) {
     return await axios.get("/api/categories", {
         params: {
-            keyword:keyword||"",
-            sort:sort||"id",
-            descending:descending||true
+            keyword: keyword || "",
+            sort: sort || "id",
+            descending: descending || true
         }
     })
 }
 
-export async function addCategory(category:CategoryModel) {
-    return await axios.post("/api/categories", category)
+export async function addCategory(category: CategoryModel) {
+    return await axios.post("/api/admin/categories", category)
 }
 
 export async function deleteCategories(id: string[]) {
-    return await axios.delete("/api/categories", {
+    return await axios.delete("/api/admin/categories", {
         data: {
             id
-        }
+        },
     })
 }
 
@@ -142,20 +147,19 @@ export async function submitCourseInfo({
     formData.append("isFeatured", String(isFeatured));
     formData.append("categoryId", categoryId);
 
-    return await axios.post("/api/courses/info/add", formData, {
+    return await axios.post("/api/admin/courses/info/add", formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
     });
-
-};
+}
 
 export async function addContainer(id: string, container: CourseContainerModel) {
     const postObject = {
         courseId: id,
         container: container
     }
-    return await axios.post("/api/courses/data/container/add", postObject, {
+    return await axios.post("/api/admin/courses/data/container/add", postObject, {
         headers: { "Content-Type": "application/json", },
     })
 }
@@ -165,32 +169,22 @@ export async function addFile(id: string, file: CourseFileModel) {
         containerId: id,
         file: file
     }
-    return await axios.post("/api/courses/data/file/add", postObject, {
+    return await axios.post("/api/admin/courses/data/file/add", postObject, {
         headers: { "Content-Type": "application/json", },
     })
 }
 
 export async function deleteContainer(id: string) {
-    return await axios.post("/api/courses/data/container/delete", id, {
+    return await axios.post("/api/admin/courses/data/container/delete", id, {
         headers: { "Content-Type": "application/json", },
     })
 }
 
 export async function deleteFile(id: string) {
-    return await axios.post("/api/courses/data/file/delete", id, {
+    return await axios.post("/api/admin/courses/data/file/delete", id, {
         headers: { "Content-Type": "application/json", },
     })
 }
-
-// export async function addAllContainer(id: string, containers: CourseContainerModel[]) {
-//     const postObject = {
-//         courseId: id,
-//         object: containers
-//     }
-//     return await axios.post("/api/courses/add/data", postObject, {
-//         headers: { "Content-Type": "application/json", },
-//     })
-// }
 
 export async function getSignedUrl(fileKey: string) {
     return await axios.get("/api/files/uploadSigned", {
@@ -228,11 +222,3 @@ export async function uploadFileToSignedUrl(
         }
     }
 }
-
-export async function isSubscribedByUser(courseId: string | undefined) {
-    return await axios.get("/api/courses/isSubscribedByUser", {
-        params: { courseId },
-    });
-}
-
-

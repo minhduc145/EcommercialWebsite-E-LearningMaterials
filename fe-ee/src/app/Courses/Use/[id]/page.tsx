@@ -14,6 +14,8 @@ import { CourseContainerModel } from "@/models/CourseContainerModel"
 import { Separator } from "@/components/ui/separator"
 import { CourseFileModel } from "@/models/CourseFileModel"
 import { link_r2_default } from "@/lib/public-var"
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer"
+import { askAI } from "@/app/api/api-ai"
 
 export default function CourseLayout() {
     const params = useParams();
@@ -90,7 +92,7 @@ export default function CourseLayout() {
                     <div
                         className={cn(
                             "border-r border-border bg-card transition-all duration-300 ease-in-out",
-                            sidebarMinimized ? "w-16 overflow-hidden" : "w-80",
+                            sidebarMinimized ? "w-16 overflow-auto" : "w-80",
                             " md:static flex flex-col min-h-[85dvh] max-h-[85dvh]  z-40",
                             !mobileMenuOpen && "hidden md:block",
                         )}
@@ -143,7 +145,7 @@ export default function CourseLayout() {
                         </div>
                     </div>
 
-                    <div className={cn("grow border flex justify-center items-center overflow-auto", mobileMenuOpen && "md:ml-0")}>
+                    <div className={cn("grow border flex justify-center overflow-auto", mobileMenuOpen && "md:ml-0")}>
                         <FileContentView file={openingFile} />
                     </div>
 
@@ -155,8 +157,15 @@ export default function CourseLayout() {
 }
 
 function FileContentView({ file }: { file: CourseFileModel | undefined }) {
+    const [urlSafety, setUrlSafety] = useState("")
+    const checkUrl = (url: string) => {
+        const message = `Phân tích và nhận xét về tính an toàn của đường link sau (theo chủ quan, ngắn gọn): ${url}`;
+        askAI(message, "meta-llama/llama-4-maverick-17b-128e-instruct").then(val => {
+            setUrlSafety(val?.data.content ?? "")
+        })
+    }
     const r2BaseUrl = link_r2_default + "/";
-   
+
     const getProcessedView = () => {
         const rawUrl = file?.url
         var embeddedUrl = "";
@@ -247,9 +256,14 @@ function FileContentView({ file }: { file: CourseFileModel | undefined }) {
                 }
             case "link":
                 return (
-                    <div className="flex flex-col justify-center items-center gap-2">
+                    <div className={`flex flex-col  justify-center items-center gap-2`}>
                         <h2>Đường dẫn cho Tệp <b>{file.name}</b></h2>
                         <a className="text-blue-600 underline italic" href={file.url} title={file.url} target="_blank">{file.url}</a>
+                        <Button onClick={() => checkUrl(file.url)}>Phân tích URL</Button>
+                        <div className="px-5">
+                         <MarkdownRenderer content={urlSafety??""} />
+                         </div>
+                       
                     </div>
                 )
             case "iframe":

@@ -5,9 +5,7 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
-  LayoutDashboard,
   FileText,
-  FileBarChart,
   MoreHorizontal,
   ChevronLeft,
   ChevronRight,
@@ -16,19 +14,16 @@ import {
   CreditCard,
   User2Icon,
   TypeIcon,
-  DatabaseIcon,
   UserCircle2,
-  KeyRound,
   MessageCircleMoreIcon,
   MessageCirclePlusIcon,
   Undo2Icon,
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { UserModel } from "@/models/UserModel"
-import { getUserInfo } from "../api/api-account"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { usePathname } from "next/navigation"
+import { useUserInfo } from "@/lib/user-info"
 
 // Define types for our navigation items
 interface NavItemType {
@@ -49,37 +44,30 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname();
-
-  const [currentUser, setCurrentUser] = useState<UserModel>()
-
-  useEffect(() => {
-    getUserInfo().then(response => {
-      setCurrentUser(response?.data ?? null)
-    })
-  }, [])
+  const { user, isLoading, isError, logout } = useUserInfo({ redirectToLogin: false })
 
   const [title, setTitle] = useState("Chi tiết")
   const [collapsed, setCollapsed] = useState(false)
   const [activeItem, setActiveItem] = useState("")
 
   const infoItems: NavItemType[] = [
-    { icon: UserCircle2, label: "Thông tin tài khoản", url: "/AdminPage/UserInfo", isActive: activeItem === "/AdminPage/UserInfo"||pathname.startsWith("/AdminPage/UserInfo")},
+    { icon: UserCircle2, label: "Thông tin tài khoản", url: "/AdminPage/UserInfo", isActive: activeItem === "/AdminPage/UserInfo" || pathname.startsWith("/AdminPage/UserInfo") },
   ]
   const mainNavItems: NavItemType[] = [
-    { icon: FileText, label: "Quản lý học liệu", url: "/AdminPage/Courses", isActive: activeItem === "/AdminPage/Courses"||pathname.startsWith("/AdminPage/Courses") },
-    { icon: TypeIcon, label: "Quản lý Loại học liệu", url: "/AdminPage/Categories", isActive: activeItem === "/AdminPage/Categories"||pathname.startsWith("/AdminPage/Categories") },
+    { icon: FileText, label: "Quản lý học liệu", url: "/AdminPage/Courses", isActive: activeItem === "/AdminPage/Courses" || pathname.startsWith("/AdminPage/Courses") },
+    { icon: TypeIcon, label: "Quản lý Loại học liệu", url: "/AdminPage/Categories", isActive: activeItem === "/AdminPage/Categories" || pathname.startsWith("/AdminPage/Categories") },
   ]
   const userItems: NavItemType[] = [
-    { icon: User2Icon, label: "Quản lý Người dùng", url: "/AdminPage/Users", isActive: activeItem === "/AdminPage/Users"||pathname.startsWith("/AdminPage/Users") },
+    { icon: User2Icon, label: "Quản lý Người dùng", url: "/AdminPage/Users", isActive: activeItem === "/AdminPage/Users" || pathname.startsWith("/AdminPage/Users") },
   ]
   const messeageItems: NavItemType[] = [
-    { icon: MessageCirclePlusIcon, label: "Gửi thông báo", url: "/AdminPage/SendNotification", isActive: activeItem === "/AdminPage/SendNotification"||pathname.startsWith("/AdminPage/SendNotification") },
-    { icon: MessageCircleMoreIcon, label: "Danh sách thông báo", url: "/AdminPage/NotificationList", isActive: activeItem === "/AdminPage/Transaction"||pathname.startsWith("/AdminPage/NotificationList") },
+    { icon: MessageCirclePlusIcon, label: "Gửi thông báo", url: "/AdminPage/SendNotification", isActive: activeItem === "/AdminPage/SendNotification" || pathname.startsWith("/AdminPage/SendNotification") },
+    { icon: MessageCircleMoreIcon, label: "Danh sách thông báo", url: "/AdminPage/NotificationList", isActive: activeItem === "/AdminPage/Transaction" || pathname.startsWith("/AdminPage/NotificationList") },
   ]
 
   const paymentItems: NavItemType[] = [
-    { icon: CreditCard, label: "Lịch sử giao dịch", url: "/AdminPage/Transaction", isActive: activeItem === "/AdminPage/Transaction"||pathname.startsWith("/AdminPage/Transaction") },
-    { icon: Undo2Icon, label: "Yêu cầu hoàn trả", url: "/AdminPage/Transaction", isActive: activeItem === "/AdminPage/Transaction"||pathname.startsWith("/AdminPage/Transaction") },
+    { icon: CreditCard, label: "Lịch sử giao dịch", url: "/AdminPage/Transaction", isActive: activeItem === "/AdminPage/Transaction" || pathname.startsWith("/AdminPage/Transaction") },
+    { icon: Undo2Icon, label: "Yêu cầu hoàn trả", url: "/AdminPage/Transaction", isActive: activeItem === "/AdminPage/Transaction" || pathname.startsWith("/AdminPage/Transaction") },
   ]
 
   const navGroups: NavGroupType[] = [
@@ -108,8 +96,8 @@ export default function DashboardLayout({
 
   // User profile data
   const userProfile = {
-    name: currentUser?.lastName + " " + currentUser?.firstName,
-    email: currentUser?.email,
+    name: user?.lastName + " " + user?.firstName,
+    email: user?.email,
   }
 
   const toggleSidebar = () => {
@@ -121,9 +109,11 @@ export default function DashboardLayout({
     setTitle(label)
   }
 
+  useEffect(()=>{
+    console.log(user)
+  },[user])
 
-
-  if (currentUser && currentUser.account.role.toLowerCase() === "admin")
+  if (user && user.account.role.toLowerCase() === "admin")
     return (
       <div className="flex h-screen w-full">
         {/* Sidebar */}
@@ -188,8 +178,8 @@ export default function DashboardLayout({
           >
             <div className={cn("flex items-center", collapsed ? "" : "gap-2")}>
               <Avatar>
-                <AvatarImage src={currentUser.avatarUrl} alt="User settings" />
-                <AvatarFallback>{currentUser.firstName.charAt(0)}</AvatarFallback>
+                <AvatarImage src={user.avatarUrl} alt="User settings" />
+                <AvatarFallback>{user.firstName.charAt(0)}</AvatarFallback>
               </Avatar>
               {!collapsed && (
                 <div>

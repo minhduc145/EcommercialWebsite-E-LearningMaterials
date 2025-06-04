@@ -11,8 +11,8 @@ import com.beee.Repository.AccountRepo;
 import com.beee.Repository.UserRepo;
 import com.beee.Service.AccountService;
 import com.beee.Service.ResponseService;
-import com.beee.Service.S3Service;
 import com.beee.Service.Impl.JwtService;
+import com.beee.Service.S3Service;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,18 +24,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/accounts")
-public class AccountController {
+class AccountController {
 	@Autowired
 	private UserRepo userRepo;
 	@Autowired
@@ -45,11 +47,11 @@ public class AccountController {
 	@Autowired
 	private JwtService jwtService;
 	@Autowired
-	private AccountRepo accountRepo;
-	@Autowired
 	private PasswordEncoder passwordEncoder;
 	@Autowired
 	private AccountService accountService;
+	@Autowired
+	private AccountRepo accountRepo;
 	@Autowired
 	private S3Service s3Service;
 
@@ -119,18 +121,8 @@ public class AccountController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping("/isAdmin")
-	public ResponseEntity isAdmin(@CookieValue(name = "jwt", required = false) String token, HttpServletResponse response) {
-		if (!accountService.isJwtOk(token)) {
-			responseService.disposeCookie(response, "jwt");
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
-		}
-		String username = jwtService.extractUsername(token);
-		return ResponseEntity.ok().body(accountRepo.existsByIdAndRole(username, "ADMIN"));
-	}
-
 	@PostMapping("/profile/edit")
-	public ResponseEntity editProfile(@CookieValue(name = "jwt") String userToken, @Valid @ModelAttribute UserModel userModel,
+	public ResponseEntity editProfile(@RequestParam MultiValueMap<String, String> formData, @CookieValue(name = "jwt") String userToken, @Valid @ModelAttribute UserModel userModel,
 	                                  @RequestParam(name = "avatarFile", required = false) MultipartFile avatarFile) {
 		if (accountService.isJwtOk(userToken)) {
 			String username = jwtService.extractUsername(userToken);
@@ -141,17 +133,18 @@ public class AccountController {
 						user.setPhone(userModel.getPhone());
 					else
 						return ResponseEntity.of(Optional.of(Utils.mapOfResponse(Constants.RESULT_FAIL, "failed", "SĐT đã được sử dụng")));
-
 				}
 				if (!user.getEmail().equals(userModel.getEmail())) {
 					if (!accountRepo.existsByUser_Email(userModel.getEmail()))
 						user.setEmail(userModel.getEmail());
 					else
 						return ResponseEntity.of(Optional.of(Utils.mapOfResponse(Constants.RESULT_FAIL, "failed", "Email đã được sử dụng")));
-
 				}
 				user.setFirstName(userModel.getFirstName());
 				user.setLastName(userModel.getLastName());
+				String date = formData.get("birthDate").get(0);
+				user.setBirthdate(LocalDate.parse(date));
+				user.setMale(formData.get("isMale").get(0).equals("true"));
 				if (avatarFile != null) {
 					s3Service.deleteObject(user.getAvatarUrl().replace(Constants.CLOUD_URL_PUBLIC + "/", ""));
 					String key = "avatars/" + UUID.randomUUID().toString();
@@ -168,35 +161,5 @@ public class AccountController {
 		}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
-
-	@PostMapping("/password/edit")
-	public ResponseEntity editPassword(@CookieValue(name = "jwt") String userToken, @RequestBody Map<String, String> formData) {
-		if (accountService.isJwtOk(userToken)) {
-			if (jwtService.extractUsername(userToken).equals(formData.get("userId")) || accountService.isAdminJwtOk(userToken)) {
-				String username = formData.get("userId");
-				String oldPassword = formData.getOrDefault("oldPassword", "");
-				String newPassword = formData.get("newPassword");
-				String confirmPassword = formData.get("confirmPassword");
-				AccountModel acc = accountRepo.getById(username);
-				if (!passwordEncoder.matches(oldPassword, acc.getPassword())) {
-					return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, "Sai mật khẩu hiện tại", null));
-				}
-				if (!newPassword.equals(confirmPassword)) {
-					return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Utils.mapOfResponse(Constants.RESULT_FAIL, "Mật khẩu xác nhận không khớp mk mới", null));
-				}
-				acc.setPassword(passwordEncoder.encode(newPassword));
-				accountRepo.save(acc);
-				return ResponseEntity.status(HttpStatus.OK).build();
-			}
-		}
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-	}
-
-	@GetMapping("/users")
-	public ResponseEntity listUsers(@CookieValue(name = "jwt") String userToken) {
-		if (!accountService.isAdminJwtOk(userToken)) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		}
-		return ResponseEntity.ok().body(userRepo.findAll());
-	}
 }
+

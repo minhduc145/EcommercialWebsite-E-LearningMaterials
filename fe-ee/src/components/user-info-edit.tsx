@@ -9,18 +9,33 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Upload, User } from "lucide-react"
+import { CalendarIcon, Upload, User } from "lucide-react"
 import { UserModel } from "@/models/UserModel"
 import { editProfile } from "@/app/api/api-account"
 import MyToaster from "./ui/toastify-template"
+import { Calendar } from "./ui/calendar"
+import { vi } from "date-fns/locale"
+import { format } from "date-fns"
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
+import { cn } from "@/lib/utils"
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
 
-export default function EditProfilePage({ currentUser, isForAdmin = false }: { currentUser: UserModel, isForAdmin?: boolean }) {
+export default function EditProfilePage({ currentUser, isForAdmin = false,mutate }: { currentUser: UserModel, isForAdmin?: boolean,mutate?:()=>void }) {
   const [user, setUser] = useState<UserModel>(currentUser)
   const [file, setFile] = useState<File | null>(null)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setUser((prev) => ({ ...prev, [name]: value }))
+  const handleChange = (e?: React.ChangeEvent<HTMLInputElement>, d?: Date,g?:boolean) => {
+    if (e) {
+      console.log(e)
+      const { name, value } = e.target
+      setUser((prev) => ({ ...prev, [name]: value }))
+    } else if (d) {
+      console.log(d)
+      setUser((prev) => ({ ...prev, ['birthDate']: d }))
+    }else if(g!=null){
+      console.log(g)
+      setUser((prev) => ({ ...prev, ['isMale']: g }))
+    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -29,6 +44,7 @@ export default function EditProfilePage({ currentUser, isForAdmin = false }: { c
       .then(res => {
         if (res?.data?.result === 1) {
           MyToaster("success", "Thay đổi thông tin thành công")
+          mutate
         } else if (res?.data?.result === 0) {
           MyToaster("error", JSON.stringify(res.data?.details))
         }
@@ -36,7 +52,6 @@ export default function EditProfilePage({ currentUser, isForAdmin = false }: { c
       .catch(error => {
         const messages: string[] = Object.values(error?.response?.data?.details) || ["Lỗi không xác định"];
         MyToaster("error", undefined, messages);
-
       });
   }
 
@@ -48,6 +63,7 @@ export default function EditProfilePage({ currentUser, isForAdmin = false }: { c
       setFile(file)
     }
   }
+
   if (user)
     return (
       <div>
@@ -106,6 +122,52 @@ export default function EditProfilePage({ currentUser, isForAdmin = false }: { c
                       <div className="space-y-2">
                         <Label htmlFor="phone">SĐT</Label>
                         <Input id="phone" name="phone" type={"number"} value={user.phone ?? ''} onChange={handleChange} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Giới tính</Label>
+                        <RadioGroup defaultValue={String(user.isMale)} className="flex" name="isMale" onValueChange={g => handleChange(undefined,undefined,g==="true")}>
+                          <div className="flex items-center gap-3">
+                            <RadioGroupItem value="true" id="r1" />
+                            <Label htmlFor="r1">Nam</Label>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <RadioGroupItem value="false" id="r2" />
+                            <Label htmlFor="r2">Nữ</Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Ngày sinh</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-[240px] justify-start text-left font-normal",
+                                !user.birthDate && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon />
+                              {user.birthDate ? format(user.birthDate, "PPP", { locale: vi }) : <span>Chọn ngày sinh</span>}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              captionLayout="dropdown"
+                              fromYear={1900}
+                              toYear={new Date().getFullYear()}
+                              locale={vi}
+                              mode="single"
+                              selected={new Date(user.birthDate)}
+                              onSelect={v => handleChange(undefined, v)}
+                              disabled={(date) => date > new Date()}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+
                       </div>
                     </div>
                   </div>

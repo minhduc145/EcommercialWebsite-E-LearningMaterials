@@ -16,9 +16,9 @@ public interface CourseService {
 	ResponseEntity getCourseData(Integer id);
 	ResponseEntity getCourseDataWithUrl(String userToken, Integer id);
 	ResponseEntity addCourseInfo(String userToken, CourseModel courseModel, MultipartFile bannerFile) throws IOException;
-	ResponseEntity deleteCourses(String userToken, List<String> params);
+	ResponseEntity deleteCourses( List<String> params);
 
-	ResponseEntity addCourseDataContainer(String userToken, CourseContainerRequestDTO courseContainerRequestDTO);
+	ResponseEntity addCourseDataContainer(CourseContainerRequestDTO courseContainerRequestDTO);
 	ResponseEntity addCourseDataFile(String userToken, CourseFileReqDTO courseFileReqDTO);
 
 	ResponseEntity isSubscribedByUserAndCourse(String userToken, String courseId);

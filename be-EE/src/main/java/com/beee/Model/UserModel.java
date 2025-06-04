@@ -46,7 +46,6 @@ public class UserModel {
 	@Column(name = "is_male")
 	private boolean isMale;
 
-
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Pattern(regexp = "^\\d{10}$", message = "Số điện thoại phải 10 chữ số")
 	@Column(name = "phone")

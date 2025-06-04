@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,6 +20,9 @@ public class UserDTO {
 	private String email;
 	private String avatarUrl;
 	private String phone;
+	private LocalDate birthDate;
+	private Boolean isMale;
+
 	private AccountModel account;
 	public UserDTO toDto(UserModel user, boolean includePhone) {
 		return UserDTO.builder()
@@ -27,6 +32,8 @@ public class UserDTO {
 				.email(user.getEmail())
 				.avatarUrl(user.getAvatarUrl())
 				.phone(includePhone ? user.getPhone() : null)
+				.birthDate(user.getBirthdate())
+				.isMale(user.isMale())
 				.account(user.getAccount())
 				.build();
 	}

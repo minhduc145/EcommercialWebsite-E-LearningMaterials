@@ -11,6 +11,7 @@ public class ResponseServiceImpl implements ResponseService {
 	public void addCookie(HttpServletResponse response, String cookieName, String value) {
 		Cookie cookie = new Cookie(cookieName, value);
 		cookie.setHttpOnly(true);
+		cookie.setSecure(false); // để false nếu không dùng HTTPS
 		cookie.setPath("/");
 		cookie.setMaxAge(60 * 60 * 24); // a day
 		response.addCookie(cookie);

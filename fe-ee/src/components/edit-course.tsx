@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog"
-import { FileImageIcon, Loader2, Send, X } from "lucide-react"
+import { FileImageIcon, Loader2, Send, SendIcon, X } from "lucide-react"
 import DOMPurify from "dompurify"
 import MyEditor from "@/components/editor"
 import MyToaster from "@/components/ui/toastify-template"
@@ -67,9 +67,9 @@ export default function MainCourseEditTab({ course = undefined }: { course?: Cou
 }
 
 const InfoTab = (
-    { id, setId, bannerFile, setBannerFile, bannerUrl, name, setName, categoryId, setCategoryId, isFeatured,setIsFeatured, isAvailable, price, setPrice, setIsAvailable, description, setDescription, setTab2Ready }
+    { id, setId, bannerFile, setBannerFile, bannerUrl, name, setName, categoryId, setCategoryId, isFeatured, setIsFeatured, isAvailable, price, setPrice, setIsAvailable, description, setDescription, setTab2Ready }
         : {
-            id: string, setId: (i: string) => void, bannerUrl: string | undefined, isFeatured:boolean, setIsFeatured:(i:boolean)=>void,
+            id: string, setId: (i: string) => void, bannerUrl: string | undefined, isFeatured: boolean, setIsFeatured: (i: boolean) => void,
             bannerFile: File | null, setBannerFile: (i: File | null) => void, name: string, setName: (i: string) => void, categoryId: string, setCategoryId: (i: string) => void,
             isAvailable: boolean, setIsAvailable: (i: boolean) => void, price: number, setPrice: (i: number) => void,
             description: string, setDescription: (i: string) => void, setTab2Ready: (i: boolean) => void
@@ -225,6 +225,7 @@ const InfoTab = (
     )
 }
 import { FileExplorer } from "@/components/file-manager"
+import { askAI } from "@/app/api/api-ai"
 
 const DataTab = ({ id }: { id: string }) => {
     if (id)
@@ -246,7 +247,7 @@ const AIModal = ({ name, handleChange }: { name: string, handleChange: (i: strin
     const handleSubmit = async () => {
         var message = `
             Viết ví dụ cho phần mô tả của một khóa học online "${name?.trim()}" từ những thông tin gợi ý bên dưới (khoảng ${wordCount} từ).
-
+            
             Yêu cầu trả về bắt buộc phải đáp ứng các tiêu chí sau:
             1. Trả về nội dung HTML thuần, không dùng Markdown (dù chỉ 1 ký tự như ** hay -).
             2. Không tự ý thêm ảnh, src, class attributes.
@@ -258,24 +259,19 @@ const AIModal = ({ name, handleChange }: { name: string, handleChange: (i: strin
             `;
         setIsLoading(true)
         setResponse("")
-        const res = await fetch("/api/groq", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ message }),
-        });
-        setIsLoading(false)
-        const data = await res.json();
-        setResponse(data.content);
+        askAI(message).then(res => {
+            setResponse(res?.data?.content);
+            setIsLoading(false)
+        }).catch(()=>{
+            setResponse("Lỗi");
+            setIsLoading(false)
+        })
     };
 
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline"> <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 48 48">
-                    <radialGradient id="oDvWy9qKGfkbPZViUk7TCa_eoxMN35Z6JKg_gr1" cx="-670.437" cy="617.13" r=".041" gradientTransform="matrix(128.602 652.9562 653.274 -128.6646 -316906.281 517189.719)" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#1ba1e3"></stop><stop offset="0" stopColor="#1ba1e3"></stop><stop offset=".3" stopColor="#5489d6"></stop><stop offset=".545" stopColor="#9b72cb"></stop><stop offset=".825" stopColor="#d96570"></stop><stop offset="1" stopColor="#f49c46"></stop></radialGradient><path fill="url(#oDvWy9qKGfkbPZViUk7TCa_eoxMN35Z6JKg_gr1)" d="M22.882,31.557l-1.757,4.024c-0.675,1.547-2.816,1.547-3.491,0l-1.757-4.024	c-1.564-3.581-4.378-6.432-7.888-7.99l-4.836-2.147c-1.538-0.682-1.538-2.919,0-3.602l4.685-2.08	c3.601-1.598,6.465-4.554,8.002-8.258l1.78-4.288c0.66-1.591,2.859-1.591,3.52,0l1.78,4.288c1.537,3.703,4.402,6.659,8.002,8.258	l4.685,2.08c1.538,0.682,1.538,2.919,0,3.602l-4.836,2.147C27.26,25.126,24.446,27.976,22.882,31.557z"></path><radialGradient id="oDvWy9qKGfkbPZViUk7TCb_eoxMN35Z6JKg_gr2" cx="-670.437" cy="617.13" r=".041" gradientTransform="matrix(128.602 652.9562 653.274 -128.6646 -316906.281 517189.719)" gradientUnits="userSpaceOnUse"><stop offset="0" stopColor="#1ba1e3"></stop><stop offset="0" stopColor="#1ba1e3"></stop><stop offset=".3" stopColor="#5489d6"></stop><stop offset=".545" stopColor="#9b72cb"></stop><stop offset=".825" stopColor="#d96570"></stop><stop offset="1" stopColor="#f49c46"></stop></radialGradient><path fill="url(#oDvWy9qKGfkbPZViUk7TCb_eoxMN35Z6JKg_gr2)" d="M39.21,44.246l-0.494,1.132	c-0.362,0.829-1.51,0.829-1.871,0l-0.494-1.132c-0.881-2.019-2.467-3.627-4.447-4.506l-1.522-0.676	c-0.823-0.366-0.823-1.562,0-1.928l1.437-0.639c2.03-0.902,3.645-2.569,4.511-4.657l0.507-1.224c0.354-0.853,1.533-0.853,1.886,0	l0.507,1.224c0.866,2.088,2.481,3.755,4.511,4.657l1.437,0.639c0.823,0.366,0.823,1.562,0,1.928l-1.522,0.676	C41.677,40.619,40.091,42.227,39.21,44.246z"></path>
-                </svg>Nhận gợi ý cho mô tả</Button>
+                <Button variant="outline">Nhận gợi ý cho mô tả<SendIcon size={5} /></Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[80%] max-h-[90vh] flex flex-col">
                 <DialogHeader>
@@ -315,7 +311,7 @@ const AIModal = ({ name, handleChange }: { name: string, handleChange: (i: strin
                             <div className="flex justify-between items-center my-2">
                                 <p className="font-bold">Kết quả:</p>
                             </div>
-                            <Card className="flex-1 overflow-auto">
+                            <Card className="flex-1 overflow-auto p-0">
                                 <CardContent className="px-4 min-h-[100px]">
                                     {isLoading ? (
                                         <div className="space-y-2 mt-4">

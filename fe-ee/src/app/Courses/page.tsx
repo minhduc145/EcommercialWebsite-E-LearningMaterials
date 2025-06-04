@@ -15,8 +15,7 @@ export default function Courses() {
 
   return (
     <div className='min-h-dvh'>
-      <div className="banner m-0 p-0 inset-x-0 top-0 w-full h-96 bg-[#001d74] rounded-bl-3xl rounded-br-3xl bg-left">
-        <div className="grid w-full h-80 grid-cols-1 inset-x-0 lg:grid-cols-2">
+      <div className="banner m-0 p-0 inset-x-0 top-0 w-full h-80 bg-[#001d74] rounded-bl-3xl rounded-br-3xl bg-left flex">
           <div className='m-auto text-white'>
             <h1 className="text-white text-xl md:text-2xl font-normal drop-shadow-sm">
               Chào mừng bạn đến với
@@ -25,8 +24,7 @@ export default function Courses() {
               e-Edu
             </h2>
           </div>
-          <Image className='m-auto w-full max-w-100 h-auto' width={500} height={500} src='/global_imgs/dummy-slide-min.png' alt="" />
-        </div>
+          <Image className='m-auto max-w-100 h-auto w-[80%] hidden lg:block' width={500} height={500} src='/global_imgs/dummy-slide-min.png' alt="" />
       </div>
       <br />
       <main>
@@ -99,7 +97,7 @@ function FeaturedCarousel() {
                 <div
                   className="aspect-[4/3] sm:aspect-[16/9] md:aspect-[16/7] lg:aspect-[16/5] rounded-lg overflow-hidden relative"
                   style={{
-                    backgroundImage: `url(${slide.thumbnail_url})`,
+                    backgroundImage: `url(${slide.thumbnailUrl})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                   }}
@@ -115,11 +113,11 @@ function FeaturedCarousel() {
                       <h3 className="text-xl sm:text-2xl md:text-4xl font-bold leading-tight break-words line-clamp-2">
                         {slide.title}
                       </h3>
-                      <p className="text-sm sm:text-base md:text-xl break-words line-clamp-2 italic">{slide.category_name}</p>
+                      <p className="text-sm sm:text-base md:text-xl break-words line-clamp-2 italic">{slide.categoryName}</p>
 
                       <div className="flex items-center gap-1 sm:gap-2">
-                        <StarRating rating={slide.average_rating} />
-                        <span className="text-xs sm:text-sm opacity-90">({slide.comment_count} đánh giá)</span>
+                        <StarRating rating={slide.averageRating} />
+                        <span className="text-xs sm:text-sm opacity-90">({slide.commentCount} đánh giá)</span>
                       </div>
 
                       <Link href={`/Courses/${slide.id}`} className="w-fit mt-2 sm:mt-3 md:mt-4 text-xs sm:text-sm md:text-base rounded-full bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-1 sm:py-2 h-sm">

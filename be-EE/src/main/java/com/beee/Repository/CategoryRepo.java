@@ -24,4 +24,8 @@ public interface CategoryRepo extends JpaRepository<CategoryModel, Integer> {
 			"      OR unaccent(categories.description) ILIKE unaccent(CONCAT('%', :keyword, '%'))\n" +
 			"GROUP BY categories.id, categories.name", nativeQuery = true)
 	List<ArrayList<String>> getCategoriesAndCourseCount(String keyword, Sort sort);
+
+	boolean existsByName(String name);
+
+	CategoryModel findCategoryModelById(Integer id);
 }

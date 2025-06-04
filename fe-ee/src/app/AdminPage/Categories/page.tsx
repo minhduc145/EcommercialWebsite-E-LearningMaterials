@@ -257,8 +257,8 @@ function DeleteModal({ id, handleDelete, isDeleteModalOpen, setIsDeleteModalOpen
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
-export function CategoryAddForm({ category, open, onOpenChange, rk, setRK }: 
-    { category?: CategoryModel, open: boolean | false, onOpenChange: (i: boolean) => void,rk:boolean, setRK: (i: boolean) => void }) {
+export function CategoryAddForm({ category, open, onOpenChange, rk, setRK }:
+    { category?: CategoryModel, open: boolean | false, onOpenChange: (i: boolean) => void, rk: boolean, setRK: (i: boolean) => void }) {
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
 
@@ -282,6 +282,8 @@ export function CategoryAddForm({ category, open, onOpenChange, rk, setRK }:
             MyToaster("success")
             onOpenChange(false)
             setRK(!rk)
+        }).catch(er => {
+            MyToaster("error", er?.response?.data)
         })
     }
 

@@ -1,6 +1,8 @@
 package com.beee.Config;
 
 import com.beee.Common.Constants;
+import com.beee.Repository.AccountRepo;
+import com.beee.Service.Impl.JwtService;
 import com.beee.Service.UserLoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -22,11 +25,11 @@ public class WebSecurityConfig {
 	@Autowired
 	private UserLoginService userLoginService;
 
-
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http, InMemoryClientRegistrationRepository clientRegistrationRepository) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http, InMemoryClientRegistrationRepository clientRegistrationRepository, JwtAdminFilter jwtAdminFilter) throws Exception {
 		http
 				.csrf((csrf) -> csrf.disable())
+				.addFilterBefore(jwtAdminFilter, UsernamePasswordAuthenticationFilter.class)
 				.headers(headers -> headers
 						.frameOptions(frameOptions -> frameOptions.disable())
 				)
