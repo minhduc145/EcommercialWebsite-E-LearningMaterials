@@ -1,6 +1,7 @@
 package com.beee.Common;
 
 
+import com.beee.DTO.CourseBasicResDTO;
 import com.beee.Repository.ReviewRepo;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,5 +62,19 @@ public class Utils {
 		if (isDescending)
 			return PageRequest.of(pageIndex, pageSize, setSort(sortField, isDescending));
 		else return PageRequest.of(pageIndex, pageSize, setSort(sortField, isDescending));
+	}
+
+	public static void handleMapBasicDTO(List<CourseBasicResDTO> courses, Map result) {
+		CourseBasicResDTO courseBasicResDTO = CourseBasicResDTO.builder()
+				.id((Integer) result.get("id"))
+				.title((String) result.get("title"))
+				.price((BigDecimal) result.get("price"))
+				.commentCount((Long) result.get("comment_count"))
+				.categoryName((String) result.get("category_name"))
+				.averageRating((BigDecimal) result.get("average_rating"))
+				.thumbnailUrl((String) result.get("thumbnail_url"))
+				.isFeatured((Boolean) result.get("is_featured"))
+				.build();
+		courses.add(courseBasicResDTO);
 	}
 }

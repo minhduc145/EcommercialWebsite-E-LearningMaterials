@@ -5,18 +5,26 @@ import com.beee.Common.Utils;
 import com.beee.DTO.CourseBasicResDTO;
 import com.beee.Model.CategoryModel;
 import com.beee.Model.CourseModel;
+import com.beee.Model.SubscriptionModel;
+import com.beee.Model.UserFavouriteModel;
 import com.beee.Repository.CategoryRepo;
 import com.beee.Repository.CourseRepo;
+import com.beee.Repository.FavouriteRepo;
+import com.beee.Repository.SubscriptionRepo;
 import com.beee.Service.SearchService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.ParsingUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,10 +32,16 @@ import java.util.Map;
 public class SearchServiceImpl implements SearchService {
 	private final CategoryRepo categoryRepo;
 	private final CourseRepo courseRepo;
+	private final FavouriteRepo favouriteRepo;
+	private final JwtService jwtService;
+	private final SubscriptionRepo subscriptionRepo;
 
-	public SearchServiceImpl(CategoryRepo categoryRepo, CourseRepo courseRepo) {
+	public SearchServiceImpl(CategoryRepo categoryRepo, CourseRepo courseRepo, FavouriteRepo favouriteRepo, JwtService jwtService, SubscriptionRepo subscriptionRepo) {
 		this.categoryRepo = categoryRepo;
 		this.courseRepo = courseRepo;
+		this.favouriteRepo = favouriteRepo;
+		this.jwtService = jwtService;
+		this.subscriptionRepo = subscriptionRepo;
 	}
 
 	@Override
@@ -44,6 +58,7 @@ public class SearchServiceImpl implements SearchService {
 
 	@Override
 	public ResponseEntity courseSearchForUser(Map<String, Object> body) {
+		if (body == null) body = new HashMap<>();
 		List<CourseBasicResDTO> courses = new ArrayList<>();
 		String title = body.getOrDefault("title", "").toString();
 		List<String> categories = (List<String>) body.get("categories");
@@ -64,18 +79,72 @@ public class SearchServiceImpl implements SearchService {
 			results = courseRepo.searchCourseUser(title, categories, price1, price2, startDate, endDate, takeFeatures, pageable);
 		}
 		for (Map result : results.getContent()) {
-			CourseBasicResDTO courseBasicResDTO = CourseBasicResDTO.builder()
-					.id((Integer) result.get("id"))
-					.title((String) result.get("title"))
-					.price((BigDecimal) result.get("price"))
-					.commentCount((Long) result.get("comment_count"))
-					.categoryName((String) result.get("category_name"))
-					.averageRating((BigDecimal) result.get("average_rating"))
-					.thumbnailUrl((String) result.get("thumbnail_url"))
-					.isFeatured((Boolean) result.get("is_featured"))
-					.build();
-			courses.add(courseBasicResDTO);
+			Utils.handleMapBasicDTO(courses, result);
 		}
 		return ResponseEntity.ok().body(Map.of("content", courses, "totalElements", results.getTotalElements(), "totalPages", results.getTotalPages()));
 	}
+
+	public ResponseEntity favouritesSearchForUser(String userToken, Map<String, String> body) {
+		if (!StringUtils.hasText(userToken) || jwtService.isTokenExpired(userToken)) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+		if (body == null) body = new HashMap<>();
+		String keyword = body.getOrDefault("keyword", " ").toString();
+		String sort = body.getOrDefault("sort", "createdAt").toString();
+		sort = ParsingUtils.reconcatenateCamelCase(sort, "_");
+		boolean descending = body.getOrDefault("descending", "false").equals("true");
+		Integer page = Integer.valueOf(body.getOrDefault("page", "0").toString());
+		Pageable pageable = PageRequest.of(page, Constants.PAGEABLE_PAGE_SIZE_7 - 1);
+		Page<UserFavouriteModel> results;
+
+		if (sort.equalsIgnoreCase("createdAt")) {
+			pageable = Utils.setPageable(page, Constants.PAGEABLE_PAGE_SIZE_7 - 1, sort, descending);
+			results = favouriteRepo.findAllByUser_Id(jwtService.extractUsername(userToken), keyword, pageable);
+		} else if (sort.equalsIgnoreCase("title")) {
+			if (descending) {
+				results = favouriteRepo.findAllByUser_IdTitleDESC(jwtService.extractUsername(userToken), keyword, pageable);
+			} else
+				results = favouriteRepo.findAllByUser_IdTitleASC(jwtService.extractUsername(userToken), keyword, pageable);
+		} else {
+			if (descending) {
+				results = favouriteRepo.findAllByUser_IdPriceDesc(jwtService.extractUsername(userToken), keyword, pageable);
+			} else
+				results = favouriteRepo.findAllByUser_IdPriceAsc(jwtService.extractUsername(userToken), keyword, pageable);
+		}
+		return ResponseEntity.ok().body(results);
+	}
+
+	@Override
+	public ResponseEntity subscriptionsSearchForUser(String userToken, Map<String, String> body) {
+		if (!StringUtils.hasText(userToken) || jwtService.isTokenExpired(userToken)) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+		if (body == null) body = new HashMap<>();
+		String keyword = body.getOrDefault("keyword", " ").toString();
+		String sort = body.getOrDefault("sort", "createdAt").toString();
+		sort = ParsingUtils.reconcatenateCamelCase(sort, "_");
+		boolean descending = body.getOrDefault("descending", "false").equals("true");
+		Integer page = Integer.valueOf(body.getOrDefault("page", "0").toString());
+		Pageable pageable = PageRequest.of(page, Constants.PAGEABLE_PAGE_SIZE_7 - 1);
+		Page<SubscriptionModel> results;
+
+		if (sort.equalsIgnoreCase("createdAt")) {
+			pageable = Utils.setPageable(page, Constants.PAGEABLE_PAGE_SIZE_7 - 1, sort, descending);
+			results = subscriptionRepo.findAllByUser_Id(jwtService.extractUsername(userToken), keyword, pageable);
+		} else if (sort.equalsIgnoreCase("title")) {
+			if (descending) {
+				results = subscriptionRepo.findAllByUser_IdTitleDESC(jwtService.extractUsername(userToken), keyword, pageable);
+			} else
+				results = subscriptionRepo.findAllByUser_IdTitleASC(jwtService.extractUsername(userToken), keyword, pageable);
+		} else {
+			if (descending) {
+				results = subscriptionRepo.findAllByUser_IdPriceDesc(jwtService.extractUsername(userToken), keyword, pageable);
+			} else
+				results = subscriptionRepo.findAllByUser_IdPriceAsc(jwtService.extractUsername(userToken), keyword, pageable);
+		}
+		return ResponseEntity.ok().body(results);
+	}
+
+
 }
+

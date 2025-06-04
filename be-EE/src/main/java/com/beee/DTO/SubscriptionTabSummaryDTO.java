@@ -15,4 +15,5 @@ public class SubscriptionTabSummaryDTO {
 	private Timestamp subscribedAt;
 	private boolean isFavourite;
 	private CourseReviewModel review;
+	private Boolean isSubsAvailable;
 }

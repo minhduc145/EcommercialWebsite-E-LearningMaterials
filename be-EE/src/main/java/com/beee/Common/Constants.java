@@ -49,5 +49,9 @@ public class Constants {
 	);
 	public final static Set<String> SCORM_TYPES = Set.of("application/zip", "application/x-zip-compressed");
 
+	public final static String addOrderByPriceDesc = "order by c.price desc";
+	public final static String addOrderByTitleDesc = "order by c.title desc";
+	public final static String addOrderByPriceAsc = "order by c.price asc";
+	public final static String addOrderByTitleAsc = "order by c.title asc";
 
 }

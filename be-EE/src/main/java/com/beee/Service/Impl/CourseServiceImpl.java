@@ -7,10 +7,7 @@ import com.beee.DTO.CourseFileReqDTO;
 import com.beee.DTO.SubscriptionTabSummaryDTO;
 import com.beee.Model.*;
 import com.beee.Repository.*;
-import com.beee.Service.AccountService;
-import com.beee.Service.CourseService;
-import com.beee.Service.FileService;
-import com.beee.Service.S3Service;
+import com.beee.Service.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -37,8 +34,9 @@ public class CourseServiceImpl implements CourseService {
 	private final FileService fileService;
 	private final FavouriteRepo favouriteRepo;
 	private final AccountService accountService;
+	private final SubscriptionService subscriptionService;
 
-	public CourseServiceImpl(ReviewRepo reviewRepo, CourseContainerRepo courseContainerRepo, JwtService jwtService, AccountRepo accountRepo, CourseRepo courseRepo, SubscriptionRepo subscriptionRepo, S3Service s3Service, CourseFileRepo courseFileRepo, FileService fileService, FavouriteRepo favouriteRepo, AccountService accountService) {
+	public CourseServiceImpl(ReviewRepo reviewRepo, CourseContainerRepo courseContainerRepo, JwtService jwtService, AccountRepo accountRepo, CourseRepo courseRepo, SubscriptionRepo subscriptionRepo, S3Service s3Service, CourseFileRepo courseFileRepo, FileService fileService, FavouriteRepo favouriteRepo, AccountService accountService, SubscriptionService subscriptionService) {
 		this.reviewRepo = reviewRepo;
 		this.courseContainerRepo = courseContainerRepo;
 		this.jwtService = jwtService;
@@ -50,6 +48,7 @@ public class CourseServiceImpl implements CourseService {
 		this.fileService = fileService;
 		this.favouriteRepo = favouriteRepo;
 		this.accountService = accountService;
+		this.subscriptionService = subscriptionService;
 	}
 
 	@Override
@@ -188,35 +187,17 @@ public class CourseServiceImpl implements CourseService {
 		return ResponseEntity.ok().build();
 	}
 
-	boolean isSubscribedByUser(String username, SubscriptionModel subscriptionModel) {
-		boolean i;
-		i = subscriptionModel != null
-				|| courseRepo.existsByCreator_Id(username)
-				|| accountRepo.existsByIdAndRole(username, Constants.ROLE_ADMIN);
-		return i;
-	}
-
-	public ResponseEntity isSubscribedByUserAndCourse(String userToken, String courseId) {
-		boolean i;
-		if (accountService.isJwtOk(userToken)) {
-			String username = jwtService.extractUsername(userToken);
-			SubscriptionModel subscriptionModel = subscriptionRepo.findByUser_IdAndCourse_Id(username, Integer.parseInt(courseId));
-			i = isSubscribedByUser(username, subscriptionModel);
-			if (i)
-				return ResponseEntity.ok().body(Map.of("inSub", i, "subAt", subscriptionModel != null ? subscriptionModel.getCreated_at() : ""));
-			return ResponseEntity.ok().body(Map.of("inSub", i));
-		}
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-	}
-
 	public ResponseEntity getSubscriptionSummary(String username, String courseId) {
 		SubscriptionTabSummaryDTO summaryDTO = new SubscriptionTabSummaryDTO();
 		SubscriptionModel subscriptionModel = subscriptionRepo.findByUser_IdAndCourse_Id(username, Integer.parseInt(courseId));
-		boolean i = isSubscribedByUser(username, subscriptionModel);
+		boolean i = subscriptionService.isSubscribedByUser(username, subscriptionModel);
 		boolean ii = favouriteRepo.existsByUser_IdAndCourse_Id(username, Integer.valueOf(courseId));
 		summaryDTO.setSubscribed(i);
 		summaryDTO.setFavourite(ii);
-		if (i && subscriptionModel != null) summaryDTO.setSubscribedAt(subscriptionModel.getCreated_at());
+		if (i && subscriptionModel != null) {
+			summaryDTO.setSubscribedAt(subscriptionModel.getCreatedAt());
+			summaryDTO.setIsSubsAvailable(subscriptionModel.getIsAvailable());
+		}
 		summaryDTO.setReview(reviewRepo.getFirstByCourseIdAndUserId(Integer.parseInt(courseId), username));
 		return ResponseEntity.ok().body(summaryDTO);
 	}

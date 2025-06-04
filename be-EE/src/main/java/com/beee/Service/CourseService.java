@@ -21,7 +21,5 @@ public interface CourseService {
 	ResponseEntity addCourseDataContainer(CourseContainerRequestDTO courseContainerRequestDTO);
 	ResponseEntity addCourseDataFile(String userToken, CourseFileReqDTO courseFileReqDTO);
 
-	ResponseEntity isSubscribedByUserAndCourse(String userToken, String courseId);
 	ResponseEntity getSubscriptionSummary(String username, String courseId);
-
 }

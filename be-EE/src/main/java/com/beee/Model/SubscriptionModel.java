@@ -26,8 +26,11 @@ public class SubscriptionModel {
 	@Column(name = "status")
 	private String status;
 
+	@Column(name = "is_available")
+	private Boolean isAvailable;
+
 	@Column(name = "created_at",insertable = false, updatable = false)
-	private Timestamp created_at;
+	private Timestamp createdAt;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", referencedColumnName = "id")

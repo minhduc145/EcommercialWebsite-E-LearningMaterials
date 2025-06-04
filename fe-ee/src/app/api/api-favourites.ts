@@ -15,3 +15,9 @@ export async function deleteFromFavourite(courseId: string) {
         data: {courseId}
     })
 }
+
+export async function getFavouritesByUser(keyword?:string,sort?:string,descending?:boolean,page?:number) {
+    return await axios.post("/api/search/courses/favourites",{
+        keyword,sort,descending,page
+    })
+}

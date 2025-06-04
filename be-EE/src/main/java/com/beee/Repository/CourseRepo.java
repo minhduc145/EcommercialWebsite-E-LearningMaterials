@@ -82,6 +82,9 @@ public interface CourseRepo extends JpaRepository<CourseModel, Integer> {
 			@Param("takeFeatures") boolean takeFeatures,
 			Pageable pageable
 	);
+
+
+
 }
 
 

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/user/search")
+@RequestMapping("/api/search")
 public class SearchController {
 	private final SearchService searchService;
 
@@ -22,7 +22,17 @@ public class SearchController {
 	}
 
 	@PostMapping("/courses")
-	public ResponseEntity getSearch(@RequestBody Map<String, Object> body) {
+	public ResponseEntity getSearch(@RequestBody(required = false) Map<String, Object> body) {
 		return searchService.courseSearchForUser(body);
+	}
+
+	@PostMapping("/courses/favourites")
+	public ResponseEntity getFavouritesSearch(@CookieValue(name = "jwt") String userToken, @RequestBody(required = false) Map<String, String> body) {
+		return searchService.favouritesSearchForUser(userToken, body);
+	}
+
+	@PostMapping("/courses/subscriptions")
+	public ResponseEntity getSubscriptionsSearch(@CookieValue(name = "jwt") String userToken, @RequestBody(required = false) Map<String, String> body) {
+		return searchService.subscriptionsSearchForUser(userToken, body);
 	}
 }

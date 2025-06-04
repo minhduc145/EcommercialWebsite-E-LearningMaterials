@@ -22,6 +22,7 @@ interface SubscriptionCardProps {
 }
 
 interface SubscriptionRes {
+  isSubsAvailable: boolean | false;
   subscribed: boolean | false;
   subscribedAt: string;
   favourite: boolean | false;
@@ -57,11 +58,12 @@ export default function SubscriptionCard({ course, setResetKey, resetKey }: Subs
         {summary?.subscribed == false && <span>Mua học liệu:</span>}
         <div className="flex flex-row gap-2 items-center">
           {summary?.subscribed ? (
-            <Button className="grow bg-blue-600"><Link href={`/Courses/Use/${course.id}`}>Sử dụng học liệu</Link></Button>
+            summary?.isSubsAvailable ? <Button className="grow bg-blue-600"><Link href={`/Courses/Use/${course.id}`}>Sử dụng học liệu</Link></Button> :
+              <Button className="grow" variant={"destructive"}>Đăng ký này bị tạm đóng</Button>
           ) : (
             <VNPayButton amount={course.price} orderInfo={`THANHTOAN_${course.id}`} />
           )}
-          {user?.id&&<Heart fill={summary?.favourite ? 'red' : 'white'} className="w-6 h-6 hover:cursor-pointer" onClick={handleAddToFavourite} />}
+          {user?.id && <Heart fill={summary?.favourite ? 'red' : 'white'} className="w-6 h-6 hover:cursor-pointer" onClick={handleAddToFavourite} />}
         </div>
 
       </CardHeader>
@@ -130,7 +132,7 @@ function UserRate({ review, course, isShown = false, resetKey, setResetKey }: { 
 
   if (isShown) return (
     <div className="flex flex-col gap-2">
-      <h3 className="text-lg font-medium">{isEditing?"Sửa":"Để"}&nbsp;lại đánh giá</h3>
+      <h3 className="text-lg font-medium">{isEditing ? "Sửa" : "Để"}&nbsp;lại đánh giá</h3>
       <div className="flex  gap-2 self-center">
         <StarRating rating={star} className="hover:cursor-pointer" onChange={setStar} />
         <i>{`(${star} sao)`}</i>

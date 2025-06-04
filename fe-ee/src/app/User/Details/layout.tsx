@@ -28,7 +28,7 @@ export default function UserPageLayout({
         { icon: CreditCard, label: "Yêu cầu hoàn tiền", url: "/User/Details/Return", isActive: activeItem === "/User/Details/Return" || pathname.startsWith("/User/Details/Return") },
         { icon: MessageSquare, label: "Tất cả thông báo", url: "/User/Details/Notification", isActive: activeItem === "/User/Details/Notification" || pathname.startsWith("/User/Details/Notification") },
     ]
-    const { user} = useUserInfo({ redirectToLogin: false })
+    const { user } = useUserInfo({ redirectToLogin: false })
     return (
         <>
             <ClientHeaderWrapper color="" />
@@ -40,10 +40,8 @@ export default function UserPageLayout({
                         <div className="flex items-center gap-4">
                             <div className="bg-white text-gray-800 rounded-lg p-3 relative">
                                 <div className="text-sm">Chào mừng bạn đến với hệ thống!</div>
-                                <div className="absolute -bottom-2 left-4 w-4 h-4 bg-white transform rotate-45"></div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-2xl">🦊</div>
                                 <div className="w-12 h-12 bg-teal-500 rounded-full flex items-center justify-center text-2xl">😊</div>
                             </div>
                         </div>
@@ -52,7 +50,7 @@ export default function UserPageLayout({
 
                 <div className="flex mx-auto container pt-5">
                     {/* Left Sidebar */}
-                    <div className="w-80 h-auto ">
+                    <div className="w-80 h-auto hidden lg:block">
                         {/* User Profile */}
                         <div className="p-6 border-b bg-white shadow-sm">
                             <div className="flex items-center gap-3">
@@ -69,11 +67,11 @@ export default function UserPageLayout({
 
                         {/* Navigation Menu */}
                         <div className="p-4">
-                            <nav className="space-y-2">
+                            <nav className="space-y-2 flex flex-col gap-2">
                                 {
                                     navItems.map((nav, index) => (
-                                        <Link key={index} href={nav.url} onClick={()=>setActiveItem(nav.url)}>
-                                            <Button variant={nav.isActive?'default':'ghost'} className={`w-full justify-start gap-3 ${nav.isActive?'bg-blue-500':''}`}>
+                                        <Link key={index} href={nav.url} onClick={() => setActiveItem(nav.url)}>
+                                            <Button variant={nav.isActive ? 'default' : 'ghost'} className={`w-full justify-start gap-3 ${nav.isActive ? 'bg-blue-500' : ''}`}>
                                                 <nav.icon className="w-5 h-5" />
                                                 {nav.label}
                                             </Button>

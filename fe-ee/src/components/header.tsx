@@ -33,8 +33,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import SockJS from "sockjs-client";
-import { Client, IMessage } from "@stomp/stompjs";
 import MyToaster from "./ui/toastify-template";
 import { url_backend_default } from "@/lib/public-var";
 import { useUserInfo } from "@/lib/user-info";
@@ -55,13 +53,13 @@ const options = [
   {
     name: "Đã đăng ký",
     description: "Đến danh sách các khóa học đã đăng ký",
-    href: "#",
+    href: "/User/Details/Courses",
     icon: GraduationCap,
   },
   {
     name: "Danh sách yêu thích",
     description: "Đến danh sách các học liệu đã yêu thích",
-    href: "#",
+    href: "/User/Details/Courses",
     icon: Heart,
   },
 ];
@@ -120,7 +118,7 @@ export default function Header(props: IHeaderProps) {
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              {mobileMenuOpen && (<SheetContent side="right" className="w-full sm:max-w-sm">
+              {mobileMenuOpen && (<SheetContent side="right" className="w-full sm:max-w-sm  overflow-auto">
                 <SheetTitle className="hidden"></SheetTitle>
                 <div className="flex p-5 items-center justify-between">
                   <a href="#" className="w-[50px] h-[50px]">
@@ -143,10 +141,10 @@ export default function Header(props: IHeaderProps) {
                         <div className="w-full max-w-md mx-auto">
                           <Accordion type="single" collapsible>
                             <AccordionItem value="options">
-                              <AccordionTrigger>Options</AccordionTrigger>
+                              <AccordionTrigger>Tùy chọn</AccordionTrigger>
                               <AccordionContent>
                                 <div className="space-y-2">
-                                  {options.map((option, index) => {
+                                  {user&&options.map((option, index) => {
                                     const Icon = option.icon
                                     return (
                                       <Link
@@ -206,7 +204,7 @@ export default function Header(props: IHeaderProps) {
             </Link>
           ))}
 
-          <Popover>
+          {user&&<Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="link"
@@ -242,7 +240,7 @@ export default function Header(props: IHeaderProps) {
                 </div>
               </div>
             </PopoverContent>
-          </Popover>
+          </Popover>}
         </div>
 
         <div className="hidden lg:flex lg:gap-5 lg:flex-1 lg:justify-end">
@@ -294,7 +292,7 @@ export function UserDropDown(props: IUserDropDownProps) {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <Link href="/User/Details/Info"><DropdownMenuItem>Cài đặt tài khoản</DropdownMenuItem></Link>
-          <DropdownMenuItem>Yêu cầu hoàn tiền</DropdownMenuItem>
+          <Link href="/User/Details/Return"><DropdownMenuItem>Yêu cầu hoàn tiền</DropdownMenuItem></Link>
           <DropdownMenuSeparator />
           {userModel?.account.role.toLowerCase() === "admin" && <>
             <a href="/AdminPage">

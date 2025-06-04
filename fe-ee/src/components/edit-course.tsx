@@ -200,9 +200,9 @@ const InfoTab = (
                         </div>
                     </div>
                 </div>
-                <div className="relative mx-auto my-3 max-w-4xl h-50 bg-gray-100 overflow-hidden rounded-md">
+                <div className="relative mx-auto my-3 h-69 bg-gray-100 overflow-hidden rounded-md">
                     <img
-                        className="object-fill w-full h-full"
+                        className="object-contain w-full h-full"
                         src={bannerFile ? URL.createObjectURL(bannerFile) : bannerUrl ?? "/global_imgs/KH-demo.png"}
                         alt="banner-img"
                     />

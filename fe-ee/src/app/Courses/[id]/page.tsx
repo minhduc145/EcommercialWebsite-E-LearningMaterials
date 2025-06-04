@@ -32,7 +32,10 @@ export default function CourseDetailsClient() {
   useEffect(() => {
     getCourse(String(id))
       .then((response) => {
-        setCourse(response?.data)
+        if (user && user?.account.role!=="ADMIN" && response.data?.isAvailable == false) {
+          router.push("/NotFound")
+        } else
+          setCourse(response?.data)
       })
       .catch((res) => {
         if (res.status === 404) {
@@ -40,8 +43,6 @@ export default function CourseDetailsClient() {
         }
       })
   }, [id, router])
-
-  
 
   return (
     <div className="min-h-dvh">
@@ -71,9 +72,9 @@ export default function CourseDetailsClient() {
             <div className="container mx-auto">
               <div className="p-5 lg:pt-5 lg:flex lg:flex-row-reverse">
                 <div className="lg:w-80 p-5 lg:p-0 lg:-my-20 z-10">
-                  <SubscriptionCard course={course} resetKey={resetKey} setResetKey = {setResetKey}/>
+                  <SubscriptionCard course={course} resetKey={resetKey} setResetKey={setResetKey} />
                 </div>
-                <MainTabs course={course} resetKey={resetKey}/>
+                <MainTabs course={course} resetKey={resetKey} />
               </div>
             </div>
           </main>

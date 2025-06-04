@@ -56,7 +56,7 @@ export async function submitReview(reviewId: number | undefined, courseId: strin
 }
 
 export async function getSubscriptionCardSummary(username: string, courseId: string) {
-    return await axios.get("/api/courses/subscription/getSummary", {
+    return await axios.get("/api/courses/getSummary", {
         params: {
             username,
             courseId
@@ -69,7 +69,7 @@ export async function deleteReview(reviewId: number) {
 }
 
 export async function isSubscribedByUser(courseId: string | undefined) {
-    return await axios.get("/api/courses/isSubscribedByUser", {
+    return await axios.get("/api/subscriptions/isSubscribedByUser", {
         params: { courseId },
     });
 }
@@ -134,6 +134,10 @@ export async function submitCourseInfo({
 }) {
     if (!name || !categoryId || !description) {
         alert("Vui lòng nhập đầy đủ thông tin bắt buộc");
+        return;
+    }
+    if(price!==0 && price<10000){
+        alert("Giá phải >= 10.000");
         return;
     }
 
