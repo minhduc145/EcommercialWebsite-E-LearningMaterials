@@ -30,14 +30,16 @@ public class SearchServiceImpl implements SearchService {
 	private final JwtService jwtService;
 	private final SubscriptionRepo subscriptionRepo;
 	private final RefundRequestRepo refundRequestRepo;
+	private final NotificationRepo notificationRepo;
 
-	public SearchServiceImpl(CategoryRepo categoryRepo, CourseRepo courseRepo, FavouriteRepo favouriteRepo, JwtService jwtService, SubscriptionRepo subscriptionRepo, RefundRequestRepo refundRequestRepo) {
+	public SearchServiceImpl(CategoryRepo categoryRepo, CourseRepo courseRepo, FavouriteRepo favouriteRepo, JwtService jwtService, SubscriptionRepo subscriptionRepo, RefundRequestRepo refundRequestRepo, NotificationRepo notificationRepo) {
 		this.categoryRepo = categoryRepo;
 		this.courseRepo = courseRepo;
 		this.favouriteRepo = favouriteRepo;
 		this.jwtService = jwtService;
 		this.subscriptionRepo = subscriptionRepo;
 		this.refundRequestRepo = refundRequestRepo;
+		this.notificationRepo = notificationRepo;
 	}
 
 	@Override
@@ -148,16 +150,43 @@ public class SearchServiceImpl implements SearchService {
 		}
 		if (body == null) body = new HashMap<>();
 		String sort = body.getOrDefault("sort", "all").toString();
+		String keyword = body.getOrDefault("keyword", "").toString();
+		keyword = Utils.removeVietnameseAccents(keyword);
+		System.out.println(keyword);
 		List<RefundRequestModel> rs = new ArrayList<>();
 		if (sort.equalsIgnoreCase("all")) {
-			rs = refundRequestRepo.findAllBySubscription_User_Id(jwtService.extractUsername(userToken));
+			rs = refundRequestRepo.findAllBySubscriptionUserIdAndSubscriptionCourseTitleContaining(jwtService.extractUsername(userToken),keyword);
 		} else if (sort.equalsIgnoreCase(Constants.REFUND_STATUS_ACCEPTED) || sort.equalsIgnoreCase(Constants.REFUND_STATUS_DENIED) || sort.equalsIgnoreCase(Constants.REFUND_STATUS_PENDING)) {
-			rs = refundRequestRepo.findAllBySubscription_User_IdAndStatus(jwtService.extractUsername(userToken), sort.toLowerCase());
+			rs = refundRequestRepo.findAllBySubscriptionUserIdAndSubscriptionCourseTitleContainingAndStatus(jwtService.extractUsername(userToken),keyword, sort.toLowerCase());
 		} else if (sort.equalsIgnoreCase("createdAt-desc")) {
-			rs = refundRequestRepo.findAllBySubscription_User_IdOrderByCreatedAtDesc(jwtService.extractUsername(userToken));
+			rs = refundRequestRepo.findAllBySubscriptionUserIdAndSubscriptionCourseTitleContainingOrderByCreatedAtDesc(jwtService.extractUsername(userToken),keyword);
 		} else if (sort.equalsIgnoreCase("createdAt-asc")) {
-			rs = refundRequestRepo.findAllBySubscription_User_IdOrderByCreatedAtAsc(jwtService.extractUsername(userToken));
+			rs = refundRequestRepo.findAllBySubscriptionUserIdAndSubscriptionCourseTitleContainingOrderByCreatedAtAsc(jwtService.extractUsername(userToken),keyword);
 		}
+		return ResponseEntity.ok().body(rs);
+	}
+
+	@Override
+	public ResponseEntity notificationsSearchForUser(String userToken, Map<String, String> body) {
+		if (!StringUtils.hasText(userToken) || jwtService.isTokenExpired(userToken)) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+
+		if (body == null) body = new HashMap<>();
+		String keyword = body.getOrDefault("keyword", "").toString();
+		Integer page = Integer.valueOf(body.getOrDefault("page", "0"));
+		String sort = body.getOrDefault("sort","createdAt-desc");
+		boolean descending = true;
+
+		if(sort.equalsIgnoreCase("createdAt-desc")){
+			sort = "createdAt";
+		}else{
+			sort = "createdAt";
+			descending = false;
+		}
+
+		Pageable pageable = Utils.setPageable(page, Constants.PAGEABLE_PAGE_SIZE_5, sort, descending);
+		Page<NotificationModel> rs = notificationRepo.findAllByReceiverIdAndTitleContaingOrMessageContaining(jwtService.extractUsername(userToken),keyword,pageable);
 		return ResponseEntity.ok().body(rs);
 	}
 

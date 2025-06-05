@@ -338,19 +338,16 @@ function NotificationButton({ userId = undefined }: { userId?: string }) {
           <DropdownMenuSeparator className="my-2" />
           <div className="space-y-4 max-w-full max-h-[50dvh] overflow-y-auto">
             {data?.messages && data?.messages.map((m) => (
-              <div key={m.id} className="flex gap-3 items-center">
+              <a href={`/User/Details/Notification/${m.id}`} key={m.id} className="flex gap-3 items-center">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white">
                   <MessageCircleMoreIcon className="size-4" />
                 </div>
                 <div className="flex-1 space-y-1 max-w-full">
                   <p className="text-sm font-medium  break-words line-clamp-3">{m.title}</p>
-                  {/* <p className="text-sm break-words line-clamp-3 text-start" dangerouslySetInnerHTML={{
-                __html: m.message ? m.message : "<p class='text-center font-light'><i class='mx-auto'>Không có dữ liệu</i><p>",
-              }}/> */}
                   <p className="text-sm text-gray-500 dark:text-gray-400">{m.createdAt ? formatDateTime(m.createdAt) : "0"}</p>
                 </div>
                 <Button variant={"link"}>...</Button>
-              </div>
+              </a>
             ))}
             {data && data?.count > 10 && (
               <p className="justify-self-center italic">... còn {data.count - data?.messages?.length} tin nhắn</p>
@@ -358,7 +355,7 @@ function NotificationButton({ userId = undefined }: { userId?: string }) {
           </div>
           <div className="pt-2">
             <Link
-              href="#"
+              href="/User/Details/Notification"
               className="flex items-center justify-center gap-x-2.5 p-3 font-semibold text-gray-900 hover:bg-gray-100"
             >Xem tất cả</Link>
           </div>

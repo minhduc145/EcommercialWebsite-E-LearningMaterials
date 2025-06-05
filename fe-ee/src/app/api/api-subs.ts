@@ -14,6 +14,6 @@ export async function submitReturnReq(subId:string,reason:string) {
     })
 }
 
-export async function getRefundsByUser(sort:string) {
-    return await axios.post("/api/search/refundRequests",{sort})
+export async function getRefundsByUser(keyword?:string,sort?:string) {
+    return await axios.post("/api/search/refundRequests",{keyword,sort})
 }

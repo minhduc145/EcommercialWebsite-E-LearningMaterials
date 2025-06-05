@@ -58,7 +58,7 @@ export default function SubscriptionCard({ course, setResetKey, resetKey }: Subs
         {summary?.subscribed == false && <span>Mua học liệu:</span>}
         <div className="flex flex-row gap-2 items-center">
           {summary?.subscribed ? (
-            summary?.isSubsAvailable ? <Button className="grow bg-blue-600"><Link href={`/Courses/Use/${course.id}`}>Sử dụng học liệu</Link></Button> :
+            summary?.isSubsAvailable!==false ? <Button className="grow bg-blue-600"><Link href={`/Courses/Use/${course.id}`}>Sử dụng học liệu</Link></Button> :
               <Button className="grow" variant={"destructive"}>Đăng ký này bị tạm đóng</Button>
           ) : (
             <VNPayButton amount={course.price} orderInfo={`THANHTOAN_${course.id}`} />

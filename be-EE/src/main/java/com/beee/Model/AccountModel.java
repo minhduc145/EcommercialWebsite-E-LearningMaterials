@@ -31,7 +31,7 @@ public class AccountModel {
 	private String provider;
 
 	@Column(name="is_locked")
-	private Boolean isLocked;
+	private Boolean isLocked = false;
 	@Column(name = "created_at", updatable = false, insertable = false)
 	private Timestamp createdAt;
 

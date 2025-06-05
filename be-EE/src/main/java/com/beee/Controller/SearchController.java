@@ -40,4 +40,9 @@ public class SearchController {
 	public ResponseEntity getRefundRequestsSearch(@CookieValue(name = "jwt") String userToken, @RequestBody(required = false) Map<String, String> body) {
 		return searchService.refundRequestsSearchForUser(userToken, body);
 	}
+
+	@PostMapping("/notifications")
+	public ResponseEntity getNotificationsSearch(@CookieValue(name = "jwt") String userToken, @RequestBody(required = false) Map<String, String> body) {
+		return searchService.notificationsSearchForUser(userToken, body);
+	}
 }

@@ -36,7 +36,7 @@ export default function CourseLayout() {
 
     useEffect(() => {
         isSubscribedByUser(courseId).then(res => {
-            if (res.data?.inSub == true) {
+            if (res.data?.inSub && res.data?.isAvailable == true) {
                 setIsSubscribed(true);
                 getCourseDataWithUrl(courseId).then(res => {
                     setCourseContainers(res.data)

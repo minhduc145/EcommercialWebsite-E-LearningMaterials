@@ -9,6 +9,14 @@ export async function getPreviewByCookie() {
     return await axios.get("/api/notifications/getPreviewByCookie",);
 }
 
+export async function getNotiById(id:string) {
+    return await axios.get("/api/notifications/getById",{params:{id}});
+}
+
+export async function getAllNotisByUser(keyword?:string,sort?:string,page?:number) {
+    return await axios.post("/api/search/notifications",{keyword,sort,page});
+}
+
 export async function getAllMessages(pageIndex: number, sort?: string | undefined, descending?: boolean | false, keyword?: string) {
     return await axios.get("/api/admin/notifications", {
         params: {

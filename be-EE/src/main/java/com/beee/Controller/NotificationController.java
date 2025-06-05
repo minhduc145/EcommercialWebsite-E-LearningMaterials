@@ -39,4 +39,14 @@ public class NotificationController {
 		Long count = notificationRepo.countAllByReceiver_IdOrIsForEveryoneTrueAndCreatedAtAfter(username, accountModel.getCreatedAt());
 		return ResponseEntity.ok(Map.of("messages", msgs, "count", count));
 	}
+
+	@GetMapping("/getById")
+	public ResponseEntity getPreviewByCookie(@CookieValue(name = "jwt") String userToken, @RequestParam Integer id) {
+		if (!accountService.isJwtOk(userToken)) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+		String username = jwtService.extractUsername(userToken);
+		NotificationModel notificationModel = notificationRepo.getByIdAndReceiverIdOrIsForEveryoneTrue(id, username);
+		return ResponseEntity.ok(notificationModel);
+	}
 }

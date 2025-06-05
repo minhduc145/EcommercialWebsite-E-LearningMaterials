@@ -112,7 +112,7 @@ export default function Page() {
                     {tab2On && <Tab2Details result={result} />}
                     {tab1On && <Tab1Details result={result} mutate={mutate} />}
                 </div>
-                {totalPages > 1 && <PaginationCluster currentPage={currentPage} totalPages={totalPages} onPageChange={setCP} />}
+                {totalPages>0 && <PaginationCluster currentPage={currentPage} totalPages={totalPages} onPageChange={setCP} />}
             </div>
         );
 }

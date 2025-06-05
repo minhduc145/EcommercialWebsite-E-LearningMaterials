@@ -16,4 +16,6 @@ public interface SearchService {
 	ResponseEntity subscriptionsSearchForUser(String userToken, Map<String, String> body);
 
 	ResponseEntity refundRequestsSearchForUser(String userToken, Map<String, String> body);
+
+	ResponseEntity notificationsSearchForUser(String userToken, Map<String, String> body);
 }

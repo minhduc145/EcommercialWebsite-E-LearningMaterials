@@ -77,8 +77,8 @@ export default function Component() {
                 endDateString = format(date.to, 'yyyy-MM-dd');
             searchCoursesForUser(title, selectedCategoryIds, priceRange[0], priceRange[1], startDateString, endDateString, isFeaturedSelected, sort, descending, currentPage).then(res => {
                 setResult(res?.data?.content)
-                setTE(res?.data?.totalElements)
-                setTP(res?.data?.totalPages)
+                setTE(res?.data?.totalElements??0)
+                setTP(res?.data?.totalPages??0)
             })
             setTimeout(() => setIsLoading(false), 300)
         }
@@ -211,7 +211,7 @@ export default function Component() {
                     </div>
                     <div className="flex justify-between mb-5">
                         <p className="text-lg font-bold">Kết&nbsp;quả&nbsp;{totalElements}</p>
-                        {totalPages > 1 && <PaginationCluster currentPage={currentPage} totalPages={totalPages} onPageChange={setCP} />}
+                        {totalPages>0  && <PaginationCluster currentPage={currentPage} totalPages={totalPages} onPageChange={setCP} />}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm">

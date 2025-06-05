@@ -2,7 +2,6 @@
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Search } from "lucide-react"
 import { useEffect, useState } from "react"
 import { RefundRequestModel } from "@/models/RefundRequestModel"
 import { getRefundsByUser } from "@/app/api/api-subs"
@@ -12,13 +11,14 @@ import { formatDateTime } from "@/lib/utils"
 
 export default function Page() {
     const [sort, setSort] = useState("all")
+    const [keyword, SetKeyword] = useState("")
 
     const [result, setResult] = useState<RefundRequestModel[]>([])
     useEffect(() => {
-        getRefundsByUser(sort).then(res => {
+        getRefundsByUser(keyword,sort).then(res => {
             setResult(res?.data)
         }).catch(() => { })
-    }, [sort])
+    }, [sort,keyword])
 
     const getStatusBadge = (s: string) => {
         if (s)
@@ -38,6 +38,7 @@ export default function Page() {
     return (
         <div className="flex gap-2 flex-col">
             <div className="flex items-center gap-4 ">
+                <Input value={keyword} onChange={e=>SetKeyword(e.currentTarget.value)} placeholder="Tìm tiêu đề ..."/>
                 <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-600">Lọc:</span>
                     <Select value={sort} onValueChange={setSort}>
@@ -76,8 +77,8 @@ export default function Page() {
                             <TableBody>
                                 {result.map((item) => (
                                     <TableRow key={item.id}>
-                                        <TableCell className="underline text-blue-600">{item.id}</TableCell>
-                                        <TableCell>{item?.subscription?.course?.title}</TableCell>
+                                        <TableCell>{item.id}</TableCell>
+                                        <TableCell><a target="_blank" href={`/Courses/${item.subscription.course?.id}`} className="underline text-blue-600">{item?.subscription?.course?.title}</a></TableCell>
                                         <TableCell>{item?.subscription?.course?.category.name}</TableCell>
                                         <TableCell>{formatDateTime(item?.createdAt ?? "1970-01-01")}</TableCell>
                                         <TableCell>{item.subscription?.boughtPrice && (item.subscription?.boughtPrice).toLocaleString("vi")}</TableCell>

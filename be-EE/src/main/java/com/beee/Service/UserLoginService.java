@@ -67,7 +67,7 @@ public class UserLoginService implements UserDetailsService {
 		OAuth2User principal = (OAuth2User) authentication.getPrincipal();
 		AccountModel accountModel = accountRepo.findAccountModelByUser_Email(principal.getAttribute("email"));
 		if (accountModel != null) {
-			if (accountModel.getIsLocked()) response.sendRedirect(Constants.URL_FE_LOGIN_FAIL_LOCKED);
+			if (accountModel.getIsLocked()!=null && accountModel.getIsLocked()) response.sendRedirect(Constants.URL_FE_LOGIN_FAIL_LOCKED);
 			else {
 				responseService.addCookie(response, "jwt", jwtService.generateToken(accountModel.getId()));
 				response.sendRedirect(Constants.URL_FE_LOGIN_SUCCESS);

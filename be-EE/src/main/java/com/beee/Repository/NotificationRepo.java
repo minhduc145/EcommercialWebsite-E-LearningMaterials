@@ -38,4 +38,34 @@ public interface NotificationRepo extends JpaRepository<NotificationModel, Integ
 
 
 	Long countAllByReceiver_IdOrIsForEveryoneTrueAndCreatedAtAfter(String receiverId, Timestamp createdAtAfter);
+
+	@Query("""
+			    SELECT n
+			    FROM NotificationModel n
+			    WHERE (n.receiver.id = :receiverId OR n.isForEveryone = true)
+			      AND (
+			        CAST(FUNCTION('unaccent', LOWER(n.title)) AS string) LIKE CAST(FUNCTION('unaccent', LOWER(CONCAT('%', :keyword, '%'))) AS string)
+			        OR CAST(FUNCTION('unaccent', LOWER(n.message)) AS string) LIKE CAST(FUNCTION('unaccent', LOWER(CONCAT('%', :keyword, '%'))) AS string)
+			      )
+			""")
+	Page<NotificationModel> findAllByReceiverIdAndTitleContaingOrMessageContaining(
+			@Param("receiverId") String receiverId,
+			@Param("keyword") String keyword,
+			Pageable pageable
+	);
+
+	@Query("""
+			    SELECT n
+			    FROM NotificationModel n
+			    WHERE n.id = :id
+			      AND (n.receiver.id = :userId OR n.isForEveryone = true)
+			""")
+	NotificationModel getByIdAndReceiverIdOrIsForEveryoneTrue(
+			@Param("id") Integer id,
+			@Param("userId") String userId
+	);
+
+//	NotificationModel getByIdAndReceiverIdOrIsForEveryoneTrue(Integer id, String receiverId);
+
+//	Page<NotificationModel> findAllByReceiverIdAndTitleContaingOrMessageContaining(String receiverId, String message, Pageable pageable);
 }

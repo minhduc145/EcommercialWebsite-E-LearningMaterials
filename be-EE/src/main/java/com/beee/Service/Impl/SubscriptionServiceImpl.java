@@ -48,7 +48,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 			SubscriptionModel subscriptionModel = subscriptionRepo.findByUser_IdAndCourse_Id(username, Integer.parseInt(courseId));
 			i = isSubscribedByUser(username, subscriptionModel);
 			if (i)
-				return ResponseEntity.ok().body(Map.of("inSub", i, "subAt", subscriptionModel != null ? subscriptionModel.getCreatedAt() : ""));
+				return ResponseEntity.ok().body(Map.of("inSub", i, "isAvailable",subscriptionModel.getIsAvailable() , "subAt", subscriptionModel != null ? subscriptionModel.getCreatedAt() : ""));
 			return ResponseEntity.ok().body(Map.of("inSub", i));
 		}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
