@@ -7,11 +7,13 @@ import com.beee.Model.CourseModel;
 import com.beee.Repository.CourseFileRepo;
 import com.beee.Repository.CourseRepo;
 import com.beee.Service.FileService;
+import com.beee.Service.MessageService;
 import com.beee.Service.QueueService;
 import com.beee.Service.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -20,12 +22,14 @@ public class QueueServiceImpl implements QueueService {
 	private final FileService fileService;
 	private final CourseFileRepo courseFileRepo;
 	private final S3Service s3Service;
+	private final MessageService messageService;
 
-	public QueueServiceImpl(CourseRepo courseRepo, FileService fileService, CourseFileRepo courseFileRepo, S3Service s3Service) {
+	public QueueServiceImpl(CourseRepo courseRepo, FileService fileService, CourseFileRepo courseFileRepo, S3Service s3Service, MessageService messageService) {
 		this.courseRepo = courseRepo;
 		this.fileService = fileService;
 		this.courseFileRepo = courseFileRepo;
 		this.s3Service = s3Service;
+		this.messageService = messageService;
 	}
 
 	@Override
@@ -63,5 +67,13 @@ public class QueueServiceImpl implements QueueService {
 	@Override
 	public void deleteFileQueue(String prefix) {
 		s3Service.deleteFolderInParallel(prefix);
+	}
+
+	@Override
+	public void sendEmailQueue(Map map) {
+		String email = (String) map.get("email");
+		String title = (String) map.get("title");
+		String message = (String) map.get("message");
+		messageService.sendSimpleEmail(email, title, message);
 	}
 }

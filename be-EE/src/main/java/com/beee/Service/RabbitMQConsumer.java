@@ -84,4 +84,11 @@ public class RabbitMQConsumer {
 		System.out.println("Received-3: " + map);
 	}
 
+	//email
+	@RabbitListener(queues = RabbitMQConfig.QUEUE_EMAIL)
+	public void convertToQEmail(Map map) {
+		queueService.sendEmailQueue(map);
+		System.out.println("Received-4: " + map);
+	}
+
 }

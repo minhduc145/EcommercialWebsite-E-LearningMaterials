@@ -15,24 +15,33 @@ public class RabbitMQConfig {
 	public static final String QUEUE1 = "queue1";
 	public static final String QUEUE2 = "queue2";
 	public static final String FILE_PROCESS_QUEUE = "fileprocessqueue";
+	public static final String QUEUE_EMAIL = "queueEmail";
+
 	public static final String EXCHANGE = "exchange";
+
 	public static final String ROUTING_KEY1 = "routingKey1";
 	public static final String ROUTING_KEY2 = "routingKey2";
 	public static final String ROUTING_KEY3 = "routingKey3";
+	public static final String ROUTING_KEY4 = "routingKey4";
 
 	@Bean
 	public Queue queue1() {
-		return new Queue(QUEUE1,false);
+		return new Queue(QUEUE1,true);
 	}
 
 	@Bean
 	public Queue queue2() {
-		return new Queue(QUEUE2,false);
+		return new Queue(QUEUE2,true);
 	}
 
 	@Bean
 	public Queue fileProcessQueue() {
 		return new Queue(FILE_PROCESS_QUEUE,true);
+	}
+
+	@Bean
+	public Queue queueEmail() {
+		return new Queue(QUEUE_EMAIL,true);
 	}
 
 	@Bean
@@ -53,6 +62,11 @@ public class RabbitMQConfig {
 	@Bean
 	public Binding binding3(Queue fileProcessQueue, TopicExchange exchange) {
 		return BindingBuilder.bind(fileProcessQueue).to(exchange).with(ROUTING_KEY3);
+	}
+
+	@Bean
+	public Binding binding4(Queue fileProcessQueue, TopicExchange exchange) {
+		return BindingBuilder.bind(fileProcessQueue).to(exchange).with(ROUTING_KEY4);
 	}
 
 	@Bean

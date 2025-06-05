@@ -4,6 +4,7 @@ import com.beee.Model.CourseFileModel;
 import com.beee.Model.CourseModel;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -12,4 +13,5 @@ public interface QueueService {
 
 	public void deleteFileQueue(String prefix);
 
+	public void sendEmailQueue(Map map);
 }

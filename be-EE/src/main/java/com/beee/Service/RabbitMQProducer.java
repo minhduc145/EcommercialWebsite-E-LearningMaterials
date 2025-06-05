@@ -14,8 +14,6 @@ public class RabbitMQProducer {
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
 
-	ObjectMapper objectMapper = new ObjectMapper();
-
 	public void sendToQ1(Map<String, Object> map) {
 
 		rabbitTemplate.convertAndSend(
@@ -46,5 +44,14 @@ public class RabbitMQProducer {
 				map
 		);
 		System.out.println("Sent-3: " + map);
+	}
+
+	public void sendToQEmail(Map map) {
+		rabbitTemplate.convertAndSend(
+				RabbitMQConfig.EXCHANGE,
+				RabbitMQConfig.ROUTING_KEY4,
+				map
+		);
+		System.out.println("Sent-4: " + map);
 	}
 }

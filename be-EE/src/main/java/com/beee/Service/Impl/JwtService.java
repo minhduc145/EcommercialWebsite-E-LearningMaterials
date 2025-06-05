@@ -20,7 +20,7 @@ public class JwtService implements com.beee.Service.JwtService {
 
 	public JwtService(@Value("${jwt.secret-key}") String secretKey) {
 		if (secretKey == null || secretKey.isEmpty()) {
-			throw new IllegalArgumentException("JWT Secret Key không được để trống!");
+			throw new IllegalArgumentException("Jwt key is null");
 		}
 		this.SECRET_KEY_STRING = secretKey;
 		this.SECRET_KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY_STRING));
@@ -36,7 +36,7 @@ public class JwtService implements com.beee.Service.JwtService {
 	}
 
 	public String generateToken(String username) {
-		return generateToken(username, 86400000); // 1 ngày mặc định
+		return generateToken(username, 86400000); // 1 ngày
 	}
 
 	public String extractUsername(String token) {
