@@ -344,7 +344,7 @@ function NotificationButton({ userId = undefined }: { userId?: string }) {
                 </div>
                 <div className="flex-1 space-y-1 max-w-full">
                   <p className="text-sm font-medium  break-words line-clamp-3">{m.title}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{m.createdAt ? formatDateTime(m.createdAt) : "0"}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{m?.createdAt ? formatDateTime(m.createdAt) : "0"}</p>
                 </div>
                 <Button variant={"link"}>...</Button>
               </a>

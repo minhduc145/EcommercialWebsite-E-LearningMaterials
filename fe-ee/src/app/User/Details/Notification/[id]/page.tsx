@@ -1,7 +1,5 @@
 'use client'
 import { useEffect, useState } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { NotificationModel } from "@/models/NotificationModel"
 import { formatDateTime } from "@/lib/utils"

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { PanelLeftClose, HomeIcon, PanelLeftOpen, } from "lucide-react"
+import { PanelLeftClose, HomeIcon, PanelLeftOpen, Loader2, } from "lucide-react"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -77,7 +77,6 @@ export default function CourseLayout() {
                         <BreadcrumbItem>
                             <BreadcrumbPage>Sử dụng học liệu</BreadcrumbPage>
                         </BreadcrumbItem>
-
                     </BreadcrumbList>
                 </Breadcrumb>
 
@@ -158,15 +157,20 @@ export default function CourseLayout() {
 
 function FileContentView({ file }: { file: CourseFileModel | undefined }) {
     const [urlSafety, setUrlSafety] = useState("")
+    const [isLoading, setLoading] = useState(false)
+
     const checkUrl = (url: string) => {
         const message = `Phân tích và nhận xét về tính an toàn của đường link sau (theo chủ quan, ngắn gọn): ${url}`;
+        setLoading(true)
         askAI(message, "meta-llama/llama-4-maverick-17b-128e-instruct").then(val => {
+            setLoading(false)
             setUrlSafety(val?.data.content ?? "")
         })
     }
     const r2BaseUrl = link_r2_default + "/";
 
     const getProcessedView = () => {
+
         const rawUrl = file?.url
         var embeddedUrl = "";
         switch (file?.type) {
@@ -259,11 +263,11 @@ function FileContentView({ file }: { file: CourseFileModel | undefined }) {
                     <div className={`flex flex-col  justify-center items-center gap-2`}>
                         <h2>Đường dẫn cho Tệp <b>{file.name}</b></h2>
                         <a className="text-blue-600 underline italic" href={file.url} title={file.url} target="_blank">{file.url}</a>
-                        <Button onClick={() => checkUrl(file.url)}>Phân tích URL</Button>
+                        <Button disabled={isLoading} onClick={() => checkUrl(file.url)}>Phân tích URL {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}</Button>
                         <div className="px-5">
-                         <MarkdownRenderer content={urlSafety??""} />
-                         </div>
-                       
+                            <MarkdownRenderer content={urlSafety ?? ""} />
+                        </div>
+
                     </div>
                 )
             case "iframe":
@@ -273,7 +277,7 @@ function FileContentView({ file }: { file: CourseFileModel | undefined }) {
                         const src = srcMatch[1].trim();
                         return (
                             <iframe
-                                src={src}
+                                src={src ?? ""}
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                 referrerPolicy="strict-origin-when-cross-origin"
                                 className="w-full h-full aspect-video"
