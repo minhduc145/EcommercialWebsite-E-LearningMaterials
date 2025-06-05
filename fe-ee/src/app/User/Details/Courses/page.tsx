@@ -110,7 +110,7 @@ export default function Page() {
 
                 <div className="flex gap-2 flex-row flex-wrap w-full mb-4">
                     {tab2On && <Tab2Details result={result} />}
-                    {tab1On && <Tab1Details result={result} />}
+                    {tab1On && <Tab1Details result={result} mutate={mutate} />}
                 </div>
                 {totalPages > 1 && <PaginationCluster currentPage={currentPage} totalPages={totalPages} onPageChange={setCP} />}
             </div>
@@ -163,14 +163,14 @@ function Tab2Details({ result }: { result?: FavouritesAndSubsDTO[] }) {
 }
 
 
-function Tab1Details({ result }: { result: FavouritesAndSubsDTO[] }) {
+function Tab1Details({ result, mutate }: { result: FavouritesAndSubsDTO[], mutate: () => void }) {
     const [selectedSub, setSelected] = useState<FavouritesAndSubsDTO>()
     const [openDialog, setOpenDialog] = useState(false)
-
+    
     if (result)
         return (
-            <div className="w-full p-6">
-                <div className="rounded-md border">
+            <div className="w-full bg-white">
+                <div className="rounded-md border ">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -217,7 +217,7 @@ function Tab1Details({ result }: { result: FavouritesAndSubsDTO[] }) {
                         </TableBody>
                     </Table>
                 </div>
-                {selectedSub && <ReturnRequestForm isOpen={openDialog} setIsOpen={setOpenDialog} selectedItem={selectedSub} />}
+                {selectedSub && <ReturnRequestForm isOpen={openDialog} setIsOpen={setOpenDialog} selectedItem={selectedSub} mutate={mutate}/>}
             </div>
         )
 }
@@ -226,12 +226,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import MyToaster from "@/components/ui/toastify-template"
 
-function ReturnRequestForm({ isOpen, setIsOpen, selectedItem }: { isOpen: boolean, setIsOpen: (open: boolean) => void, selectedItem: FavouritesAndSubsDTO }) {
+function ReturnRequestForm({ isOpen, setIsOpen, selectedItem, mutate }: { isOpen: boolean, setIsOpen: (open: boolean) => void, selectedItem: FavouritesAndSubsDTO, mutate:()=>void }) {
     const [reason, setReason] = useState("")
     const submitForm = () => {
-        submitReturnReq(selectedItem.id,reason).then(res=>{
+        submitReturnReq(selectedItem.id, reason).then(res => {
+            mutate()
             MyToaster("success")
-        }).catch(()=>{
+        }).catch(() => {
             MyToaster("error")
         })
     }
@@ -259,7 +260,7 @@ function ReturnRequestForm({ isOpen, setIsOpen, selectedItem }: { isOpen: boolea
                             </div>
                         </div>
                         <div className="space-y-3">
-                            <Textarea placeholder="Nhập lí do yêu cầu hoàn ..." className="h-24 resize-none" required onChange={e=>setReason(e.currentTarget.value)} value={reason} />
+                            <Textarea placeholder="Nhập lí do yêu cầu hoàn ..." className="h-24 resize-none" required onChange={e => setReason(e.currentTarget.value)} value={reason} />
                             <DialogClose asChild>
                                 <Button disabled={!reason} className="w-full" onClick={submitForm}>Gửi yêu cầu</Button>
                             </DialogClose>

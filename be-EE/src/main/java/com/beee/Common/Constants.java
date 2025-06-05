@@ -14,6 +14,11 @@ public class Constants {
 	public final static String QUEUE_FILE_COMMAND_PROCESS = "process";
 	public final static String QUEUE_FILE_COMMAND_DELETE = "delete";
 
+	public final static String REFUND_STATUS_PENDING = "pending";
+	public final static String REFUND_STATUS_ACCEPTED = "accepted";
+	public final static String REFUND_STATUS_DENIED = "denied";
+
+
 
 	public final static String FILE_STATUS_PROCESSING = "Đang xử lý file";
 	public final static String FILE_STATUS_DONE = null;

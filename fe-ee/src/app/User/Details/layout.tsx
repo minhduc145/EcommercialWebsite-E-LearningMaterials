@@ -25,7 +25,7 @@ export default function UserPageLayout({
     const navItems: NavItemType[] = [
         { icon: UserCircleIcon, label: "Thông tin cá nhân", url: "/User/Details/Info", isActive: activeItem === "/User/Details/Info" || pathname.startsWith("/User/Details/Info") },
         { icon: BookOpen, label: "Học liệu", url: "/User/Details/Courses", isActive: activeItem === "/User/Details/Courses" || pathname.startsWith("/User/Details/Courses") },
-        { icon: CreditCard, label: "Yêu cầu hoàn tiền", url: "/User/Details/Return", isActive: activeItem === "/User/Details/Return" || pathname.startsWith("/User/Details/Return") },
+        { icon: CreditCard, label: "Yêu cầu hoàn tiền", url: "/User/Details/RefundRequests", isActive: activeItem === "/User/Details/RefundRequests" || pathname.startsWith("/User/Details/RefundRequests") },
         { icon: MessageSquare, label: "Tất cả thông báo", url: "/User/Details/Notification", isActive: activeItem === "/User/Details/Notification" || pathname.startsWith("/User/Details/Notification") },
     ]
     const { user } = useUserInfo({ redirectToLogin: false })

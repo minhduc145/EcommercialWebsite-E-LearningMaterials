@@ -26,13 +26,18 @@ public class SearchController {
 		return searchService.courseSearchForUser(body);
 	}
 
-	@PostMapping("/courses/favourites")
+	@PostMapping("/favourites")
 	public ResponseEntity getFavouritesSearch(@CookieValue(name = "jwt") String userToken, @RequestBody(required = false) Map<String, String> body) {
 		return searchService.favouritesSearchForUser(userToken, body);
 	}
 
-	@PostMapping("/courses/subscriptions")
+	@PostMapping("/subscriptions")
 	public ResponseEntity getSubscriptionsSearch(@CookieValue(name = "jwt") String userToken, @RequestBody(required = false) Map<String, String> body) {
 		return searchService.subscriptionsSearchForUser(userToken, body);
+	}
+
+	@PostMapping("/refundRequests")
+	public ResponseEntity getRefundRequestsSearch(@CookieValue(name = "jwt") String userToken, @RequestBody(required = false) Map<String, String> body) {
+		return searchService.refundRequestsSearchForUser(userToken, body);
 	}
 }

@@ -3,14 +3,8 @@ package com.beee.Service.Impl;
 import com.beee.Common.Constants;
 import com.beee.Common.Utils;
 import com.beee.DTO.CourseBasicResDTO;
-import com.beee.Model.CategoryModel;
-import com.beee.Model.CourseModel;
-import com.beee.Model.SubscriptionModel;
-import com.beee.Model.UserFavouriteModel;
-import com.beee.Repository.CategoryRepo;
-import com.beee.Repository.CourseRepo;
-import com.beee.Repository.FavouriteRepo;
-import com.beee.Repository.SubscriptionRepo;
+import com.beee.Model.*;
+import com.beee.Repository.*;
 import com.beee.Service.SearchService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,13 +29,15 @@ public class SearchServiceImpl implements SearchService {
 	private final FavouriteRepo favouriteRepo;
 	private final JwtService jwtService;
 	private final SubscriptionRepo subscriptionRepo;
+	private final RefundRequestRepo refundRequestRepo;
 
-	public SearchServiceImpl(CategoryRepo categoryRepo, CourseRepo courseRepo, FavouriteRepo favouriteRepo, JwtService jwtService, SubscriptionRepo subscriptionRepo) {
+	public SearchServiceImpl(CategoryRepo categoryRepo, CourseRepo courseRepo, FavouriteRepo favouriteRepo, JwtService jwtService, SubscriptionRepo subscriptionRepo, RefundRequestRepo refundRequestRepo) {
 		this.categoryRepo = categoryRepo;
 		this.courseRepo = courseRepo;
 		this.favouriteRepo = favouriteRepo;
 		this.jwtService = jwtService;
 		this.subscriptionRepo = subscriptionRepo;
+		this.refundRequestRepo = refundRequestRepo;
 	}
 
 	@Override
@@ -143,6 +139,26 @@ public class SearchServiceImpl implements SearchService {
 				results = subscriptionRepo.findAllByUser_IdPriceAsc(jwtService.extractUsername(userToken), keyword, pageable);
 		}
 		return ResponseEntity.ok().body(results);
+	}
+
+	@Override
+	public ResponseEntity refundRequestsSearchForUser(String userToken, Map<String, String> body) {
+		if (!StringUtils.hasText(userToken) || jwtService.isTokenExpired(userToken)) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+		if (body == null) body = new HashMap<>();
+		String sort = body.getOrDefault("sort", "all").toString();
+		List<RefundRequestModel> rs = new ArrayList<>();
+		if (sort.equalsIgnoreCase("all")) {
+			rs = refundRequestRepo.findAllBySubscription_User_Id(jwtService.extractUsername(userToken));
+		} else if (sort.equalsIgnoreCase(Constants.REFUND_STATUS_ACCEPTED) || sort.equalsIgnoreCase(Constants.REFUND_STATUS_DENIED) || sort.equalsIgnoreCase(Constants.REFUND_STATUS_PENDING)) {
+			rs = refundRequestRepo.findAllBySubscription_User_IdAndStatus(jwtService.extractUsername(userToken), sort.toLowerCase());
+		} else if (sort.equalsIgnoreCase("createdAt-desc")) {
+			rs = refundRequestRepo.findAllBySubscription_User_IdOrderByCreatedAtDesc(jwtService.extractUsername(userToken));
+		} else if (sort.equalsIgnoreCase("createdAt-asc")) {
+			rs = refundRequestRepo.findAllBySubscription_User_IdOrderByCreatedAtAsc(jwtService.extractUsername(userToken));
+		}
+		return ResponseEntity.ok().body(rs);
 	}
 
 

@@ -292,7 +292,7 @@ export function UserDropDown(props: IUserDropDownProps) {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <Link href="/User/Details/Info"><DropdownMenuItem>Cài đặt tài khoản</DropdownMenuItem></Link>
-          <Link href="/User/Details/Return"><DropdownMenuItem>Yêu cầu hoàn tiền</DropdownMenuItem></Link>
+          <Link href="/User/Details/RefundRequests"><DropdownMenuItem>Yêu cầu hoàn tiền</DropdownMenuItem></Link>
           <DropdownMenuSeparator />
           {userModel?.account.role.toLowerCase() === "admin" && <>
             <a href="/AdminPage">

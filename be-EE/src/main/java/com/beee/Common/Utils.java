@@ -10,9 +10,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.text.Normalizer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Component
 public class Utils {
@@ -76,5 +78,13 @@ public class Utils {
 				.isFeatured((Boolean) result.get("is_featured"))
 				.build();
 		courses.add(courseBasicResDTO);
+	}
+
+	public static String removeVietnameseAccents(String input) {
+		String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+		Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+		return pattern.matcher(normalized).replaceAll("")
+				.replaceAll("đ", "d")
+				.replaceAll("Đ", "D");
 	}
 }

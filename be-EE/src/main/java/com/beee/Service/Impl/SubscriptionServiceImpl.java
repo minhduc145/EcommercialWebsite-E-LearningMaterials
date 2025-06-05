@@ -2,6 +2,7 @@ package com.beee.Service.Impl;
 
 import com.beee.Common.Constants;
 import com.beee.DTO.SubscriptionTabSummaryDTO;
+import com.beee.Model.RefundRequestModel;
 import com.beee.Model.SubscriptionModel;
 import com.beee.Repository.*;
 import com.beee.Service.AccountService;
@@ -9,6 +10,8 @@ import com.beee.Service.SubscriptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Map;
 
@@ -19,14 +22,15 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	private final SubscriptionRepo subscriptionRepo;
 	private final CourseRepo courseRepo;
 	private final AccountRepo accountRepo;
+	private final RefundRequestRepo refundRequestRepo;
 
-	public SubscriptionServiceImpl(AccountService accountService, JwtService jwtService, SubscriptionRepo subscriptionRepo, CourseRepo courseRepo, AccountRepo accountRepo) {
+	public SubscriptionServiceImpl(AccountService accountService, JwtService jwtService, SubscriptionRepo subscriptionRepo, CourseRepo courseRepo, AccountRepo accountRepo, RefundRequestRepo refundRequestRepo) {
 		this.accountService = accountService;
 		this.jwtService = jwtService;
 		this.subscriptionRepo = subscriptionRepo;
 		this.courseRepo = courseRepo;
 		this.accountRepo = accountRepo;
-
+		this.refundRequestRepo = refundRequestRepo;
 	}
 
 	public boolean isSubscribedByUser(String username, SubscriptionModel subscriptionModel) {
@@ -48,5 +52,24 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 			return ResponseEntity.ok().body(Map.of("inSub", i));
 		}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	}
+
+	public ResponseEntity addReturnRequest(String userToken, Map<String, String> requestBody) {
+		if (requestBody == null || !accountService.isJwtOk(userToken)) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
+		String subId = requestBody.get("subId");
+		SubscriptionModel sub = subscriptionRepo.findSubscriptionModelById(Integer.parseInt(subId));
+		if (sub != null) {
+			RefundRequestModel refundRequestModel = new RefundRequestModel().builder()
+					.userReason(requestBody.getOrDefault("reason", ""))
+					.subscription(SubscriptionModel.builder().id(Integer.valueOf(requestBody.get("subId"))).build())
+					.status(Constants.REFUND_STATUS_PENDING).build();
+			refundRequestRepo.save(refundRequestModel);
+			sub.setIsAvailable(false);
+			sub.setStatus("Đang đợi xử lý y/c hoàn");
+			subscriptionRepo.save(sub);
+		}
+		return ResponseEntity.ok().build();
 	}
 }

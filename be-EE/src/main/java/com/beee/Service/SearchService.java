@@ -14,4 +14,6 @@ public interface SearchService {
 	ResponseEntity favouritesSearchForUser(String userToken, Map<String, String> body);
 
 	ResponseEntity subscriptionsSearchForUser(String userToken, Map<String, String> body);
+
+	ResponseEntity refundRequestsSearchForUser(String userToken, Map<String, String> body);
 }
