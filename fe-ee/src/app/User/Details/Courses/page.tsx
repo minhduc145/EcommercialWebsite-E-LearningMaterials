@@ -117,7 +117,7 @@ export default function Page() {
         );
 }
 
-function Tab2Details({ result }: { result?: FavouritesAndSubsDTO[] }) {
+export function Tab2Details({ result }: { result?: FavouritesAndSubsDTO[] }) {
     if (result)
         return (
             result.map((favourite) => {

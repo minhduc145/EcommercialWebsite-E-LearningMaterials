@@ -29,7 +29,8 @@ public class NotificationController {
 	}
 
 	@GetMapping("/getPreviewByCookie")
-	public ResponseEntity getPreviewByCookie(@CookieValue(name = "jwt") String userToken) {
+	public ResponseEntity getPreviewByCookie(@CookieValue(name = "jwt", required = false) String userToken) {
+		if(userToken == null) {return null;}
 		if (!accountService.isJwtOk(userToken)) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}

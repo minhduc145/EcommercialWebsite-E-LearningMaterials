@@ -64,4 +64,26 @@ public class JwtService implements com.beee.Service.JwtService {
 	public boolean isTokenExpired(String token) {
 		return extractClaim(token, Claims::getExpiration).before(new Date());
 	}
+
+	public String generateToken(String username, String otp, long expireMillis) {
+		return Jwts.builder()
+				.setSubject(username)
+				.claim("otp", otp)
+				.setIssuedAt(new Date(System.currentTimeMillis()))
+				.setExpiration(new Date(System.currentTimeMillis() + expireMillis))
+				.signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+				.compact();
+	}
+
+	public String generateToken(String username, String otp) {
+		return generateToken(username, otp, 86400000); // 1 ngày
+	}
+	public String extractOtp(String token) {
+		return extractClaim(token, claims -> claims.get("otp", String.class));
+	}
+
+	public String extractOTPId(String token) {
+		return extractClaim(token, Claims::getSubject);
+	}
+
 }

@@ -25,12 +25,6 @@ public class VnpayTransactionLogModel {
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
 
-	@Column(name = "user_id")
-	private String userId;
-
-	@Column(name = "course_id")
-	private Integer courseId;
-
 	@Column(name = "amount")
 	private BigDecimal amount;
 
@@ -47,5 +41,13 @@ public class VnpayTransactionLogModel {
 	private BigDecimal promoteAmount;
 
 	@Column(name = "response_code")
-	private Short responseCode;
+	private String responseCode;
+
+	@ManyToOne
+	@JoinColumn(name = "user_id", referencedColumnName = "id")
+	private UserModel user;
+
+	@ManyToOne
+	@JoinColumn(name = "course_id", referencedColumnName = "id")
+	private CourseModel course;
 }

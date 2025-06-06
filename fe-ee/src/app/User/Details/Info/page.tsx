@@ -11,7 +11,7 @@ export default function Page() {
         <Card>
             <EditProfilePage currentUser={user} mutate={refreshUser}/>
             <hr className="p-2 mt-2"/>
-            <EditUserPassword currentUser={user}/>
+           {user&&user.account.provider!=="google"&& <EditUserPassword currentUser={user}/>}
         </Card>
     );
 }

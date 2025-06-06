@@ -3,4 +3,5 @@ export interface AccountModel {
     username: string;
     // password: string;
     role:string;
+    provider:string|""
 }

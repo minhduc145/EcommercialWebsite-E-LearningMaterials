@@ -77,8 +77,8 @@ export default function Component() {
                 endDateString = format(date.to, 'yyyy-MM-dd');
             searchCoursesForUser(title, selectedCategoryIds, priceRange[0], priceRange[1], startDateString, endDateString, isFeaturedSelected, sort, descending, currentPage).then(res => {
                 setResult(res?.data?.content)
-                setTE(res?.data?.totalElements??0)
-                setTP(res?.data?.totalPages??0)
+                setTE(res?.data?.totalElements ?? 0)
+                setTP(res?.data?.totalPages ?? 0)
             })
             setTimeout(() => setIsLoading(false), 300)
         }
@@ -209,9 +209,9 @@ export default function Component() {
                             <Button className="bg-blue-500 hover:bg-blue-600" onClick={search}><Search size={5} /></Button>
                         </div>
                     </div>
-                    <div className="flex justify-between mb-5">
+                    <div className="flex justify-between mb-15">
                         <p className="text-lg font-bold">Kết&nbsp;quả&nbsp;{totalElements}</p>
-                        {totalPages>0  && <PaginationCluster currentPage={currentPage} totalPages={totalPages} onPageChange={setCP} />}
+                        {totalPages > 0 && <PaginationCluster currentPage={currentPage} totalPages={totalPages} onPageChange={setCP} />}
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm">
@@ -229,7 +229,7 @@ export default function Component() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
-                    <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
+                    <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4  ">
                         {isLoading ?
                             (
                                 <>
@@ -253,45 +253,64 @@ export default function Component() {
     )
 }
 
-function ResultPanel({ result }: { result: CourseBasicDTO[] }) {
+export function ResultPanel({ result }: { result: CourseBasicDTO[] }) {
     if (result && result.length > 0)
         return (
             result.map(course => (
-                <div key={course.id} className="relative bg-white rounded-lg shadow-lg dark:bg-gray-950 overflow-hidden">
-                    {course.isFeatured && (
-                        <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
-                            Nổi bật
-                        </div>
-                    )}
-                    <Image
-                        src={course.thumbnailUrl}
-                        alt="Product Image"
-                        width={400}
-                        height={200}
-                        className="w-full h-35 object-cover"
-                        style={{ aspectRatio: "400/200", objectFit: "cover" }}
-                    />
-                    <div className="p-4">
-                        <h3 className="text-lg font-semibold truncate">{course.title}</h3>
-                        <p className="text-gray-500">{course.categoryName}</p>
-                        <div className="flex justify-between flex-col lg:flex-row">
-                            <p className="text-sm flex items-center text-green-400">
-                                <Banknote className="w-4 h-4" />&nbsp;{course.price?.toLocaleString("vi-VN") ?? 0}&nbsp;VND
-                            </p>
-                            <div className="flex items-center gap-1 sm:gap-2">
-                                <StarRating size="sm" rating={course.averageRating} />
-                                <span className="text-sm opacity-90">({course.commentCount} đánh giá)</span>
-                            </div>
-                        </div>
-                        <a href={`/Courses/${course.id}`} target="_blank">
-                            <Button size="sm" className="mt-4 w-full bg-blue-500 text-white">
-                                Xem chi tiết
-                            </Button>
-                        </a>
-                    </div>
-                </div>
+                <ResultItem key={course.id} course={course} />
             ))
         )
+}
+
+export function ResultItem({ course, loadInPage }: { course: CourseBasicDTO, loadInPage?: boolean | false }) {
+    return (
+        <div key={course.id} className="relative bg-white rounded-lg shadow-lg dark:bg-gray-950 overflow-hidden">
+            {course.isFeatured && (
+                <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
+                    Nổi bật
+                </div>
+            )}
+
+
+            <Image
+                src={course.thumbnailUrl}
+                alt="Product Image"
+                width={400}
+                height={200}
+                className="w-full h-35 object-cover"
+                style={{ aspectRatio: "400/200", objectFit: "cover" }}
+            />
+
+
+
+
+            <div className="p-4">
+                <h3 className="text-lg font-semibold truncate">{course.title}</h3>
+                <p className="text-gray-500">{course.categoryName}</p>
+                <div className="flex justify-between flex-col lg:flex-row">
+                    <p className="text-sm flex items-center text-green-400">
+                        <Banknote className="w-4 h-4" />&nbsp;{course.price?.toLocaleString("vi-VN") ?? 0}&nbsp;VND
+                    </p>
+                    <div className="flex items-center gap-1 sm:gap-2">
+                        <StarRating size="sm" rating={course.averageRating} />
+                        <span className="text-sm opacity-90">({course.commentCount} đánh giá)</span>
+                    </div>
+                </div>
+                {loadInPage == true &&
+                    <Link href={`/Courses/${course.id}`} >
+                        <Button size="sm" className="mt-4 w-full bg-blue-500 text-white">
+                            Xem chi tiết
+                        </Button>
+                    </Link>
+                }
+                {loadInPage != true && <a href={`/Courses/${course.id}`} target="_blank">
+                    <Button size="sm" className="mt-4 w-full bg-blue-500 text-white">
+                        Xem chi tiết
+                    </Button>
+                </a>}
+            </div>
+        </div>
+    )
 }
 
 function DummyContent() {

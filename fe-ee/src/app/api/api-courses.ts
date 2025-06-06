@@ -14,6 +14,14 @@ export async function getFeaturesSummary() {
     return await axios.get("/api/courses/getFeatures")
 }
 
+export async function getNewest() {
+    return await axios.get("/api/courses/getNewest")
+}
+
+export async function getByCates(categoryId:string,pageIndex:number) {
+    return await axios.get("/api/courses/getByCates",{params:{categoryId,pageIndex}})
+}
+
 export async function getCourse(id: string | null) {
     return await axios.get("/api/courses/get/" + id)
 }

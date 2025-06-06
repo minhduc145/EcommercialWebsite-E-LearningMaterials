@@ -66,8 +66,8 @@ export default function DashboardLayout({
   ]
 
   const paymentItems: NavItemType[] = [
-    { icon: CreditCard, label: "Lịch sử giao dịch", url: "/AdminPage/Transaction", isActive: activeItem === "/AdminPage/Transaction" || pathname.startsWith("/AdminPage/Transaction") },
-    { icon: Undo2Icon, label: "Yêu cầu hoàn trả", url: "/AdminPage/Transaction", isActive: activeItem === "/AdminPage/Transaction" || pathname.startsWith("/AdminPage/Transaction") },
+    { icon: CreditCard, label: "Lịch sử giao dịch", url: "/AdminPage/Transactions", isActive: activeItem === "/AdminPage/Transactions" || pathname.startsWith("/AdminPage/Transactions") },
+    { icon: Undo2Icon, label: "Yêu cầu hoàn trả", url: "/AdminPage/RefundRequests", isActive: activeItem === "/AdminPage/RefundRequests" || pathname.startsWith("/AdminPage/RefundRequests") },
   ]
 
   const navGroups: NavGroupType[] = [

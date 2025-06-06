@@ -47,8 +47,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 			String username = jwtService.extractUsername(userToken);
 			SubscriptionModel subscriptionModel = subscriptionRepo.findByUser_IdAndCourse_Id(username, Integer.parseInt(courseId));
 			i = isSubscribedByUser(username, subscriptionModel);
-			if (i)
-				return ResponseEntity.ok().body(Map.of("inSub", i, "isAvailable",subscriptionModel.getIsAvailable() , "subAt", subscriptionModel != null ? subscriptionModel.getCreatedAt() : ""));
+			if (i) {
+				boolean isAvailable = false;
+				if (subscriptionModel != null) isAvailable = subscriptionModel.getIsAvailable();
+				return ResponseEntity.ok().body(Map.of("inSub", i, "isAvailable", isAvailable, "subAt", subscriptionModel != null ? subscriptionModel.getCreatedAt() : ""));
+			}
 			return ResponseEntity.ok().body(Map.of("inSub", i));
 		}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

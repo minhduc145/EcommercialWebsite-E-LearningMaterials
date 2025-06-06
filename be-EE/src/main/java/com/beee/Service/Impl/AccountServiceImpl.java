@@ -129,7 +129,7 @@ public class AccountServiceImpl implements AccountService {
 			String username = jwtService.extractUsername(userToken);
 			if (username.equals(userModel.getId()) || this.isAdminJwtOk(userToken)) {
 				UserModel user = userRepo.findUserModelById(userModel.getId());
-				if (userModel.getPhone() != null && !user.getPhone().equals(userModel.getPhone())) {
+				 if (user.getPhone()==null || !user.getPhone().equals(userModel.getPhone())) {
 					if (!accountRepo.existsByUser_Phone((userModel.getPhone())))
 						user.setPhone(userModel.getPhone());
 					else

@@ -16,8 +16,10 @@ import { CourseFileModel } from "@/models/CourseFileModel"
 import { link_r2_default } from "@/lib/public-var"
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer"
 import { askAI } from "@/app/api/api-ai"
+import { useUserInfo } from "@/lib/user-info"
 
 export default function CourseLayout() {
+    const {user} = useUserInfo()
     const params = useParams();
     const courseId = String(params.id);
 
@@ -36,7 +38,7 @@ export default function CourseLayout() {
 
     useEffect(() => {
         isSubscribedByUser(courseId).then(res => {
-            if (res.data?.inSub && res.data?.isAvailable == true) {
+            if (user?.account.role==="ADMIN" || (res.data?.inSub && res.data?.isAvailable == true)) {
                 setIsSubscribed(true);
                 getCourseDataWithUrl(courseId).then(res => {
                     setCourseContainers(res.data)

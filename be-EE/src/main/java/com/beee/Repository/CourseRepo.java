@@ -1,5 +1,6 @@
 package com.beee.Repository;
 
+import com.beee.DTO.CourseBasicResDTO;
 import com.beee.Model.CourseModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,6 +51,7 @@ public interface CourseRepo extends JpaRepository<CourseModel, Integer> {
 			SELECT c.id, c.title, c.price,c.thumbnail_url, c2."name" as category_name, c.is_featured as is_featured, COUNT(cr.course_id) AS comment_count, ROUND(AVG(cr.star_rate), 1) AS average_rating
 			FROM courses c LEFT JOIN course_reviews cr ON cr.course_id = c.id inner join categories c2 on c2.id = c.category_id\n
 			""";
+
 	String searchCourseWhereString = """
 			\nWHERE (unaccent(lower(c.title)) LIKE unaccent(lower(CONCAT('%', :title, '%'))))
 			AND (c.price BETWEEN :price1 and :price2)
@@ -83,8 +85,23 @@ public interface CourseRepo extends JpaRepository<CourseModel, Integer> {
 			Pageable pageable
 	);
 
+	@Query(value = searchCourseUserQuerySelectString +
+			"where c.is_available = true\n" +
+			"GROUP BY c.id, c2.id\n" +
+			"ORDER BY c.created_at desc limit 10;", nativeQuery = true)
+	List<Map> findTop10ByIsAvailableTrueOrderByCreatedAtDesc();
 
+	@Query(value = searchCourseUserQuerySelectString +
+			"where c.is_available = true and c2.id = :categoryId\n" +
+			"GROUP BY c.id, c2.id\n" +
+			"ORDER BY c.created_at desc", nativeQuery = true)
+	Page<Map> findAllByCategoryId(Integer categoryId, Pageable pageable);
 
+	@Query(value = searchCourseUserQuerySelectString +
+			"where c.is_available = true\n" +
+			"GROUP BY c.id, c2.id\n" +
+			"ORDER BY c.created_at desc", nativeQuery = true)
+	Page<Map> findAllAvailable(Pageable pageable);
 }
 
 

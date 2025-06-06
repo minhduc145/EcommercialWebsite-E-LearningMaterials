@@ -6,9 +6,10 @@ import com.beee.DTO.VnpayPaymentResponseDTO;
 import com.beee.Model.CourseModel;
 import com.beee.Model.SubscriptionModel;
 import com.beee.Model.UserModel;
-import com.beee.Repository.CourseRepo;
-import com.beee.Repository.SubscriptionRepo;
+import com.beee.Model.VnpayTransactionLogModel;
+import com.beee.Repository.*;
 import com.beee.Service.PaymentService;
+import com.beee.Service.QueueService;
 import com.beee.Service.RabbitMQProducer;
 import com.beee.Service.ResponseService;
 import com.beee.Service.Impl.JwtService;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Controller
@@ -41,6 +43,14 @@ public class PaymentController {
 	private CourseRepo courseRepo;
 	@Autowired
 	private SubscriptionRepo subscriptionRepo;
+	@Autowired
+	private QueueService queueService;
+	@Autowired
+	private AccountRepo accountRepo;
+	@Autowired
+	private UserRepo userRepo;
+	@Autowired
+	private PaymentRepo paymentRepo;
 
 	@ResponseBody
 	@GetMapping("/vnpay")
@@ -92,7 +102,11 @@ public class PaymentController {
 						long vnp_Amount = Long.parseLong(fields.get("vnp_Amount"));
 						boolean isSubSuccess = "00".equals(vnp_ResponseCode) && setSubscription(username, Integer.parseInt(orderInfo1.split("_")[1]), vnp_Amount);
 						if (isSubSuccess) {
+							CourseModel c = courseRepo.findCourseModelById(Integer.parseInt(orderInfo1.split("_")[1]));
+							UserModel u = userRepo.findUserModelById(username);
+							savePaymentLogs(fields,u.getId(),c.getId(),false);
 							rabbitMQProducer.sendToQ2(username, Constants.RESULT_SUCCESS.toString());
+							queueService.sendEmailQueue(Map.of("email", u.getEmail(), "title", "Xác nhận mua học liệu thành công ở hệ thông eEdu.", "message", "Thư này được gửi để xác nhận rằng bạn đã thanh toán thành công học liệu " + c.getTitle()));
 							return "redirect:" + Constants.URL_FE_PAYMENT_SUCCESS;
 						} else {
 							rabbitMQProducer.sendToQ2(username, Constants.RESULT_FAIL.toString());
@@ -115,10 +129,34 @@ public class PaymentController {
 			subscriptionModel.setUser(UserModel.builder().id(username).build());
 			subscriptionModel.setCourse(course);
 			subscriptionModel.setBoughtPrice(BigDecimal.valueOf(amount / 100));
+			subscriptionModel.setIsAvailable(true);
 			subscriptionRepo.save(subscriptionModel);
 			return true;
 		}
 		return false;
+	}
+
+	void savePaymentLogs(Map<String, String> fields, String userId, Integer courseId, boolean isReturnType) {
+		try {
+			System.out.println(fields);
+			String responseCode = fields.get("vnp_ResponseCode");
+			VnpayTransactionLogModel model = VnpayTransactionLogModel.builder()
+					.paymentId(fields.get("vnp_TransactionNo"))
+					.user(UserModel.builder().id(userId).build())
+					.course(CourseModel.builder().id(courseId).build())
+					.bankCode(fields.getOrDefault("vnp_BankCode", "..."))
+					.createdAt(LocalDateTime.now())
+					.amount(BigDecimal.valueOf(Long.parseLong(fields.get("vnp_Amount").toString())/100))
+					.description(fields.get("vnp_OrderInfo"))
+					.isSuccessful(responseCode.equals("00")?true:false)
+					.isReturnType(isReturnType)
+					.promoteAmount(BigDecimal.valueOf(Long.parseLong(fields.getOrDefault("vnp_PromotionAmount","0").toString())))
+					.responseCode(responseCode)
+					.build();
+			paymentRepo.save(model);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
