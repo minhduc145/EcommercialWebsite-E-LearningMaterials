@@ -77,7 +77,7 @@ public class SubscriptionAdminController {
 						map.put("message", msg);
 						map.put("title", title);
 						rabbitMQProducer.sendToQ1(map);
-						queueService.sendEmailQueue(map);
+//						queueService.sendEmailQueue(map);
 					} else {
 						String msg = "Yêu cầu hoàn tiền hủy đăng ký cho học liệu " + refundRequestModel.getSubscription().getCourse().getTitle() + " đã bị từ chối.";
 						String title = "Yêu cầu hoàn tiền bị từ chối.";
@@ -88,7 +88,7 @@ public class SubscriptionAdminController {
 						refundRequestModel.setStatus(Constants.REFUND_STATUS_DENIED);
 						refundRequestRepo.save(refundRequestModel);
 						rabbitMQProducer.sendToQ1(map);
-						queueService.sendEmailQueue(map);
+//						queueService.sendEmailQueue(map);
 					}
 				}
 			} catch (Exception e) {
