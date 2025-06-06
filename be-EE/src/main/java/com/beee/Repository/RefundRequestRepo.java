@@ -62,6 +62,10 @@ public interface RefundRequestRepo extends JpaRepository<RefundRequestModel,Inte
 			@Param("subscriptionUserId") String subscriptionUserId,
 			@Param("keyword") String keyword
 	);
+
+	RefundRequestModel getRefundRequestModelById(Integer id);
+
+	List<RefundRequestModel> findAllByStatus(String status);
 //
 ////	List<RefundRequestModel> findAllBySubscriptionUserIdAndSubscriptionCourseTitleContaining(String subscriptionUserId, String keyword);
 //

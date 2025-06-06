@@ -17,3 +17,16 @@ export async function submitReturnReq(subId:string,reason:string) {
 export async function getRefundsByUser(keyword?:string,sort?:string) {
     return await axios.post("/api/search/refundRequests",{keyword,sort})
 }
+
+
+export async function getRefundRequests(sort?:string) {
+    return await axios.get("/api/admin/subscriptions/returnRequest",{
+        params:{sort}
+    })
+}
+
+export async function submitHandleReturnReq(reqId:string,reason:string,action:string) {
+    return await axios.post("/api/admin/subscriptions/handleReturnRequest",{
+       reqId,reason,action
+    })
+}
